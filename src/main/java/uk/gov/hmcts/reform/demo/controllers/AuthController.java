@@ -39,7 +39,7 @@ public class AuthController {
         
         userRepository.save(user);
         
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
@@ -52,7 +52,7 @@ public class AuthController {
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }
