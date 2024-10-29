@@ -26,4 +26,3 @@ applicationinsights-agent-*.jar
 
 .env
 /src/main/resources/application.yaml
-./src/main/resources/application.yaml
