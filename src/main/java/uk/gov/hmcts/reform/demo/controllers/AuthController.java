@@ -2,64 +2,57 @@ package uk.gov.hmcts.reform.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.demo.dto.LoginRequest;
-import uk.gov.hmcts.reform.demo.dto.RegisterRequest;
+import uk.gov.hmcts.reform.demo.dto.AuthRequest;
+import uk.gov.hmcts.reform.demo.dto.AuthResponse;
 import uk.gov.hmcts.reform.demo.entity.User;
 import uk.gov.hmcts.reform.demo.repository.UserRepository;
+import uk.gov.hmcts.reform.demo.util.JwtUtil;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private JwtUtil jwtUtil;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // Check if username already exists
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Username is already taken");
-        }
-
-        // Check if email already exists
+    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email is already registered");
+            throw new RuntimeException("Email already exists");
         }
 
-        // Create new user
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
-
+        user.setUsername(request.getEmail().split("@")[0]);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCreatedAt(LocalDateTime.now());
+        
         userRepository.save(user);
-
-        return ResponseEntity.ok("User registered successfully");
+        
+        String token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
-
-        User user = userOptional.get();
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid password");
+            throw new RuntimeException("Invalid password");
         }
 
-        return ResponseEntity.ok("Login successful");
+        String token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }
