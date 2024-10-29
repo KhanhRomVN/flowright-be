@@ -24,10 +24,4 @@ bin/main/application.yaml
 applicationinsights-agent-*.jar
 *.log
 
-.fake
-
-/.env
-/src/main/resources/application.yaml
-
-src/main/resources/application.yaml
 .env
