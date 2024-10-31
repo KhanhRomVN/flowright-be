@@ -55,9 +55,17 @@ spring-boot-*.pid
 /auth-service/src/main/resources/application*.yml
 /auth-service/src/main/resources/application*.properties
 
+/workspace-service/src/main/resources/application*.yaml
+/workspace-service/src/main/resources/application*.yml
+/workspace-service/src/main/resources/application*.properties
+
 /user-service/src/main/resources/application*.yaml
 /user-service/src/main/resources/application*.yml
 /user-service/src/main/resources/application*.properties
+
+/member-service/src/main/resources/application*.yaml
+/member-service/src/main/resources/application*.yml
+/member-service/src/main/resources/application*.properties
 
 # Certificates and keys
 *.jks
