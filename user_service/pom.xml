@@ -26,10 +26,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-neo4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -56,6 +52,21 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
         </dependency>
     </dependencies>
 
@@ -124,10 +135,10 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>com/devteria/profile/dto/**</exclude>
-                        <exclude>com/devteria/profile/entity/**</exclude>
-                        <exclude>com/devteria/profile/mapper/**</exclude>
-                        <exclude>com/devteria/profile/configuration/**</exclude>
+                        <exclude>com/flowright/user_service/dto/**</exclude>
+                        <exclude>com/flowright/user_service/entity/**</exclude>
+                        <exclude>com/flowright/user_service/mapper/**</exclude>
+                        <exclude>com/flowright/user_service/configuration/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

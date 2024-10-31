@@ -6,3 +6,11 @@ CREATE TABLE `flowright`.`users` (
     `refresh_token` VARCHAR(255),
     PRIMARY KEY (`id`)
 );
+
+CREATE TABLE `flowright`.`workspaces` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `owner_id` BIGINT NOT NULL,
+    PRIMARY KEY (`id`)
+);
+

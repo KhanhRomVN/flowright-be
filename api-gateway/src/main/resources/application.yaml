@@ -6,18 +6,18 @@ spring:
     name: API-GATEWAY
   cloud:
     gateway:
-      routes:
-        # FAVOURITE-SERVICE
+      routes: 
+        # AUTH-SERVICE
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/api/auth/**
+            - Path=/auth/**
 
         # USER-SERVICE
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/user/**
+            - Path=/user/**
 
 logging:
   level:
