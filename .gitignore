@@ -50,22 +50,25 @@ replay_pid*
 # Spring Boot specific
 spring-boot-*.pid
 
-# Service specific configuration files
+# Auth service specific configuration files
 /auth-service/src/main/resources/application*.yaml
 /auth-service/src/main/resources/application*.yml
 /auth-service/src/main/resources/application*.properties
 
-/workspace-service/src/main/resources/application*.yaml
-/workspace-service/src/main/resources/application*.yml
-/workspace-service/src/main/resources/application*.properties
-
+# User service specific configuration files
 /user-service/src/main/resources/application*.yaml
 /user-service/src/main/resources/application*.yml
 /user-service/src/main/resources/application*.properties
 
+# Member service specific configuration files
 /member-service/src/main/resources/application*.yaml
 /member-service/src/main/resources/application*.yml
 /member-service/src/main/resources/application*.properties
+
+# Task service specific configuration files
+/task-service/src/main/resources/application*.yaml
+/task-service/src/main/resources/application*.yml
+/task-service/src/main/resources/application*.properties
 
 # Certificates and keys
 *.jks

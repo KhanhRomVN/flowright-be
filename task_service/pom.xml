@@ -9,10 +9,10 @@
         <relativePath/> 
     </parent>
     <groupId>com.flowright</groupId>
-    <artifactId>member-service</artifactId>
+    <artifactId>task-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>member-service</name>
-    <description>Member Service</description>
+    <name>task-service</name>
+    <description>Task Service</description>
     <properties>
         <java.version>21</java.version>
         <projectlombok-lombok.version>1.18.32</projectlombok-lombok.version>
@@ -136,10 +136,10 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>com/flowright/member_service/dto/**</exclude>
-                        <exclude>com/flowright/member_service/entity/**</exclude>
-                        <exclude>com/flowright/member_service/mapper/**</exclude>
-                        <exclude>com/flowright/member_service/configuration/**</exclude>
+                        <exclude>com/flowright/task_service/dto/**</exclude>
+                        <exclude>com/flowright/task_service/entity/**</exclude>
+                        <exclude>com/flowright/task_service/mapper/**</exclude>
+                        <exclude>com/flowright/task_service/configuration/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
