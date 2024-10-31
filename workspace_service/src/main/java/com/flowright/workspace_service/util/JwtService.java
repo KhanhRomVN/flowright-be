@@ -4,25 +4,27 @@ import java.security.Key;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-@Component
-public class JwtUtil {
+@Service
+public class JwtService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
 
-        return claims.get("user_id", Long.class);
+    public Long extractUserId(String token) {
+        return extractAllClaims(token).get("user_id", Long.class);
     }
 
     private Key getSignInKey() {

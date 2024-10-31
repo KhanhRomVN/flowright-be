@@ -5,32 +5,40 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.workspace_service.dto.WorkspaceDTO;
 import com.flowright.workspace_service.service.WorkspaceService;
-import com.flowright.workspace_service.util.JwtUtil;
+import com.flowright.workspace_service.util.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/workspaces")
+@RequestMapping("/workspaces")
 @RequiredArgsConstructor
 public class WorkspaceController {
     private final WorkspaceService workspaceService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     @PostMapping
     public ResponseEntity<WorkspaceDTO> createWorkspace(
-            @Valid @RequestBody WorkspaceDTO workspaceDTO, @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
+            @Valid @RequestBody WorkspaceDTO workspaceDTO, @RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
         workspaceDTO.setOwnerId(userId);
         return ResponseEntity.ok(workspaceService.createWorkspace(workspaceDTO));
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkspaceDTO>> getWorkspaces(@RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
+    public ResponseEntity<List<WorkspaceDTO>> getWorkspaces(@RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(workspaceService.getWorkspacesByOwnerId(userId));
     }
 
@@ -38,14 +46,14 @@ public class WorkspaceController {
     public ResponseEntity<WorkspaceDTO> updateWorkspace(
             @PathVariable Long id,
             @Valid @RequestBody WorkspaceDTO workspaceDTO,
-            @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
+            @RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(workspaceService.updateWorkspace(id, workspaceDTO, userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkspace(@PathVariable Long id, @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.getUserIdFromToken(token.substring(7));
+    public ResponseEntity<Void> deleteWorkspace(@PathVariable Long id, @RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
         workspaceService.deleteWorkspace(id, userId);
         return ResponseEntity.noContent().build();
     }
