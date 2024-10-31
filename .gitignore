@@ -1,18 +1,26 @@
 # IDE files
 /.idea
-# Compiled class file
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Compiled files
 *.class
+target/
+build/
+out/
+bin/
 
-# Log file
+# Logs
 *.log
+logs/
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Package files
 *.jar
 *.war
 *.nar
@@ -21,6 +29,49 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# Application properties/yaml files containing sensitive data
+**/src/main/resources/application*.yml
+**/src/main/resources/application*.yaml
+**/src/main/resources/application*.properties
+
+# Environment files
+.env
+.env.*
+
+# Maven specific
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.flattened-pom.xml
+
+# Spring Boot specific
+spring-boot-*.pid
+
+# Service specific configuration files
+/auth-service/src/main/resources/application*.yaml
+/auth-service/src/main/resources/application*.yml
+/auth-service/src/main/resources/application*.properties
+
+/workspace-service/src/main/resources/application*.yaml
+/workspace-service/src/main/resources/application*.yml
+/workspace-service/src/main/resources/application*.properties
+
+/user-service/src/main/resources/application*.yaml
+/user-service/src/main/resources/application*.yml
+/user-service/src/main/resources/application*.properties
+
+/member-service/src/main/resources/application*.yaml
+/member-service/src/main/resources/application*.yml
+/member-service/src/main/resources/application*.properties
+
+# Certificates and keys
+*.jks
+*.keystore
+*.p12
+*.pem
+*.crt
+*.key
+.fake
