@@ -1,24 +1,29 @@
 server:
-  port: 8888
-
-app:
-  api-prefix: /api/v1
+  port: 8000
 
 spring:
   application:
-    name: api-gateway
+    name: API-GATEWAY
   cloud:
     gateway:
       routes:
-        - id: auth_service
-          uri: http://localhost:8080
+        # FAVOURITE-SERVICE
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
-          - Path=${app.api-prefix}/auth/**
-          filters:
-          - StripPrefix=2
-        - id: user_service
-          uri: http://localhost:8081
+            - Path=/api/auth/**
+
+        # USER-SERVICE
+        - id: user-service
+          uri: lb://USER-SERVICE
           predicates:
-          - Path=${app.api-prefix}/users/**
-          filters:
-          - StripPrefix=2
+            - Path=/api/user/**
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org.springframework.cloud.gateway: TRACE
+
+
+  
