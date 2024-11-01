@@ -5,26 +5,56 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.flowright.workspace_service.client.MemberServiceClient;
+import com.flowright.workspace_service.client.dto.CreateRoleRequest;
+import com.flowright.workspace_service.client.dto.RoleResponse;
+import com.flowright.workspace_service.client.dto.CreateMemberRequest;
 import com.flowright.workspace_service.dto.WorkspaceDTO;
 import com.flowright.workspace_service.entity.Workspace;
 import com.flowright.workspace_service.exception.ResourceNotFoundException;
 import com.flowright.workspace_service.exception.UnauthorizedException;
 import com.flowright.workspace_service.repository.WorkspaceRepository;
 
+
+import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
+    private final MemberServiceClient memberServiceClient;
 
-    public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO) {
+    
+    
+    @Transactional
+    public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO, String token) {
+        // Save workspace
         Workspace workspace = Workspace.builder()
                 .name(workspaceDTO.getName())
                 .ownerId(workspaceDTO.getOwnerId())
                 .build();
-
         workspace = workspaceRepository.save(workspace);
+        
+        // Create admin role
+        CreateRoleRequest roleRequest = CreateRoleRequest.builder()
+                .name("Admin")
+                .description("Workspace Administrator")
+                .workspaceId(workspace.getId())
+                .isDefault(false)
+                .build();
+        
+        memberServiceClient.createRole(roleRequest, token);
+        
+        // Create first member as admin
+        // CreateMemberRequest memberRequest = CreateMemberRequest.builder()
+        //         .workspaceId(workspace.getId())
+        //         .build();
+        
+        // memberServiceClient.createFirstMember(memberRequest, token);
+        
         return convertToDTO(workspace);
     }
 

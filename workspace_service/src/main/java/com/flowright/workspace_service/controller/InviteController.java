@@ -11,7 +11,7 @@ import com.flowright.workspace_service.service.InviteService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspaces/{workspaceId}/invites")
+@RequestMapping("/workspace-service/workspaces/{workspaceId}/invites")
 @RequiredArgsConstructor
 public class InviteController {
     private final InviteService inviteService;

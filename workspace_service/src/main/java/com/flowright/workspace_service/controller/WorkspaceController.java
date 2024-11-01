@@ -22,19 +22,19 @@ import com.flowright.workspace_service.util.JwtService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspaces")
+@RequestMapping("/workspace-service/workspaces")
 @RequiredArgsConstructor
 public class WorkspaceController {
     private final WorkspaceService workspaceService;
     private final JwtService jwtService;
 
-    // create workspace
+    // create workspace: /workspace-service/workspaces
     @PostMapping
     public ResponseEntity<WorkspaceDTO> createWorkspace(
             @Valid @RequestBody WorkspaceDTO workspaceDTO, @RequestHeader("access_token") String token) {
         Long userId = jwtService.extractUserId(token);
         workspaceDTO.setOwnerId(userId);
-        return ResponseEntity.ok(workspaceService.createWorkspace(workspaceDTO));
+        return ResponseEntity.ok(workspaceService.createWorkspace(workspaceDTO, token));
     }
 
     // get workspaces
