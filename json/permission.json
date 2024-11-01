@@ -1,0 +1,40 @@
+{
+    "permissions": [
+        {
+            "name": "workspace_management",
+            "description": "You can manage workspace like create, update, delete"
+        },
+        {
+            "name": "role_management",
+            "description": "You can manage role like create, update, delete"
+        },
+        {
+            "name": "member_management",
+            "description": "You can manage member like invite, update, delete"
+        },
+        {
+            "name": "team_management",
+            "description": "You can manage team like create, update, delete"
+        },
+        {
+            "name": "project_management",
+            "description": "You can manage project like create, update, delete"
+        },
+        {
+            "name": "task_management",
+            "description": "You can manage task like create, update, delete"
+        },
+        {
+            "name": "team_member_management",
+            "description": "You can manage team member like invite, update, delete"
+        },
+        {
+            "name": "team_task_management",
+            "description": "You can manage team task like create, update, delete"
+        },
+        {
+            "name": "team_project_management",
+            "description": "You can manage team project like create, update, delete"
+        }
+    ]
+}

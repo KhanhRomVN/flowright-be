@@ -8,3 +8,14 @@ mvn spring-boot:run
 [7]. cd workspace-service
 [8]. mvn clean install
 [9]. cd ..
+
+
+-=-=-=-=--=-=
+api_gateway: localhost:8080
+auth_service: localhost:8081
+member_service: localhost:8082
+project_service: localhost:8083
+task_service: localhost:8084
+team_service: localhost:8085
+user_service: localhost:8086
+workspace_service: localhost:8087
