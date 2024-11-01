@@ -75,4 +75,11 @@ public class RoleService {
                 .isDefault(role.getIsDefault())
                 .build();
     }
+
+    public RoleResponse getAdminRoleByWorkspaceId(Long workspaceId) {
+        Role role = roleRepository
+                .findByWorkspaceIdAndNameAndIsDefault(workspaceId, "Admin", false)
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
+        return toRoleResponse(role);
+    }
 }

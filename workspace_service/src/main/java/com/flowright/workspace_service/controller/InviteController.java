@@ -7,33 +7,31 @@ import org.springframework.web.bind.annotation.*;
 
 import com.flowright.workspace_service.dto.InviteDTO;
 import com.flowright.workspace_service.service.InviteService;
+import com.flowright.workspace_service.util.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspaces/{workspaceId}/invites")
+@RequestMapping("/workspace-service/invites")
 @RequiredArgsConstructor
 public class InviteController {
     private final InviteService inviteService;
-    // private final JwtService jwtService;
+    private final JwtService jwtService;
 
+    // create invite: /workspace-service/invites
     @PostMapping
     public ResponseEntity<InviteDTO> createInvite(
-            @PathVariable Long workspaceId,
             @Valid @RequestBody InviteDTO inviteDTO,
             @RequestHeader("access_token") String token) {
-        inviteDTO.setWorkspaceId(workspaceId);
+        jwtService.extractUserId(token);
         return ResponseEntity.ok(inviteService.createInvite(inviteDTO));
     }
 
+    // verify invite: /workspace-service/invites/verify
     @PostMapping("/verify")
     public ResponseEntity<InviteDTO> verifyInvite(@RequestParam String email, @RequestParam String otp) {
         return ResponseEntity.ok(inviteService.verifyInvite(email, otp));
     }
 
-    // @GetMapping
-    // public ResponseEntity<List<InviteDTO>> getWorkspaceInvites(
-    //         @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
-    //     return ResponseEntity.ok(inviteService.getInvitesByWorkspaceId(workspaceId));
-    // }
+    // get workspace invites: /workspace-service/invites
 }

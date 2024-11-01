@@ -42,7 +42,6 @@ public class MemberService {
     }
 
     public MemberResponse createFirstMember(Long workspaceId, Long userId) {
-        // Check if any member exists in the workspace
         if (!memberRepository.findByWorkspaceId(workspaceId).isEmpty()) {
             throw new RuntimeException("Workspace already has members");
         }
@@ -50,7 +49,7 @@ public class MemberService {
         Member member = Member.builder()
                 .userId(userId)
                 .workspaceId(workspaceId)
-                .role(null) // First member might need special handling for role
+                .role(null)
                 .build();
 
         Member savedMember = memberRepository.save(member);

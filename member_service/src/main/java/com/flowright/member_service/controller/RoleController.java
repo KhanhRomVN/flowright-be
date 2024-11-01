@@ -22,6 +22,7 @@ public class RoleController {
     private final RoleService roleService;
     private final JwtService jwtService;
 
+    // create role: /member-service/roles
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(
             @Valid @RequestBody CreateRoleRequest request, @RequestHeader("access_token") String token) {
@@ -29,6 +30,7 @@ public class RoleController {
         return ResponseEntity.ok(roleService.createRole(request));
     }
 
+    // update role: /member-service/roles/{id}
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(
             @PathVariable Long id,
@@ -38,6 +40,7 @@ public class RoleController {
         return ResponseEntity.ok(roleService.updateRole(id, request));
     }
 
+    // delete role: /member-service/roles/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id, @RequestHeader("access_token") String token) {
         Long userId = jwtService.extractUserId(token);
@@ -45,6 +48,7 @@ public class RoleController {
         return ResponseEntity.noContent().build();
     }
 
+    // get role by id: /member-service/roles/{id}
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(
             @PathVariable Long id, @RequestHeader("access_token") String token) {
@@ -52,10 +56,19 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
+    // get all roles: /member-service/roles
     @GetMapping
     public ResponseEntity<Page<RoleResponse>> getAllRoles(
             Pageable pageable, @RequestHeader("access_token") String token) {
         Long userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(roleService.getAllRoles(pageable));
+    }
+
+    // get admin role by workspace id: /member-service/roles/admin/{workspaceId}
+    @GetMapping("/admin/{workspaceId}")
+    public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
+            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
+        return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
     }
 }

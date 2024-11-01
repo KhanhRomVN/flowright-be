@@ -29,7 +29,7 @@ public class Member {
     private Long userId;
 
     @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id", nullable = true)
     private Role role;
 
     @Column(name = "workspace_id", nullable = false)
