@@ -63,4 +63,12 @@ public class RoleController {
         Long userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(roleService.getAllRoles(pageable));
     }
+
+    // get admin role by workspace id: /member-service/roles/admin/{workspaceId}
+    @GetMapping("/admin/{workspaceId}")
+    public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
+            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
+        Long userId = jwtService.extractUserId(token);
+        return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
+    }
 }

@@ -13,4 +13,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findByWorkspaceId(Long workspaceId);
 
     Optional<Role> findByWorkspaceIdAndIsDefaultTrue(Long workspaceId);
+
+    Optional<Role> findByWorkspaceIdAndNameAndIsDefault(Long workspaceId, String name, boolean isDefault);
 }

@@ -59,10 +59,11 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
     }
 
-    @PostMapping("/first")
+    // create first member: /member-service/members/first/{workspaceId}
+    @PostMapping("/first/{workspaceId}")
     public ResponseEntity<MemberResponse> createFirstMember(
-            @Valid @RequestBody CreateMemberRequest request, @RequestHeader("access_token") String token) {
+            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
         Long userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok(memberService.createFirstMember(request.getWorkspaceId(), userId));
+        return ResponseEntity.ok(memberService.createFirstMember(workspaceId, userId));
     }
 }
