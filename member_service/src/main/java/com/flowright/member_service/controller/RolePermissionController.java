@@ -15,7 +15,7 @@ import com.flowright.member_service.service.RolePermissionService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/role-permissions")
+@RequestMapping("/member-service/role-permissions")
 @RequiredArgsConstructor
 public class RolePermissionController {
     private final RolePermissionService rolePermissionService;

@@ -9,53 +9,46 @@ import org.springframework.web.bind.annotation.*;
 
 import com.flowright.member_service.dto.CreatePermissionRequest;
 import com.flowright.member_service.dto.PermissionResponse;
-import com.flowright.member_service.dto.UpdatePermissionRequest;
-import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.PermissionService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/permissions")
+@RequestMapping("/member-service/permissions")
 @RequiredArgsConstructor
 public class PermissionController {
     private final PermissionService permissionService;
-    private final JwtService jwtService;
 
+    // Create a new permission: POST /permissions
     @PostMapping
-    public ResponseEntity<PermissionResponse> createPermission(
-            @Valid @RequestBody CreatePermissionRequest request, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+    public ResponseEntity<PermissionResponse> createPermission(@Valid @RequestBody CreatePermissionRequest request) {
+        System.out.println("Creating permission: " + request);
         return ResponseEntity.ok(permissionService.createPermission(request));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PermissionResponse> updatePermission(
-            @PathVariable Long id,
-            @RequestBody UpdatePermissionRequest request,
-            @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok(permissionService.updatePermission(id, request));
-    }
+    // Update a permission
+    // @PutMapping("/{id}")
+    // public ResponseEntity<PermissionResponse> updatePermission(
+    //         @PathVariable Long id, @RequestBody UpdatePermissionRequest request) {
+    //     return ResponseEntity.ok(permissionService.updatePermission(id, request));
+    // }
 
+    // Delete a permission
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePermission(@PathVariable Long id, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+    public ResponseEntity<Void> deletePermission(@PathVariable Long id) {
         permissionService.deletePermission(id);
         return ResponseEntity.noContent().build();
     }
 
+    // Get a permission by ID
     @GetMapping("/{id}")
-    public ResponseEntity<PermissionResponse> getPermissionById(
-            @PathVariable Long id, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+    public ResponseEntity<PermissionResponse> getPermissionById(@PathVariable Long id) {
         return ResponseEntity.ok(permissionService.getPermissionById(id));
     }
 
+    // Get all permissions
     @GetMapping
-    public ResponseEntity<Page<PermissionResponse>> getAllPermissions(
-            Pageable pageable, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+    public ResponseEntity<Page<PermissionResponse>> getAllPermissions(Pageable pageable) {
         return ResponseEntity.ok(permissionService.getAllPermissions(pageable));
     }
 }

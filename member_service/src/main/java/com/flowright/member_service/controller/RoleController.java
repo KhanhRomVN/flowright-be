@@ -16,7 +16,7 @@ import com.flowright.member_service.service.RoleService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("/member-service/roles")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;

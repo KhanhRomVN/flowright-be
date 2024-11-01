@@ -16,7 +16,7 @@ import com.flowright.member_service.service.MemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/member-service/members")
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
