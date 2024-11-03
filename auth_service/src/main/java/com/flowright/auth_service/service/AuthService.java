@@ -33,14 +33,14 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
-        String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        user.setRefreshToken(refreshToken);
+        String access_token = jwtService.generateToken(user);
+        String refresh_token = jwtService.generateRefreshToken(user);
+        user.setRefresh_token(refresh_token);
         userRepository.save(user);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .access_token(access_token)
+                .refresh_token(refresh_token)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
@@ -55,14 +55,14 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        user.setRefreshToken(refreshToken);
+        String access_token = jwtService.generateToken(user);
+        String refresh_token = jwtService.generateRefreshToken(user);
+        user.setRefresh_token(refresh_token);
         userRepository.save(user);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .access_token(access_token)
+                .refresh_token(refresh_token)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
