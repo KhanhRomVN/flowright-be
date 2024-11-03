@@ -28,6 +28,12 @@ public class Member {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "username", nullable = false)
+    private String username;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = true)
     private Role role;
