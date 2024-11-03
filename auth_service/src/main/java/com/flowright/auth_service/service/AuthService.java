@@ -1,5 +1,6 @@
 package com.flowright.auth_service.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +8,7 @@ import com.flowright.auth_service.dto.AuthResponse;
 import com.flowright.auth_service.dto.LoginRequest;
 import com.flowright.auth_service.dto.RegisterRequest;
 import com.flowright.auth_service.entity.User;
+import com.flowright.auth_service.exception.AuthException;
 import com.flowright.auth_service.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,10 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new AuthException("Username already exists", HttpStatus.CONFLICT);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new AuthException("Email already exists", HttpStatus.CONFLICT);
         }
 
         User user = User.builder()
@@ -33,14 +35,14 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
-        String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        user.setRefreshToken(refreshToken);
+        String access_token = jwtService.generateToken(user);
+        String refresh_token = jwtService.generateRefreshToken(user);
+        user.setRefresh_token(refresh_token);
         userRepository.save(user);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .access_token(access_token)
+                .refresh_token(refresh_token)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
@@ -49,20 +51,20 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         User user = userRepository
                 .findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AuthException("User not found", HttpStatus.NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new AuthException("Invalid password", HttpStatus.UNAUTHORIZED);
         }
 
-        String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        user.setRefreshToken(refreshToken);
+        String access_token = jwtService.generateToken(user);
+        String refresh_token = jwtService.generateRefreshToken(user);
+        user.setRefresh_token(refresh_token);
         userRepository.save(user);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .access_token(access_token)
+                .refresh_token(refresh_token)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();

@@ -33,5 +33,5 @@ public class User {
     private String password;
 
     @Column(name = "refresh_token")
-    private String refreshToken;
+    private String refresh_token;
 }
