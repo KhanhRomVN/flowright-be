@@ -34,6 +34,18 @@ public class JwtService {
         return extractAllClaims(token).get("user_id", Long.class);
     }
 
+    public Long extractMemberId(String token) {
+        return extractAllClaims(token).get("member_id", Long.class);
+    }
+
+    public Long extractWorkspaceId(String token) {
+        return extractAllClaims(token).get("workspace_id", Long.class);
+    }
+
+    public Long extractRoleId(String token) {
+        return extractAllClaims(token).get("role_id", Long.class);
+    }
+
     private Key getSignInKey() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
