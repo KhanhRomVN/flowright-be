@@ -82,4 +82,8 @@ public class RoleService {
                 .orElseThrow(() -> new RuntimeException("Admin role not found"));
         return toRoleResponse(role);
     }
+
+    public Page<RoleResponse> getAllRolesByWorkspaceId(Long workspaceId) {
+        return roleRepository.findByWorkspaceId(workspaceId, Pageable.unpaged()).map(this::toRoleResponse);
+    }
 }

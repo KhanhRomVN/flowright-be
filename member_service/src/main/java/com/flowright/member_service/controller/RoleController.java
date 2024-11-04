@@ -3,9 +3,16 @@ package com.flowright.member_service.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.member_service.dto.CreateRoleRequest;
 import com.flowright.member_service.dto.RoleResponse;
@@ -56,19 +63,19 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
-    // get all roles: /member-service/roles
-    @GetMapping
-    public ResponseEntity<Page<RoleResponse>> getAllRoles(
-            Pageable pageable, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok(roleService.getAllRoles(pageable));
-    }
-
     // get admin role by workspace id: /member-service/roles/admin/{workspaceId}
     @GetMapping("/admin/{workspaceId}")
     public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
             @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
         Long userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
+    }
+
+    // get all roles: /member-service/workspace/roles
+    @GetMapping("/workspace/roles")
+    public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
+        Long workspaceId = jwtService.extractWorkspaceId(token);
+        System.out.println(workspaceId);
+        return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
     }
 }

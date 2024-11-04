@@ -52,37 +52,30 @@ spring-boot-*.pid
 
 # Auth service specific configuration files
 /auth-service/src/main/resources/application*.yaml
-/auth-service/src/main/resources/application*.yml
 /auth-service/src/main/resources/application*.properties
 
 # User service specific configuration files
 /user-service/src/main/resources/application*.yaml
-/user-service/src/main/resources/application*.yml
 /user-service/src/main/resources/application*.properties
 
 # Workspace service specific configuration files
 /workspace-service/src/main/resources/application*.yaml
-/workspace-service/src/main/resources/application*.yml
 /workspace-service/src/main/resources/application*.properties
 
 # Member service specific configuration files
 /member-service/src/main/resources/application*.yaml
-/member-service/src/main/resources/application*.yml
 /member-service/src/main/resources/application*.properties
 
 # Team service specific configuration files
 /team-service/src/main/resources/application*.yaml
-/team-service/src/main/resources/application*.yml
 /team-service/src/main/resources/application*.properties
 
 # Project service specific configuration files
 /project-service/src/main/resources/application*.yaml
-/project-service/src/main/resources/application*.yml
 /project-service/src/main/resources/application*.properties 
 
 # Task service specific configuration files
 /task-service/src/main/resources/application*.yaml
-/task-service/src/main/resources/application*.yml
 /task-service/src/main/resources/application*.properties
 
 # Certificates and keys

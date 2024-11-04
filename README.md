@@ -41,24 +41,12 @@ FloWright is a comprehensive project management system built using microservices
 - 📨 Email Notifications
 - 🔍 Advanced Search Capabilities
 
-## 🏗 System Architecture
-mermaid
-graph TD
-A[API Gateway] --> B[Auth Service]
-A --> C[User Service]
-A --> D[Member Service]
-A --> E[Workspace Service]
-A --> F[Project Service]
-A --> G[Task Service]
-A --> H[Team Service]
-
-
 ## 💻 Tech Stack
 
 - **Framework:** Spring Boot 3.2.5
 - **Language:** Java 21
 - **Security:** JWT, Spring Security
-- **Database:** PostgreSQL
+- **Database:** MySQL
 - **Documentation:** SpringDoc OpenAPI
 - **Build Tool:** Maven
 - **Cloud:** Spring Cloud
@@ -82,7 +70,7 @@ A --> H[Team Service]
 ### Prerequisites
 - Java 21
 - Maven
-- PostgreSQL
+- MySQL Cloud Aiven
 - Docker (optional)
 
 ### Installation

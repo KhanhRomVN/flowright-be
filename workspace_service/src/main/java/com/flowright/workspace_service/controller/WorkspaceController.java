@@ -2,8 +2,6 @@ package com.flowright.workspace_service.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +17,7 @@ import com.flowright.workspace_service.dto.WorkspaceDTO;
 import com.flowright.workspace_service.service.WorkspaceService;
 import com.flowright.workspace_service.util.JwtService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
