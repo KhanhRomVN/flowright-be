@@ -48,13 +48,13 @@ public class MemberController {
             @PathVariable Long id,
             @RequestBody UpdateMemberRequest request,
             @RequestHeader("access_token") String token) {
-        jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(memberService.updateMember(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id, @RequestHeader("access_token") String token) {
-        jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }
@@ -62,14 +62,14 @@ public class MemberController {
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getMemberById(
             @PathVariable Long id, @RequestHeader("access_token") String token) {
-        jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(memberService.getMemberById(id));
     }
 
     @GetMapping("/workspace/{workspaceId}")
     public ResponseEntity<List<MemberResponse>> getWorkspaceMembers(
             @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
     }
 

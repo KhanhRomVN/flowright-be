@@ -30,6 +30,10 @@ public class JwtService {
                 .getBody();
     }
 
+    public void validateToken(String token) {
+        Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
+    }
+
     public Long extractUserId(String token) {
         return extractAllClaims(token).get("user_id", Long.class);
     }

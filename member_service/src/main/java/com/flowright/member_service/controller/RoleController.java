@@ -33,7 +33,7 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(
             @Valid @RequestBody CreateRoleRequest request, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.createRole(request));
     }
 
@@ -43,14 +43,14 @@ public class RoleController {
             @PathVariable Long id,
             @RequestBody UpdateRoleRequest request,
             @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.updateRole(id, request));
     }
 
     // delete role: /member-service/roles/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
     }
@@ -59,7 +59,7 @@ public class RoleController {
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(
             @PathVariable Long id, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
@@ -67,7 +67,7 @@ public class RoleController {
     @GetMapping("/admin/{workspaceId}")
     public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
             @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
     }
 

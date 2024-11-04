@@ -4,7 +4,7 @@ CREATE TABLE `flowright`.`users` (
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `username` VARCHAR(50) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
-    `refresh_token` VARCHAR(255),
+    `refresh_token` VARCHAR(255),   
 );
 
 -- user_service-example
