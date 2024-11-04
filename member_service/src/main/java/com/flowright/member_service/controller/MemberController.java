@@ -2,8 +2,6 @@ package com.flowright.member_service.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,16 +14,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flowright.member_service.dto.CreateMemberRequest;
-import com.flowright.member_service.dto.MemberResponse;
+import com.flowright.member_service.dto.MemberDTO.CreateMemberRequest;
+import com.flowright.member_service.dto.MemberDTO.MemberResponse;
+import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
 import com.flowright.member_service.dto.TokenResponse;
-import com.flowright.member_service.dto.UpdateMemberRequest;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.exception.MemberException;
 import com.flowright.member_service.repository.MemberRepository;
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.MemberService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController

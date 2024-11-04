@@ -1,6 +1,4 @@
-package com.flowright.member_service.dto;
-
-import jakarta.validation.constraints.NotBlank;
+package com.flowright.member_service.dto.RoleDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePermissionRequest {
-    @NotBlank(message = "Permission name is required")
+public class UpdateRoleRequest {
     private String name;
-
     private String description;
+    private Boolean isDefault;
 }

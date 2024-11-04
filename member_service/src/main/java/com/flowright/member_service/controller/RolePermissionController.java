@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flowright.member_service.dto.AssignPermissionRequest;
-import com.flowright.member_service.dto.PermissionResponse;
+// DTO
+import com.flowright.member_service.dto.PermissionDTO.AssignPermissionRequest;
+import com.flowright.member_service.dto.PermissionDTO.PermissionResponse;
+
+// Service
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.RolePermissionService;
 

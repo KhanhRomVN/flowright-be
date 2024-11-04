@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto;
+package com.flowright.member_service.dto.MemberDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionResponse {
-    private Long id;
-    private String name;
-    private String description;
+public class UpdateMemberRequest {
+    private Long roleId;
 }

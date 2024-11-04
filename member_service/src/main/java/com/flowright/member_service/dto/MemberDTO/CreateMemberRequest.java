@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto;
+package com.flowright.member_service.dto.MemberDTO;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssignPermissionRequest {
-    @NotNull(message = "Permission ID is required")
-    private Long permissionId;
+public class CreateMemberRequest {
+    @NotNull(message = "Workspace ID is required")
+    private Long workspaceId;
 }
