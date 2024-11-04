@@ -4,9 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.flowright.member_service.dto.CreatePermissionRequest;
-import com.flowright.member_service.dto.PermissionResponse;
-import com.flowright.member_service.dto.UpdatePermissionRequest;
+import com.flowright.member_service.dto.PermissionDTO.CreatePermissionRequest;
+import com.flowright.member_service.dto.PermissionDTO.PermissionResponse;
 import com.flowright.member_service.entity.Permission;
 import com.flowright.member_service.repository.PermissionRepository;
 
@@ -31,20 +30,20 @@ public class PermissionService {
         return toPermissionResponse(savedPermission);
     }
 
-    public PermissionResponse updatePermission(Long id, UpdatePermissionRequest request) {
-        Permission permission =
-                permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
+    // public PermissionResponse updatePermission(Long id, UpdatePermissionRequest request) {
+    //     Permission permission =
+    //             permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
 
-        if (request.getName() != null) {
-            permission.setName(request.getName());
-        }
-        if (request.getDescription() != null) {
-            permission.setDescription(request.getDescription());
-        }
+    //     if (request.getName() != null) {
+    //         permission.setName(request.getName());
+    //     }
+    //     if (request.getDescription() != null) {
+    //         permission.setDescription(request.getDescription());
+    //     }
 
-        Permission updatedPermission = permissionRepository.save(permission);
-        return toPermissionResponse(updatedPermission);
-    }
+    //     Permission updatedPermission = permissionRepository.save(permission);
+    //     return toPermissionResponse(updatedPermission);
+    // }
 
     public void deletePermission(Long id) {
         if (!permissionRepository.existsById(id)) {

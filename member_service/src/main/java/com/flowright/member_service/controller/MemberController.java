@@ -2,6 +2,8 @@ package com.flowright.member_service.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +26,6 @@ import com.flowright.member_service.repository.MemberRepository;
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.MemberService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -85,29 +86,21 @@ public class MemberController {
     @GetMapping("/new-access-token/{workspace_id}")
     public ResponseEntity<TokenResponse> getNewAccessToken(
             @RequestHeader("access_token") String accessToken, @PathVariable("workspace_id") Long workspaceId) {
-        try {
-            Long userId = jwtService.extractUserId(accessToken);
-            Member member = memberRepository
-                    .findByUserIdAndWorkspaceId(userId, workspaceId)
-                    .orElseThrow(() -> new MemberException("Member not found", HttpStatus.NOT_FOUND));
+        Long userId = jwtService.extractUserId(accessToken);
+        Member member = memberRepository
+                .findByUserIdAndWorkspaceId(userId, workspaceId)
+                .orElseThrow(() -> new MemberException("Member not found", HttpStatus.NOT_FOUND));
 
-            if (member.getUsername() == null || member.getEmail() == null) {
-                throw new MemberException("Member data is incomplete", HttpStatus.BAD_REQUEST);
-            }
-
-            Long roleId = member.getRole() != null ? member.getRole().getId() : null;
-            String newAccessToken = jwtService.generateAccessToken(userId, member.getId(), workspaceId, roleId);
-
-            TokenResponse response =
-                    TokenResponse.builder().access_token(newAccessToken).build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            if (e instanceof MemberException) {
-                throw e;
-            }
-            throw new MemberException(
-                    "Error generating access token: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        if (member.getUsername() == null || member.getEmail() == null) {
+            throw new MemberException("Member data is incomplete", HttpStatus.BAD_REQUEST);
         }
+
+        Long roleId = member.getRole() != null ? member.getRole().getId() : null;
+        String newAccessToken = jwtService.generateAccessToken(userId, member.getId(), workspaceId, roleId);
+
+        TokenResponse response =
+                TokenResponse.builder().access_token(newAccessToken).build();
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -30,7 +30,4 @@ public class Role {
 
     @Column(name = "workspace_id", nullable = false)
     private Long workspaceId;
-
-    @Column(name = "is_default")
-    private Boolean isDefault = false;
 }

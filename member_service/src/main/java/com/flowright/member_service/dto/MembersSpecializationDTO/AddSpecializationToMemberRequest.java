@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddSpecializationToMemberRequest {
-    private Long memberId;
     private Long specializationId;
+    private String level;
+    private int yearsOfExperience;
 }

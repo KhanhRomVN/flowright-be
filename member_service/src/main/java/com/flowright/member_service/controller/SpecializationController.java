@@ -10,11 +10,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// DTO
 import com.flowright.member_service.dto.SpecializationDTO.CreateSpecializationRequest;
 import com.flowright.member_service.dto.SpecializationDTO.SpecializationResponse;
-
-// Service
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.SpecializationService;
 

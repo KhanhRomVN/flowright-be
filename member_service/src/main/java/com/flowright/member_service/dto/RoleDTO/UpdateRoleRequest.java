@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class UpdateRoleRequest {
     private String name;
     private String description;
-    private Boolean isDefault;
 }

@@ -80,7 +80,7 @@ CREATE TABLE `flowright`.`members` (
     `role_id` INT NOT NULL,
     `workspace_id` INT NOT NULL,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`),
+    FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`),   
     FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`)
 );
 

@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// DTO
 import com.flowright.member_service.dto.MembersSpecializationDTO.AddSpecializationToMemberRequest;
-
-// Service
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.MemberSpecializationService;
 
@@ -23,11 +20,13 @@ public class MembersSpecializationController {
     private final MemberSpecializationService memberSpecializationService;
     private final JwtService jwtService;
 
+    // Add specialization to member: /member-service/members-specializations
     @PostMapping
     public ResponseEntity<Void> addSpecializationToMember(
             @RequestHeader("access_token") String accessToken, @RequestBody AddSpecializationToMemberRequest request) {
-        jwtService.validateToken(accessToken);
-        memberSpecializationService.addSpecializationToMember(request.getMemberId(), request.getSpecializationId());
+        Long memberId = jwtService.extractMemberId(accessToken);
+        memberSpecializationService.addSpecializationToMember(
+                memberId, request.getSpecializationId(), request.getLevel(), request.getYearsOfExperience());
         return ResponseEntity.ok().build();
     }
 

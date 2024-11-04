@@ -20,6 +20,4 @@ public class CreateRoleRequest {
 
     @NotNull(message = "Workspace ID is required")
     private Long workspaceId;
-
-    private Boolean isDefault = false;
 }

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.flowright.member_service.dto.PermissionResponse;
+import com.flowright.member_service.dto.PermissionDTO.PermissionResponse;
 import com.flowright.member_service.entity.Permission;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.entity.RolePermission;

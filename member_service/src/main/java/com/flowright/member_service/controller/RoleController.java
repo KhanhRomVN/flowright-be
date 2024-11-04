@@ -14,12 +14,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// DTO
 import com.flowright.member_service.dto.RoleDTO.CreateRoleRequest;
 import com.flowright.member_service.dto.RoleDTO.RoleResponse;
 import com.flowright.member_service.dto.RoleDTO.UpdateRoleRequest;
-
-// Service
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.RoleService;
 

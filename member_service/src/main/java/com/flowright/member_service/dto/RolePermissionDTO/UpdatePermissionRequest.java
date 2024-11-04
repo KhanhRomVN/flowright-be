@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto.PermissionDTO;
+package com.flowright.member_service.dto.RolePermissionDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

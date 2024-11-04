@@ -14,5 +14,4 @@ public class RoleResponse {
     private String name;
     private String description;
     private Long workspaceId;
-    private Boolean isDefault;
 }

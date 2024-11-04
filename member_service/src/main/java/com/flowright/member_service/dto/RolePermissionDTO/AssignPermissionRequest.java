@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto.PermissionDTO;
+package com.flowright.member_service.dto.RolePermissionDTO;
 
 import jakarta.validation.constraints.NotNull;
 
