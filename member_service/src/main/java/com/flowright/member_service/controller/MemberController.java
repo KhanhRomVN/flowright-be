@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,5 +87,14 @@ public class MemberController {
                 TokenResponse.builder().access_token(newAccessToken).build();
 
         return ResponseEntity.ok(response);
+    }
+
+    // update role_id member: /member-service/members/role/{role_id}
+    @PutMapping("/role/{role_id}")
+    public ResponseEntity<MemberResponse> updateMemberRole(
+            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+        Long workspaceId = jwtService.extractWorkspaceId(token);
+        Long memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(memberService.updateMemberRole(memberId, role_id, workspaceId));
     }
 }

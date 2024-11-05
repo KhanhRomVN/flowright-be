@@ -137,4 +137,12 @@ public class MemberService {
                 .username(member.getUsername())
                 .build();
     }
+
+    public MemberResponse updateMemberRole(Long memberId, Long roleId, Long workspaceId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+        member.setRole(role);
+        Member updatedMember = memberRepository.save(member);
+        return toMemberResponse(updatedMember);
+    }
 }
