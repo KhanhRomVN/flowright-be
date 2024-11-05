@@ -43,12 +43,20 @@ public class MemberController {
         return ResponseEntity.ok(memberService.createMember(request.getWorkspaceId(), userId));
     }
 
-    // get member by id: /member-service/members/{id}
-    @GetMapping("/{id}")
+    // get another member by id: /member-service/members/another/{member_id}
+    @GetMapping("/another/{member_id}")
     public ResponseEntity<MemberResponse> getMemberById(
-            @PathVariable Long id, @RequestHeader("access_token") String token) {
+            @PathVariable Long member_id, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        return ResponseEntity.ok(memberService.getMemberById(id));
+        return ResponseEntity.ok(memberService.getMemberById(member_id));
+    }
+
+    // get member by id: /member-service/members/member
+    @GetMapping("/member")
+    public ResponseEntity<MemberResponse> getMemberByMemberId(@RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        Long memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(memberService.getMemberById(memberId));
     }
 
     // get workspace members: /member-service/members/workspace
@@ -89,12 +97,11 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    // update role_id member: /member-service/members/role/{role_id}
-    @PutMapping("/role/{role_id}")
+    // update role_id member: /member-service/members/role/{role_id}/{member_id}
+    @PutMapping("/role/{role_id}/{member_id}")
     public ResponseEntity<MemberResponse> updateMemberRole(
-            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+            @PathVariable Long role_id, @PathVariable Long member_id, @RequestHeader("access_token") String token) {
         Long workspaceId = jwtService.extractWorkspaceId(token);
-        Long memberId = jwtService.extractMemberId(token);
-        return ResponseEntity.ok(memberService.updateMemberRole(memberId, role_id, workspaceId));
+        return ResponseEntity.ok(memberService.updateMemberRole(member_id, role_id, workspaceId));
     }
 }
