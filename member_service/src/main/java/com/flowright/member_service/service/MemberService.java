@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
 import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
 import com.flowright.member_service.dto.MembersSpecializationDTO.MemberSpecializationResponse;
@@ -111,6 +112,19 @@ public class MemberService {
         }
 
         return members;
+    }
+
+    private BasicMemberResponse toBasicMemberResponse(Member member) {
+        return BasicMemberResponse.builder()
+                .id(member.getId())
+                .username(member.getUsername())
+                .email(member.getEmail())
+                .build();
+    }
+
+    public List<BasicMemberResponse> getMembersByRoleId(Long roleId) {
+        List<Member> members = memberRepository.findByRoleId(roleId);
+        return members.stream().map(this::toBasicMemberResponse).collect(Collectors.toList());
     }
 
     private MemberResponse toMemberResponse(Member member) {

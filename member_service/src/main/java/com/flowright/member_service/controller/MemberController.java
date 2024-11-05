@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.CreateMemberRequest;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
@@ -54,6 +55,15 @@ public class MemberController {
     public ResponseEntity<List<MemberResponse>> getWorkspaceMembers(@RequestHeader("access_token") String token) {
         Long workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
+    }
+
+    // get list member by role_id: /member-service/members/role/{role_id}
+    @GetMapping("/role/{role_id}")
+    public ResponseEntity<List<BasicMemberResponse>> getMembersByRoleId(
+            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        List<BasicMemberResponse> members = memberService.getMembersByRoleId(role_id);
+        return ResponseEntity.ok(members);
     }
 
     // get new access token: /member-service/members/new-access-token/{workspace_id}
