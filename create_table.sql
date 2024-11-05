@@ -61,6 +61,7 @@ CREATE TABLE `flowright`.`roles` (
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
     `workspace_id` INT NOT NULL,
+    `is_default` BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`),
 );
 

@@ -30,8 +30,8 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(
             @Valid @RequestBody CreateRoleRequest request, @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
-        return ResponseEntity.ok(roleService.createRole(request));
+        Long workspaceId = jwtService.extractWorkspaceId(token);
+        return ResponseEntity.ok(roleService.createRole(request, workspaceId));
     }
 
     // get role by id: /member-service/roles/{id}

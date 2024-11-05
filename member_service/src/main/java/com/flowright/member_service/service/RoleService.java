@@ -19,11 +19,11 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public RoleResponse createRole(CreateRoleRequest request) {
+    public RoleResponse createRole(CreateRoleRequest request, Long workspaceId) {
         Role role = Role.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .workspaceId(request.getWorkspaceId())
+                .workspaceId(workspaceId)
                 .build();
 
         Role savedRole = roleRepository.save(role);
