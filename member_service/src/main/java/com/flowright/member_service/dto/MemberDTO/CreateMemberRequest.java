@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto;
+package com.flowright.member_service.dto.MemberDTO;
 
 import jakarta.validation.constraints.NotNull;
 

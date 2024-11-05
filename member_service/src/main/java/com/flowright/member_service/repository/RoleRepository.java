@@ -14,9 +14,7 @@ import com.flowright.member_service.entity.Role;
 public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findByWorkspaceId(Long workspaceId);
 
-    Optional<Role> findByWorkspaceIdAndIsDefaultTrue(Long workspaceId);
-
-    Optional<Role> findByWorkspaceIdAndNameAndIsDefault(Long workspaceId, String name, boolean isDefault);
+    Optional<Role> findByWorkspaceIdAndName(Long workspaceId, String name);
 
     Page<Role> findByWorkspaceId(Long workspaceId, Pageable pageable);
 }

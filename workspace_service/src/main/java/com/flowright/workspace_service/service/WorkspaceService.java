@@ -43,7 +43,6 @@ public class WorkspaceService {
                 .name("Admin")
                 .description("Workspace Administrator")
                 .workspaceId(workspace.getId())
-                .isDefault(false)
                 .build();
         
         memberServiceClient.createRole(roleRequest, token);

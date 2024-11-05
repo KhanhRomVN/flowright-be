@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.flowright.member_service.dto.MemberResponse;
-import com.flowright.member_service.dto.UpdateMemberRequest;
+import com.flowright.member_service.dto.MemberDTO.MemberResponse;
+import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.repository.MemberRepository;
@@ -28,7 +28,7 @@ public class MemberService {
 
         // Get default role
         Role defaultRole = roleRepository
-                .findByWorkspaceIdAndIsDefaultTrue(workspaceId)
+                .findByWorkspaceIdAndName(workspaceId, "Admin")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         Member member = Member.builder()

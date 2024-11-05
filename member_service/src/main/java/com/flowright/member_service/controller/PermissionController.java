@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flowright.member_service.dto.CreatePermissionRequest;
-import com.flowright.member_service.dto.PermissionResponse;
+import com.flowright.member_service.dto.PermissionDTO.CreatePermissionRequest;
+import com.flowright.member_service.dto.PermissionDTO.PermissionResponse;
 import com.flowright.member_service.service.PermissionService;
 
 import lombok.RequiredArgsConstructor;

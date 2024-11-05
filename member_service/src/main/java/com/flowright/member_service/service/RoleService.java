@@ -5,9 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.flowright.member_service.dto.CreateRoleRequest;
-import com.flowright.member_service.dto.RoleResponse;
-import com.flowright.member_service.dto.UpdateRoleRequest;
+import com.flowright.member_service.dto.RoleDTO.CreateRoleRequest;
+import com.flowright.member_service.dto.RoleDTO.RoleResponse;
+import com.flowright.member_service.dto.RoleDTO.UpdateRoleRequest;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.repository.RoleRepository;
 
@@ -24,7 +24,6 @@ public class RoleService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .workspaceId(request.getWorkspaceId())
-                .isDefault(request.getIsDefault())
                 .build();
 
         Role savedRole = roleRepository.save(role);
@@ -40,9 +39,6 @@ public class RoleService {
         }
         if (request.getDescription() != null) {
             role.setDescription(request.getDescription());
-        }
-        if (request.getIsDefault() != null) {
-            role.setIsDefault(request.getIsDefault());
         }
 
         Role updatedRole = roleRepository.save(role);
@@ -72,13 +68,12 @@ public class RoleService {
                 .name(role.getName())
                 .description(role.getDescription())
                 .workspaceId(role.getWorkspaceId())
-                .isDefault(role.getIsDefault())
                 .build();
     }
 
     public RoleResponse getAdminRoleByWorkspaceId(Long workspaceId) {
         Role role = roleRepository
-                .findByWorkspaceIdAndNameAndIsDefault(workspaceId, "Admin", false)
+                .findByWorkspaceIdAndName(workspaceId, "Admin")
                 .orElseThrow(() -> new RuntimeException("Admin role not found"));
         return toRoleResponse(role);
     }
