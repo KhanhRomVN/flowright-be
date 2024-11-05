@@ -13,4 +13,5 @@ public class AddSpecializationToMemberRequest {
     private Long specializationId;
     private String level;
     private int yearsOfExperience;
+    private Boolean isDefault;
 }

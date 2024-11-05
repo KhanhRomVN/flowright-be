@@ -26,9 +26,12 @@ public class MemberSpecialization {
     @JoinColumn(name = "specialization_id", nullable = false)
     private Specialization specialization;
 
-    @Column(nullable = false)
+    @Column(name = "level", nullable = false)
     private String level;
 
-    @Column(nullable = false)
+    @Column(name = "years_of_experience", nullable = false)
     private int yearsOfExperience;
+
+    @Column(name = "is_default", nullable = false)
+    private Boolean isDefault;
 }

@@ -19,11 +19,11 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public RoleResponse createRole(CreateRoleRequest request) {
+    public RoleResponse createRole(CreateRoleRequest request, Long workspaceId) {
         Role role = Role.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .workspaceId(request.getWorkspaceId())
+                .workspaceId(workspaceId)
                 .build();
 
         Role savedRole = roleRepository.save(role);
@@ -80,5 +80,10 @@ public class RoleService {
 
     public Page<RoleResponse> getAllRolesByWorkspaceId(Long workspaceId) {
         return roleRepository.findByWorkspaceId(workspaceId, Pageable.unpaged()).map(this::toRoleResponse);
+    }
+
+    public String getRoleNameById(Long id) {
+        Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
+        return role.getName();
     }
 }

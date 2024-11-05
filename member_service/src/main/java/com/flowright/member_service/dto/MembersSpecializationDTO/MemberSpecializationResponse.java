@@ -14,4 +14,5 @@ public class MemberSpecializationResponse {
     private Long specializationId;
     private String level;
     private Integer yearsOfExperience;
+    private Boolean isDefault;
 }

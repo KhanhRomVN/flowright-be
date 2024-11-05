@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +28,7 @@ public class RolePermissionController {
     private final RolePermissionService rolePermissionService;
     private final JwtService jwtService;
 
+    // assign permission to role: /member-service/role-permissions/roles/{roleId}/permissions
     @PostMapping("/roles/{roleId}/permissions")
     public ResponseEntity<Void> assignPermissionToRole(
             @PathVariable Long roleId,
@@ -43,18 +43,7 @@ public class RolePermissionController {
         }
     }
 
-    @DeleteMapping("/roles/{roleId}/permissions/{permissionId}")
-    public ResponseEntity<Void> removePermissionFromRole(
-            @PathVariable Long roleId, @PathVariable Long permissionId, @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
-        try {
-            rolePermissionService.removePermissionFromRole(roleId, permissionId);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
+    // get role permissions: /member-service/role-permissions/roles/{roleId}/permissions
     @GetMapping("/roles/{roleId}/permissions")
     public ResponseEntity<List<PermissionResponse>> getRolePermissions(
             @PathVariable Long roleId, @RequestHeader("access_token") String token) {

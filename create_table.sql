@@ -61,6 +61,7 @@ CREATE TABLE `flowright`.`roles` (
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
     `workspace_id` INT NOT NULL,
+    `is_default` BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`),
 );
 
@@ -98,6 +99,7 @@ CREATE TABLE `flowright`.`members_specializations` (
     `specialization_id` INT NOT NULL,
     `level` VARCHAR(50) NOT NULL, -- junior, middle, senior
     `years_of_experience` INT NOT NULL,
+    `is_default` BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (`member_id`) REFERENCES `members`(`id`),
     FOREIGN KEY (`specialization_id`) REFERENCES `specializations`(`id`)
 );
@@ -118,7 +120,7 @@ CREATE TABLE `flowright`.`members_specializations` (
 -- table: roles
 -- id: 1, name: admin, workspace_id: 1
 -- id: 2, name: manager, workspace_id: 1
--- id: 3, name: developer, workspace_id: 1, is_default: true
+-- id: 3, name: developer, workspace_id: 1
 
 -- table: role_permissions
 -- admin has all permissions

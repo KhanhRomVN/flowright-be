@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.CreateMemberRequest;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
-import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.exception.MemberException;
@@ -36,6 +35,7 @@ public class MemberController {
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
 
+    // create member: /member-service/members
     @PostMapping
     public ResponseEntity<MemberResponse> createMember(
             @Valid @RequestBody CreateMemberRequest request, @RequestHeader("access_token") String token) {
@@ -43,22 +43,7 @@ public class MemberController {
         return ResponseEntity.ok(memberService.createMember(request.getWorkspaceId(), userId));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<MemberResponse> updateMember(
-            @PathVariable Long id,
-            @RequestBody UpdateMemberRequest request,
-            @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
-        return ResponseEntity.ok(memberService.updateMember(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long id, @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
-        memberService.deleteMember(id);
-        return ResponseEntity.noContent().build();
-    }
-
+    // get member by id: /member-service/members/{id}
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getMemberById(
             @PathVariable Long id, @RequestHeader("access_token") String token) {
@@ -66,23 +51,23 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMemberById(id));
     }
 
-    @GetMapping("/workspace/{workspaceId}")
-    public ResponseEntity<List<MemberResponse>> getWorkspaceMembers(
-            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
+    // get workspace members: /member-service/members/workspace
+    @GetMapping("/workspace")
+    public ResponseEntity<List<MemberResponse>> getWorkspaceMembers(@RequestHeader("access_token") String token) {
+        Long workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
     }
 
-    // create first member: /member-service/members/first/{workspaceId}
-    @PostMapping("/first/{workspaceId}")
-    public ResponseEntity<MemberResponse> createFirstMember(
-            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok(memberService.createFirstMember(workspaceId, userId));
+    // get list member by role_id: /member-service/members/role/{role_id}
+    @GetMapping("/role/{role_id}")
+    public ResponseEntity<List<BasicMemberResponse>> getMembersByRoleId(
+            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        List<BasicMemberResponse> members = memberService.getMembersByRoleId(role_id);
+        return ResponseEntity.ok(members);
     }
 
-    // /member-service/members/new-access-token/{workspace_id}
-    // get access_token (payload: {userId, member_id, workspace_id, role_id}) by access_token (payload: {userId})
+    // get new access token: /member-service/members/new-access-token/{workspace_id}
     @GetMapping("/new-access-token/{workspace_id}")
     public ResponseEntity<TokenResponse> getNewAccessToken(
             @RequestHeader("access_token") String accessToken, @PathVariable("workspace_id") Long workspaceId) {
@@ -102,5 +87,14 @@ public class MemberController {
                 TokenResponse.builder().access_token(newAccessToken).build();
 
         return ResponseEntity.ok(response);
+    }
+
+    // update role_id member: /member-service/members/role/{role_id}
+    @PutMapping("/role/{role_id}")
+    public ResponseEntity<MemberResponse> updateMemberRole(
+            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+        Long workspaceId = jwtService.extractWorkspaceId(token);
+        Long memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(memberService.updateMemberRole(memberId, role_id, workspaceId));
     }
 }

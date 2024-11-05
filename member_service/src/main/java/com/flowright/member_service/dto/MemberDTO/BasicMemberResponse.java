@@ -1,4 +1,4 @@
-package com.flowright.member_service.dto.RoleDTO;
+package com.flowright.member_service.dto.MemberDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResponse {
+public class BasicMemberResponse {
     private Long id;
-    private String name;
-    private String description;
-    private Long workspaceId;
+    private String username;
+    private String email;
 }
