@@ -46,4 +46,17 @@ public class SpecializationService {
         }
         specializationRepository.deleteById(id);
     }
+
+    public SpecializationResponse getSpecializationById(Long id, boolean isDefault) {
+        Specialization specialization = specializationRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specialization not found"));
+
+        return SpecializationResponse.builder()
+                .id(specialization.getId())
+                .name(specialization.getName())
+                .description(specialization.getDescription())
+                .workspaceId(specialization.getWorkspaceId())
+                .build();
+    }
 }

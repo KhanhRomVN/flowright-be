@@ -180,3 +180,37 @@ Project Link: [https://github.com/KhanhRomVN/flowright-be](https://github.com/Kh
 ### ⭐ Star us on GitHub — it motivates us a lot!
 
 </div>
+
+member-serivce
+[1].Member Management
+*Create Member: Registers a new member within a workspace and assigns a default role.*
+*Update Member: Allows updating a member’s role.*
+*Delete Member: Removes a member by ID.*
+*Get Member by ID: Retrieves member details by member ID.*
+*Get Members by Workspace: Lists all members within a specific workspace.*
+*Create First Member: Adds the initial member to a workspace, typically an admin or owner.*
+
+[2].Role Management
+*Create Role: Allows creation of a role with a name, description, and workspace association.*
+*Update Role: Updates role details by ID.*
+*Delete Role: Deletes a role by ID.*
+*Get Role by ID: Retrieves a role by its ID.*
+*Get All Roles: Lists roles within a workspace.*
+*Get Admin Role: Fetches the admin role for a workspace.*
+
+[3].Permission Management
+*Create Permission: Adds a new permission for workspace actions.*
+*Delete Permission: Removes permission by ID.*
+*Get All Permissions: Lists permissions with pagination.*
+
+[4].Role-Permission Assignment
+*Assign Permission to Role: Links a permission to a role.*
+*Remove Permission from Role: Removes a permission from a role.*
+*Get Role Permissions: Lists permissions assigned to a specific role.*
+
+[5].Specialization Management
+*Create Specialization: Adds a new specialization associated with a workspace.*
+*Delete Specialization: Removes specialization by ID.*
+
+[6].Member Specialization Management
+*Add Specialization to Member: Links a specialization to a member, including level and years of experience.*

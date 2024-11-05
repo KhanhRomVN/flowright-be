@@ -81,4 +81,9 @@ public class RoleService {
     public Page<RoleResponse> getAllRolesByWorkspaceId(Long workspaceId) {
         return roleRepository.findByWorkspaceId(workspaceId, Pageable.unpaged()).map(this::toRoleResponse);
     }
+
+    public String getRoleNameById(Long id) {
+        Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
+        return role.getName();
+    }
 }

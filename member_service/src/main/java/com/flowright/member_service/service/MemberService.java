@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
 import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
+import com.flowright.member_service.dto.MembersSpecializationDTO.MemberSpecializationResponse;
+import com.flowright.member_service.dto.RoleDTO.RoleResponse;
+import com.flowright.member_service.dto.SpecializationDTO.SpecializationResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.repository.MemberRepository;
@@ -19,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
+    private final RoleService roleService;
+    private final MemberSpecializationService memberSpecializationService;
+    private final SpecializationService specializationService;
 
     public MemberResponse createMember(Long workspaceId, Long userId) {
         // Check if member already exists
@@ -83,9 +89,28 @@ public class MemberService {
     }
 
     public List<MemberResponse> getWorkspaceMembers(Long workspaceId) {
-        return memberRepository.findByWorkspaceId(workspaceId).stream()
-                .map(this::toMemberResponse)
-                .collect(Collectors.toList());
+        List<Member> memberData = memberRepository.findByWorkspaceId(workspaceId);
+        List<MemberResponse> members =
+                memberData.stream().map(this::toMemberResponse).collect(Collectors.toList());
+
+        for (MemberResponse member : members) {
+            RoleResponse role = roleService.getRoleById(member.getRoleId());
+            String roleName = role.getName();
+            member.setRoleName(roleName);
+        }
+
+        for (MemberResponse member : members) {
+            MemberSpecializationResponse memberSpecialization =
+                    memberSpecializationService.getMemberSpecializationById(member.getId());
+            member.setLevel(memberSpecialization.getLevel());
+            member.setYearsOfExperience(memberSpecialization.getYearsOfExperience());
+            SpecializationResponse specialization =
+                    specializationService.getSpecializationById(memberSpecialization.getSpecializationId(), true);
+            member.setSpecializationName(specialization.getName());
+            member.setIsDefault(memberSpecialization.getIsDefault());
+        }
+
+        return members;
     }
 
     private MemberResponse toMemberResponse(Member member) {
@@ -94,6 +119,8 @@ public class MemberService {
                 .userId(member.getUserId())
                 .workspaceId(member.getWorkspaceId())
                 .roleId(member.getRole() != null ? member.getRole().getId() : null)
+                .email(member.getEmail())
+                .username(member.getUsername())
                 .build();
     }
 }
