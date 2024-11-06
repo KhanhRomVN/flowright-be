@@ -35,7 +35,7 @@ public class MemberService {
 
         // Get default role
         Role defaultRole = roleRepository
-                .findByWorkspaceIdAndName(workspaceId, "Admin")
+                .findByWorkspaceIdAndName(workspaceId, "Guest")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         Member member = Member.builder()

@@ -160,9 +160,11 @@ CREATE TABLE `flowright`.`members_specializations` (
 CREATE TABLE `flowright`.`teams` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `leader_id` INT NOT NULL,
+    `workspace_id` INT NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
-    `workspace_id` INT NOT NULL,
+    `type` VARCHAR(50) NOT NULL, -- development, design, research, analysis, management
+    `status` VARCHAR(50) NOT NULL, -- active, inactive
     FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`),
     FOREIGN KEY (`leader_id`) REFERENCES `members`(`id`)
 );
