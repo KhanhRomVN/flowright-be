@@ -28,6 +28,7 @@ public class TeamService {
 
         Team savedTeam = teamRepository.save(team);
         return CreateTeamResponse.builder()
+                .id(savedTeam.getId())
                 .name(savedTeam.getName())
                 .description(savedTeam.getDescription())
                 .type(savedTeam.getType())

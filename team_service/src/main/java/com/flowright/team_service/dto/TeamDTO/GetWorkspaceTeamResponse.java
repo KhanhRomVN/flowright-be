@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class CreateTeamResponse {
+@NoArgsConstructor
+public class GetWorkspaceTeamResponse {
     private Long id;
     private String name;
     private String description;
