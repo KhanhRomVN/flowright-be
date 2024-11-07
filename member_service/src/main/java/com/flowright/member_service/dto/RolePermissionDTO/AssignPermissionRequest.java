@@ -1,5 +1,7 @@
 package com.flowright.member_service.dto.RolePermissionDTO;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -13,5 +15,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AssignPermissionRequest {
     @NotNull(message = "Permission ID is required")
-    private Long permissionId;
+    private UUID permissionId;
 }

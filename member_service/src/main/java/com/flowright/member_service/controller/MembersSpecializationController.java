@@ -1,5 +1,7 @@
 package com.flowright.member_service.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +26,7 @@ public class MembersSpecializationController {
     @PostMapping
     public ResponseEntity<Void> addSpecializationToMember(
             @RequestHeader("access_token") String accessToken, @RequestBody AddSpecializationToMemberRequest request) {
-        Long memberId = jwtService.extractMemberId(accessToken);
+        UUID memberId = jwtService.extractMemberId(accessToken);
         memberSpecializationService.addSpecializationToMember(
                 memberId,
                 request.getSpecializationId(),

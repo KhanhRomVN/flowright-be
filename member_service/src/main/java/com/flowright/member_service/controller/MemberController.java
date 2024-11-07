@@ -1,6 +1,7 @@
 package com.flowright.member_service.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -39,14 +40,14 @@ public class MemberController {
     @PostMapping
     public ResponseEntity<MemberResponse> createMember(
             @Valid @RequestBody CreateMemberRequest request, @RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        UUID userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(memberService.createMember(request.getWorkspaceId(), userId));
     }
 
     // get another member by id: /member-service/members/another/{member_id}
     @GetMapping("/another/{member_id}")
     public ResponseEntity<MemberResponse> getMemberById(
-            @PathVariable Long member_id, @RequestHeader("access_token") String token) {
+            @PathVariable UUID member_id, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
         return ResponseEntity.ok(memberService.getMemberById(member_id));
     }
@@ -55,31 +56,32 @@ public class MemberController {
     @GetMapping("/member")
     public ResponseEntity<MemberResponse> getMemberByMemberId(@RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        Long memberId = jwtService.extractMemberId(token);
+        UUID memberId = jwtService.extractMemberId(token);
         return ResponseEntity.ok(memberService.getMemberById(memberId));
     }
 
     // get workspace members: /member-service/members/workspace
     @GetMapping("/workspace")
     public ResponseEntity<List<MemberResponse>> getWorkspaceMembers(@RequestHeader("access_token") String token) {
-        Long workspaceId = jwtService.extractWorkspaceId(token);
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
     }
 
     // get list member by role_id: /member-service/members/role/{role_id}
     @GetMapping("/role/{role_id}")
     public ResponseEntity<List<BasicMemberResponse>> getMembersByRoleId(
-            @PathVariable Long role_id, @RequestHeader("access_token") String token) {
+            @PathVariable UUID role_id, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        List<BasicMemberResponse> members = memberService.getMembersByRoleId(role_id);
+        UUID roleId = jwtService.extractRoleId(token);
+        List<BasicMemberResponse> members = memberService.getMembersByRoleId(roleId);
         return ResponseEntity.ok(members);
     }
 
     // get new access token: /member-service/members/new-access-token/{workspace_id}
     @GetMapping("/new-access-token/{workspace_id}")
     public ResponseEntity<TokenResponse> getNewAccessToken(
-            @RequestHeader("access_token") String accessToken, @PathVariable("workspace_id") Long workspaceId) {
-        Long userId = jwtService.extractUserId(accessToken);
+            @RequestHeader("access_token") String accessToken, @PathVariable("workspace_id") UUID workspaceId) {
+        UUID userId = jwtService.extractUserId(accessToken);
         Member member = memberRepository
                 .findByUserIdAndWorkspaceId(userId, workspaceId)
                 .orElseThrow(() -> new MemberException("Member not found", HttpStatus.NOT_FOUND));
@@ -88,7 +90,7 @@ public class MemberController {
             throw new MemberException("Member data is incomplete", HttpStatus.BAD_REQUEST);
         }
 
-        Long roleId = member.getRole() != null ? member.getRole().getId() : null;
+        UUID roleId = member.getRoleId();
         String newAccessToken = jwtService.generateAccessToken(userId, member.getId(), workspaceId, roleId);
 
         TokenResponse response =
@@ -100,8 +102,8 @@ public class MemberController {
     // update role_id member: /member-service/members/role/{role_id}/{member_id}
     @PutMapping("/role/{role_id}/{member_id}")
     public ResponseEntity<MemberResponse> updateMemberRole(
-            @PathVariable Long role_id, @PathVariable Long member_id, @RequestHeader("access_token") String token) {
-        Long workspaceId = jwtService.extractWorkspaceId(token);
+            @PathVariable UUID role_id, @PathVariable UUID member_id, @RequestHeader("access_token") String token) {
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(memberService.updateMemberRole(member_id, role_id, workspaceId));
     }
 }

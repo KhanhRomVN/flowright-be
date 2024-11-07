@@ -1,7 +1,6 @@
 package com.flowright.member_service.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ public class RolePermissionService {
     private final PermissionRepository permissionRepository;
 
     @Transactional
-    public void assignPermissionToRole(Long roleId, Long permissionId) {
+    public void assignPermissionToRole(UUID roleId, UUID permissionId) {
         // Check if role exists
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
 
@@ -39,14 +38,15 @@ public class RolePermissionService {
         }
 
         // Create and save the role-permission relationship
-        RolePermission rolePermission =
-                RolePermission.builder().role(role).permission(permission).build();
-
+        RolePermission rolePermission = RolePermission.builder()
+                .roleId(role.getId())
+                .permissionId(permission.getId())
+                .build();
         rolePermissionRepository.save(rolePermission);
     }
 
     @Transactional
-    public void removePermissionFromRole(Long roleId, Long permissionId) {
+    public void removePermissionFromRole(UUID roleId, UUID permissionId) {
         // Check if role exists
         if (!roleRepository.existsById(roleId)) {
             throw new RuntimeException("Role not found");
@@ -60,14 +60,13 @@ public class RolePermissionService {
         rolePermissionRepository.deleteByRoleIdAndPermissionId(roleId, permissionId);
     }
 
-    public List<PermissionResponse> getRolePermissions(Long roleId) {
-        // Check if role exists
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+    // public List<PermissionResponse> getRolePermissions(UUID roleId) {
+    //     Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
 
-        return rolePermissionRepository.findByRole(role).stream()
-                .map(rolePermission -> toPermissionResponse(rolePermission.getPermission()))
-                .collect(Collectors.toList());
-    }
+    //     return rolePermissionRepository.findByRoleId(roleId).stream()
+    //             .map(rolePermission -> toPermissionResponse(rolePermission.getPermission()))
+    //             .collect(Collectors.toList());
+    // }
 
     private PermissionResponse toPermissionResponse(Permission permission) {
         return PermissionResponse.builder()

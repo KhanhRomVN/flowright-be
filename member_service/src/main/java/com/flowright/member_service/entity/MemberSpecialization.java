@@ -1,5 +1,7 @@
 package com.flowright.member_service.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
@@ -15,16 +17,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberSpecialization {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @Column(name = "member_id", nullable = false)
+    private UUID memberId;
 
-    @ManyToOne
-    @JoinColumn(name = "specialization_id", nullable = false)
-    private Specialization specialization;
+    @Column(name = "specialization_id", nullable = false)
+    private UUID specializationId;
 
     @Column(name = "level", nullable = false)
     private String level;

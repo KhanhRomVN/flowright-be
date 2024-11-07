@@ -1,5 +1,7 @@
 package com.flowright.user_service.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -21,7 +23,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("access_token") String token) {
-        Long userId = jwtService.extractUserId(token);
+        UUID userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(userService.getCurrentUser(userId));
     }
 }

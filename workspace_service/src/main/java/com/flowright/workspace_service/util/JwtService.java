@@ -2,6 +2,7 @@ package com.flowright.workspace_service.util;
 
 import java.security.Key;
 import java.util.Base64;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,8 @@ public class JwtService {
                 .getBody();
     }
 
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("user_id", Long.class);
+    public UUID extractUserId(String token) {
+        return extractAllClaims(token).get("user_id", UUID.class);
     }
 
     private Key getSignInKey() {

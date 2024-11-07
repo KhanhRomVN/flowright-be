@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,20 +35,20 @@ public class JwtService {
         Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
     }
 
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("user_id", Long.class);
+    public UUID extractUserId(String token) {
+        return extractAllClaims(token).get("user_id", UUID.class);
     }
 
-    public Long extractMemberId(String token) {
-        return extractAllClaims(token).get("member_id", Long.class);
+    public UUID extractMemberId(String token) {
+        return extractAllClaims(token).get("member_id", UUID.class);
     }
 
-    public Long extractWorkspaceId(String token) {
-        return extractAllClaims(token).get("workspace_id", Long.class);
+    public UUID extractWorkspaceId(String token) {
+        return extractAllClaims(token).get("workspace_id", UUID.class);
     }
 
-    public Long extractRoleId(String token) {
-        return extractAllClaims(token).get("role_id", Long.class);
+    public UUID extractRoleId(String token) {
+        return extractAllClaims(token).get("role_id", UUID.class);
     }
 
     private Key getSignInKey() {
@@ -55,7 +56,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessToken(Long userId, Long memberId, Long workspaceId, Long roleId) {
+    public String generateAccessToken(UUID userId, UUID memberId, UUID workspaceId, UUID roleId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("user_id", userId);
         claims.put("member_id", memberId);

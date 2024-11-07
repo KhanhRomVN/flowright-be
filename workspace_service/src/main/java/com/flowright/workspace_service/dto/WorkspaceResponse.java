@@ -1,5 +1,7 @@
 package com.flowright.workspace_service.dto;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkspaceResponse {
-    private Long id;
+    private UUID id;
     private String name;
-    private Long ownerId;
+    private UUID ownerId;
 }

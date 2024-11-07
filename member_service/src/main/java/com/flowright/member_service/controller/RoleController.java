@@ -1,5 +1,7 @@
 package com.flowright.member_service.controller;
 
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -30,14 +32,14 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(
             @Valid @RequestBody CreateRoleRequest request, @RequestHeader("access_token") String token) {
-        Long workspaceId = jwtService.extractWorkspaceId(token);
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(roleService.createRole(request, workspaceId));
     }
 
     // get role by id: /member-service/roles/{id}
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(
-            @PathVariable Long id, @RequestHeader("access_token") String token) {
+            @PathVariable UUID id, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
@@ -45,7 +47,7 @@ public class RoleController {
     // get admin role by workspace id: /member-service/roles/admin/{workspaceId}
     @GetMapping("/admin/{workspaceId}")
     public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
-            @PathVariable Long workspaceId, @RequestHeader("access_token") String token) {
+            @PathVariable UUID workspaceId, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
         return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
     }
@@ -53,7 +55,7 @@ public class RoleController {
     // get all roles: /member-service/workspace/roles
     @GetMapping("/workspace/roles")
     public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
-        Long workspaceId = jwtService.extractWorkspaceId(token);
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
         System.out.println(workspaceId);
         return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
     }

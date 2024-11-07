@@ -109,36 +109,17 @@ cd flowright-be
 ```
 
 3. Start the services
-```
-[1]. cd api_gateway
-[2]. mvn spring-boot:run
-[3]. cd ..  
-[4]. cd auth_service
-[5]. mvn spring-boot:run
-[6]. cd ..
-[7]. cd member_service
-[8]. mvn spring-boot:run
-[9]. cd ..
-[10]. cd project_service
-[11]. mvn spring-boot:run
-[12]. cd ..
-[13]. cd task_service
-[14]. mvn spring-boot:run
-[15]. cd ..
-[16]. cd team_service
-[17]. mvn spring-boot:run
-[18]. cd ..
-[19]. cd user_service
-[20]. mvn spring-boot:run
-[21]. cd ..
-[22]. cd workspace_service
-[23]. mvn spring-boot:run
-```
-
-### Docker Deployment
+[1]. Run Kafka Docker Compose
 ```
 docker-compose up -d
 ```
+[2]. Run All Services
+- if you use vscode ide
+```
+mvn spring-boot:run
+```
+- if you run intelji ide, click the green play button on the left sidebar
+
 
 ## 📚 API Documentation
 
@@ -214,3 +195,5 @@ member-serivce
 
 [6].Member Specialization Management
 *Add Specialization to Member: Links a specialization to a member, including level and years of experience.*
+
+

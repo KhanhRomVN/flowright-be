@@ -1,5 +1,7 @@
 package com.flowright.member_service.dto.MemberDTO;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -13,5 +15,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateMemberRequest {
     @NotNull(message = "Workspace ID is required")
-    private Long workspaceId;
+    private UUID workspaceId;
 }

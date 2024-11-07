@@ -1,11 +1,11 @@
 package com.flowright.workspace_service.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -24,14 +24,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Workspace {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
 
     @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    private UUID ownerId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

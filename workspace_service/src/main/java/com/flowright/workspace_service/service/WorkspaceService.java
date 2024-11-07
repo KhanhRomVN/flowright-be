@@ -1,14 +1,11 @@
 package com.flowright.workspace_service.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
+import java.util.stream.Collectors; 
 
 import org.springframework.stereotype.Service;
 
-import com.flowright.workspace_service.client.MemberServiceClient;
-import com.flowright.workspace_service.client.dto.CreateRoleRequest;
-import com.flowright.workspace_service.client.dto.RoleResponse;
-import com.flowright.workspace_service.client.dto.CreateMemberRequest;
 import com.flowright.workspace_service.dto.WorkspaceDTO;
 import com.flowright.workspace_service.entity.Workspace;
 import com.flowright.workspace_service.exception.ResourceNotFoundException;
@@ -25,45 +22,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
-    private final MemberServiceClient memberServiceClient;
-
     
     
-    @Transactional
-    public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO, String token) {
-        // Save workspace
-        Workspace workspace = Workspace.builder()
-                .name(workspaceDTO.getName())
-                .ownerId(workspaceDTO.getOwnerId())
-                .build();
-        workspace = workspaceRepository.save(workspace);
+    // @Transactional
+    // public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO, String token) {
         
-        // Create admin role
-        CreateRoleRequest roleRequest = CreateRoleRequest.builder()
-                .name("Admin")
-                .description("Workspace Administrator")
-                .workspaceId(workspace.getId())
-                .build();
-        
-        memberServiceClient.createRole(roleRequest, token);
-        
-        // Create first member as admin
-        // CreateMemberRequest memberRequest = CreateMemberRequest.builder()
-        //         .workspaceId(workspace.getId())
-        //         .build();
-        
-        // memberServiceClient.createFirstMember(memberRequest, token);
-        
-        return convertToDTO(workspace);
-    }
+    //     return convertToDTO(workspace);
+    // }
 
-    public List<WorkspaceDTO> getWorkspacesByOwnerId(Long ownerId) {
+    public List<WorkspaceDTO> getWorkspacesByOwnerId(UUID ownerId) {
         return workspaceRepository.findByOwnerId(ownerId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public WorkspaceDTO updateWorkspace(Long id, WorkspaceDTO workspaceDTO, Long userId) {
+    public WorkspaceDTO updateWorkspace(UUID id, WorkspaceDTO workspaceDTO, UUID userId) {
         Workspace workspace = workspaceRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
@@ -77,7 +50,7 @@ public class WorkspaceService {
         return convertToDTO(workspace);
     }
 
-    public void deleteWorkspace(Long id, Long userId) {
+    public void deleteWorkspace(UUID id, UUID userId) {
         Workspace workspace = workspaceRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));

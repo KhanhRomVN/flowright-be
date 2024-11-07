@@ -1,6 +1,7 @@
 package com.flowright.member_service.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class MemberService {
     private final MemberSpecializationService memberSpecializationService;
     private final SpecializationService specializationService;
 
-    public MemberResponse createMember(Long workspaceId, Long userId) {
+    public MemberResponse createMember(UUID workspaceId, UUID userId) {
         // Check if member already exists
         if (memberRepository.existsByUserIdAndWorkspaceId(userId, workspaceId)) {
             throw new RuntimeException("Member already exists in workspace");
@@ -41,55 +42,59 @@ public class MemberService {
         Member member = Member.builder()
                 .userId(userId)
                 .workspaceId(workspaceId)
-                .role(defaultRole)
+                .roleId(defaultRole.getId())
                 .build();
 
         Member savedMember = memberRepository.save(member);
         return toMemberResponse(savedMember);
     }
 
-    public MemberResponse createFirstMember(Long workspaceId, Long userId) {
+    public MemberResponse createFirstMember(UUID workspaceId, UUID userId) {
         if (!memberRepository.findByWorkspaceId(workspaceId).isEmpty()) {
             throw new RuntimeException("Workspace already has members");
         }
 
+        Role defaultRole = roleRepository
+                .findByWorkspaceIdAndName(workspaceId, "Guest")
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+
         Member member = Member.builder()
                 .userId(userId)
                 .workspaceId(workspaceId)
-                .role(null)
+                .roleId(defaultRole.getId())
                 .build();
 
         Member savedMember = memberRepository.save(member);
         return toMemberResponse(savedMember);
     }
 
-    public MemberResponse updateMember(Long id, UpdateMemberRequest request) {
+    public MemberResponse updateMember(UUID id, UpdateMemberRequest request) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
 
         if (request.getRoleId() != null) {
             Role role = roleRepository
                     .findById(request.getRoleId())
                     .orElseThrow(() -> new RuntimeException("Role not found"));
-            member.setRole(role);
+            member.setRoleId(role.getId());
         }
 
         Member updatedMember = memberRepository.save(member);
         return toMemberResponse(updatedMember);
     }
 
-    public void deleteMember(Long id) {
+    public void deleteMember(UUID id) {
         if (!memberRepository.existsById(id)) {
             throw new RuntimeException("Member not found");
         }
         memberRepository.deleteById(id);
     }
 
-    public MemberResponse getMemberById(Long id) {
+    public MemberResponse getMemberById(UUID id) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
         return toMemberResponse(member);
     }
 
-    public List<MemberResponse> getWorkspaceMembers(Long workspaceId) {
+    public List<MemberResponse> getWorkspaceMembers(UUID workspaceId) {
         List<Member> memberData = memberRepository.findByWorkspaceId(workspaceId);
         List<MemberResponse> members =
                 memberData.stream().map(this::toMemberResponse).collect(Collectors.toList());
@@ -122,7 +127,7 @@ public class MemberService {
                 .build();
     }
 
-    public List<BasicMemberResponse> getMembersByRoleId(Long roleId) {
+    public List<BasicMemberResponse> getMembersByRoleId(UUID roleId) {
         List<Member> members = memberRepository.findByRoleId(roleId);
         return members.stream().map(this::toBasicMemberResponse).collect(Collectors.toList());
     }
@@ -132,16 +137,16 @@ public class MemberService {
                 .id(member.getId())
                 .userId(member.getUserId())
                 .workspaceId(member.getWorkspaceId())
-                .roleId(member.getRole() != null ? member.getRole().getId() : null)
+                .roleId(member.getRoleId())
                 .email(member.getEmail())
                 .username(member.getUsername())
                 .build();
     }
 
-    public MemberResponse updateMemberRole(Long memberId, Long roleId, Long workspaceId) {
+    public MemberResponse updateMemberRole(UUID memberId, UUID roleId, UUID workspaceId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
-        member.setRole(role);
+        member.setRoleId(role.getId());
         Member updatedMember = memberRepository.save(member);
         return toMemberResponse(updatedMember);
     }

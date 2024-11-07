@@ -1,5 +1,7 @@
 package com.flowright.member_service.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +29,7 @@ public class SpecializationController {
     public ResponseEntity<SpecializationResponse> createSpecialization(
             @RequestBody CreateSpecializationRequest request, @RequestHeader("access_token") String token) {
         try {
-            Long workspaceId = jwtService.extractWorkspaceId(token);
+            UUID workspaceId = jwtService.extractWorkspaceId(token);
 
             SpecializationResponse response = specializationService.createSpecialization(request, workspaceId);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

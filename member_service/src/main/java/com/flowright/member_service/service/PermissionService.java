@@ -1,5 +1,7 @@
 package com.flowright.member_service.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,29 +32,14 @@ public class PermissionService {
         return toPermissionResponse(savedPermission);
     }
 
-    // public PermissionResponse updatePermission(Long id, UpdatePermissionRequest request) {
-    //     Permission permission =
-    //             permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
-
-    //     if (request.getName() != null) {
-    //         permission.setName(request.getName());
-    //     }
-    //     if (request.getDescription() != null) {
-    //         permission.setDescription(request.getDescription());
-    //     }
-
-    //     Permission updatedPermission = permissionRepository.save(permission);
-    //     return toPermissionResponse(updatedPermission);
-    // }
-
-    public void deletePermission(Long id) {
+    public void deletePermission(UUID id) {
         if (!permissionRepository.existsById(id)) {
             throw new RuntimeException("Permission not found");
         }
         permissionRepository.deleteById(id);
     }
 
-    public PermissionResponse getPermissionById(Long id) {
+    public PermissionResponse getPermissionById(UUID id) {
         Permission permission =
                 permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
         return toPermissionResponse(permission);

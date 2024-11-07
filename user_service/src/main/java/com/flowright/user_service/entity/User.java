@@ -1,5 +1,7 @@
 package com.flowright.user_service.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false, unique = true)
     private String username;

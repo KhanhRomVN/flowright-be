@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    restart: "on-failure"
+
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    restart: "on-failure"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # api_gateway:
+  #   build:
+  #     context: ./api_gateway
+  #     dockerfile: Dockerfile
+  #   image: api-gateway
+  #   ports:
+  #     - 8080:8080
+  #   restart: on-failure
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: dev
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  # auth_service:
+  #   build:
+  #     context: ./auth_service
+  #     dockerfile: Dockerfile
+  #   image: auth-service
+  #   ports:
+  #     - 8001:8001
+  #   restart: on-failure
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: dev
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  # user_service:
+  #   build:
+  #     context: ./user_service
+  #     dockerfile: Dockerfile
+  #   image: user-service
+  #   ports:
+  #     - 8002:8002
+  #   restart: on-failure
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: dev
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092

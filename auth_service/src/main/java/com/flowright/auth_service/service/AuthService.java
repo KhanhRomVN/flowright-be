@@ -31,7 +31,7 @@ public class AuthService {
         }
 
         User user = User.builder()
-                .id(UUID.randomUUID()) // Generate UUID
+                .id(UUID.randomUUID())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
