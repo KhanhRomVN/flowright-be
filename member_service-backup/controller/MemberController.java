@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.CreateMemberRequest;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
-import com.flowright.member_service.dto.TokenResponse;
+import com.flowright.member_service.dto.RoleDTO.TokenResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.exception.MemberException;
 import com.flowright.member_service.repository.MemberRepository;
