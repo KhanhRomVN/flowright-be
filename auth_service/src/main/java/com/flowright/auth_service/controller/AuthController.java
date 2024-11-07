@@ -12,7 +12,7 @@ import com.flowright.auth_service.dto.AuthResponse;
 import com.flowright.auth_service.dto.LoginRequest;
 import com.flowright.auth_service.dto.RegisterRequest;
 import com.flowright.auth_service.service.AuthService;
-import com.flowright.auth_service.service.MessageProducer;
+import com.flowright.auth_service.service.kafka.MessageProducer;
 
 import lombok.RequiredArgsConstructor;
 

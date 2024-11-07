@@ -1,4 +1,4 @@
-package com.flowright.workspace_service.dto;
+package com.flowright.workspace_service.dto.WorkspaceDTO;
 
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkspaceResponse {
+public class CreateWorkspaceReponse {
     private UUID id;
     private String name;
     private UUID ownerId;

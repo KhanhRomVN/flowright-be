@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.flowright.workspace_service.dto.InviteDTO;
+import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.entity.Invite;
 import com.flowright.workspace_service.exception.ResourceNotFoundException;
 import com.flowright.workspace_service.repository.InviteRepository;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class InviteService {
     private final InviteRepository inviteRepository;
 
-    public InviteDTO createInvite(InviteDTO inviteDTO) {
+    public CreateInviteRequest createInvite(CreateInviteRequest inviteDTO) {
         Invite invite = Invite.builder()
                 .email(inviteDTO.getEmail())
                 .otp(generateOTP())
@@ -31,7 +31,7 @@ public class InviteService {
         return convertToDTO(invite);
     }
 
-    public InviteDTO verifyInvite(String email, String otp) {
+    public CreateInviteRequest verifyInvite(String email, String otp) {
         Invite invite = inviteRepository
                 .findByEmailAndOtp(email, otp)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid invite"));
@@ -53,8 +53,8 @@ public class InviteService {
         return String.format("%06d", new Random().nextInt(999999));
     }
 
-    private InviteDTO convertToDTO(Invite invite) {
-        return InviteDTO.builder()
+    private CreateInviteRequest convertToDTO(Invite invite) {
+        return CreateInviteRequest.builder()
                 .id(invite.getId())
                 .email(invite.getEmail())
                 .otp(invite.getOtp())

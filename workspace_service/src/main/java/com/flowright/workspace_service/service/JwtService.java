@@ -1,4 +1,4 @@
-package com.flowright.workspace_service.util;
+package com.flowright.workspace_service.service;
 
 import java.security.Key;
 import java.util.Base64;
@@ -25,7 +25,8 @@ public class JwtService {
     }
 
     public UUID extractUserId(String token) {
-        return extractAllClaims(token).get("user_id", UUID.class);
+        String userIdString = extractAllClaims(token).get("user_id", String.class);
+        return UUID.fromString(userIdString); 
     }
 
     private Key getSignInKey() {
