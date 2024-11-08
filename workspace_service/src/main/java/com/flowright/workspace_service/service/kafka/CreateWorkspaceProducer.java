@@ -1,5 +1,7 @@
 package com.flowright.workspace_service.service.kafka;
 
+import java.util.UUID;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +13,8 @@ public class CreateWorkspaceProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(String workspaceIdString, String ownerIdString, String name, String description) {
-        String message = workspaceIdString + "," + ownerIdString + "," + name + "," + description;
+    public void sendMessage(UUID workspaceId, UUID ownerId, String name, String description) {
+        String message = workspaceId + "," + ownerId + "," + name + "," + description;
         kafkaTemplate.send("create-workspace-topic", message);
     }
 }

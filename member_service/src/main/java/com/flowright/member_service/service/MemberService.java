@@ -8,10 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
-import com.flowright.member_service.dto.MemberDTO.UpdateMemberRequest;
-import com.flowright.member_service.dto.MembersSpecializationDTO.MemberSpecializationResponse;
-import com.flowright.member_service.dto.RoleDTO.RoleResponse;
-import com.flowright.member_service.dto.SpecializationDTO.SpecializationResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.repository.MemberRepository;
@@ -24,17 +20,15 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
-    private final RoleService roleService;
-    private final MemberSpecializationService memberSpecializationService;
-    private final SpecializationService specializationService;
+    // private final RoleService roleService;
+    // private final MemberSpecializationService memberSpecializationService;
+    // private final SpecializationService specializationService;
 
     public MemberResponse createMember(UUID workspaceId, UUID userId) {
-        // Check if member already exists
         if (memberRepository.existsByUserIdAndWorkspaceId(userId, workspaceId)) {
             throw new RuntimeException("Member already exists in workspace");
         }
 
-        // Get default role
         Role defaultRole = roleRepository
                 .findByWorkspaceIdAndName(workspaceId, "Guest")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
@@ -49,13 +43,13 @@ public class MemberService {
         return toMemberResponse(savedMember);
     }
 
-    public MemberResponse createFirstMember(UUID workspaceId, UUID userId) {
+    public void createFirstMember(UUID workspaceId, UUID userId) {
         if (!memberRepository.findByWorkspaceId(workspaceId).isEmpty()) {
             throw new RuntimeException("Workspace already has members");
         }
 
         Role defaultRole = roleRepository
-                .findByWorkspaceIdAndName(workspaceId, "Guest")
+                .findByWorkspaceIdAndName(workspaceId, "Admin")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         Member member = Member.builder()
@@ -64,29 +58,7 @@ public class MemberService {
                 .roleId(defaultRole.getId())
                 .build();
 
-        Member savedMember = memberRepository.save(member);
-        return toMemberResponse(savedMember);
-    }
-
-    public MemberResponse updateMember(UUID id, UpdateMemberRequest request) {
-        Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
-
-        if (request.getRoleId() != null) {
-            Role role = roleRepository
-                    .findById(request.getRoleId())
-                    .orElseThrow(() -> new RuntimeException("Role not found"));
-            member.setRoleId(role.getId());
-        }
-
-        Member updatedMember = memberRepository.save(member);
-        return toMemberResponse(updatedMember);
-    }
-
-    public void deleteMember(UUID id) {
-        if (!memberRepository.existsById(id)) {
-            throw new RuntimeException("Member not found");
-        }
-        memberRepository.deleteById(id);
+        memberRepository.save(member);
     }
 
     public MemberResponse getMemberById(UUID id) {
@@ -94,30 +66,30 @@ public class MemberService {
         return toMemberResponse(member);
     }
 
-    public List<MemberResponse> getWorkspaceMembers(UUID workspaceId) {
-        List<Member> memberData = memberRepository.findByWorkspaceId(workspaceId);
-        List<MemberResponse> members =
-                memberData.stream().map(this::toMemberResponse).collect(Collectors.toList());
+    // public List<MemberResponse> getWorkspaceMembers(UUID workspaceId) {
+    //     List<Member> memberData = memberRepository.findByWorkspaceId(workspaceId);
+    //     List<MemberResponse> members =
+    //             memberData.stream().map(this::toMemberResponse).collect(Collectors.toList());
 
-        for (MemberResponse member : members) {
-            RoleResponse role = roleService.getRoleById(member.getRoleId());
-            String roleName = role.getName();
-            member.setRoleName(roleName);
-        }
+    //     for (MemberResponse member : members) {
+    //         RoleResponse role = roleService.getRoleById(member.getRoleId());
+    //         String roleName = role.getName();
+    //         member.setRoleName(roleName);
+    //     }
 
-        for (MemberResponse member : members) {
-            MemberSpecializationResponse memberSpecialization =
-                    memberSpecializationService.getMemberSpecializationById(member.getId());
-            member.setLevel(memberSpecialization.getLevel());
-            member.setYearsOfExperience(memberSpecialization.getYearsOfExperience());
-            SpecializationResponse specialization =
-                    specializationService.getSpecializationById(memberSpecialization.getSpecializationId(), true);
-            member.setSpecializationName(specialization.getName());
-            member.setIsDefault(memberSpecialization.getIsDefault());
-        }
+    //     for (MemberResponse member : members) {
+    //         MemberSpecializationResponse memberSpecialization =
+    //                 memberSpecializationService.getMemberSpecializationById(member.getId());
+    //         member.setLevel(memberSpecialization.getLevel());
+    //         member.setYearsOfExperience(memberSpecialization.getYearsOfExperience());
+    //         SpecializationResponse specialization =
+    //                 specializationService.getSpecializationById(memberSpecialization.getSpecializationId(), true);
+    //         member.setSpecializationName(specialization.getName());
+    //         member.setIsDefault(memberSpecialization.getIsDefault());
+    //     }
 
-        return members;
-    }
+    //     return members;
+    // }
 
     private BasicMemberResponse toBasicMemberResponse(Member member) {
         return BasicMemberResponse.builder()

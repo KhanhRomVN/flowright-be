@@ -32,6 +32,15 @@ public class RoleService {
         return toRoleResponse(savedRole);
     }
 
+    public void createFirstRole(UUID workspaceId, String name, String description) {
+        Role role = Role.builder()
+                .name(name)
+                .description(description)
+                .workspaceId(workspaceId)
+                .build();
+        roleRepository.save(role);
+    }
+
     @Transactional
     public RoleResponse updateRole(UUID id, UpdateRoleRequest request) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));

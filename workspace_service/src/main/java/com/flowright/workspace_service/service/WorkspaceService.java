@@ -32,7 +32,7 @@ public class WorkspaceService {
         String description = "Admin Role Can Access All Resources";
         
         // Send a message to the kafka topic
-        createWorkspaceProducer.sendMessage(savedWorkspace.getId().toString(), savedWorkspace.getOwnerId().toString(), name, description);
+        createWorkspaceProducer.sendMessage(savedWorkspace.getId(), savedWorkspace.getOwnerId(), name, description);
     
         // Create and return the response DTO
         return CreateWorkspaceReponse.builder()
