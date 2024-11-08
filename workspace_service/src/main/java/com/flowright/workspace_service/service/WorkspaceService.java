@@ -10,12 +10,12 @@ import com.flowright.workspace_service.dto.WorkspaceDTO.CreateWorkspaceReponse;
 import com.flowright.workspace_service.dto.WorkspaceDTO.CreateWorkspaceRequest;
 import com.flowright.workspace_service.dto.WorkspaceDTO.GetListWorkspaceReponse;
 import com.flowright.workspace_service.entity.Workspace;
-import com.flowright.workspace_service.repository.WorkspaceRepository;
-import com.flowright.workspace_service.kafka.producer.CreateWorkspaceProducer;
-import com.flowright.workspace_service.kafka.consumer.GetUserInfoConsumer;
-import com.flowright.workspace_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.workspace_service.kafka.consumer.GetTotalMemberConsumer;
+import com.flowright.workspace_service.kafka.consumer.GetUserInfoConsumer;
+import com.flowright.workspace_service.kafka.producer.CreateWorkspaceProducer;
 import com.flowright.workspace_service.kafka.producer.GetTotalMemberProducer;
+import com.flowright.workspace_service.kafka.producer.GetUserInfoProducer;
+import com.flowright.workspace_service.repository.WorkspaceRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,7 +41,6 @@ public class WorkspaceService {
         
         // Receive a message from the kafka topic to get user info(username, email)
         String response = getUserInfoConsumer.getResponse();
-        System.out.println("fuck" + response);
         
         // Split the response to get username and email
         String[] userParts = response.split(",");
@@ -82,6 +81,14 @@ public class WorkspaceService {
             getTotalMemberProducer.sendMessage(workspace.getId());
             Integer totalMember = getTotalMemberConsumer.getTotalMember();
             workspace.setTotalMembers(totalMember);
+        }
+
+        for (GetListWorkspaceReponse workspace : response) {
+            getUserInfoProducer.sendMessage(workspace.getOwnerId());
+            String userResponse = getUserInfoConsumer.getResponse();
+            String[] userParts = userResponse.split(",");
+            String username = userParts[0];
+            workspace.setOwnerUsername(username);
         }
         return response;
     }

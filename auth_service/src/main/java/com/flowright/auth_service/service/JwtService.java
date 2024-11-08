@@ -38,7 +38,7 @@ public class JwtService {
 
     private String buildToken(Map<String, Object> extraClaims, User user, long expiration) {
         Map<String, Object> claims = new HashMap<>(extraClaims);
-        claims.put("user_id", user.getId()); // Thêm user_id vào claims
+        claims.put("user_id", user.getId().toString());
 
         return Jwts.builder()
                 .setClaims(claims)
