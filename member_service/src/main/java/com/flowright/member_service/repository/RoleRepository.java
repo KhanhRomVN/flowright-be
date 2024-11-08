@@ -18,4 +18,8 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
     Optional<Role> findByWorkspaceIdAndName(UUID workspaceId, String name);
 
     Page<Role> findByWorkspaceId(UUID workspaceId, Pageable pageable);
+
+    boolean existsByNameAndWorkspaceId(String name, UUID workspaceId);
+
+    boolean existsByWorkspaceIdAndName(UUID workspaceId, String name);
 }

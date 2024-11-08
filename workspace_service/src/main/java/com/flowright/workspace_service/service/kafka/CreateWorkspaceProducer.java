@@ -13,8 +13,8 @@ public class CreateWorkspaceProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(UUID workspaceId, UUID ownerId, String name, String description) {
-        String message = workspaceId + "," + ownerId + "," + name + "," + description;
+    public void sendMessage(UUID workspaceId, UUID ownerId, String username, String email) {
+        String message = workspaceId + "," + ownerId + "," + username + "," + email;
         kafkaTemplate.send("create-workspace-topic", message);
     }
 }
