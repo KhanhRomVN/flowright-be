@@ -1,4 +1,4 @@
-package com.flowright.task_service.exception;
+package com.flowright.user_service.exception;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.flowright.task_service.dto.ErrorResponse;
+import com.flowright.user_service.dto.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(TaskException.class)
-    public ResponseEntity<ErrorResponse> handleTaskException(TaskException ex) {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<ErrorResponse> handleUserException(UserException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage(), new HashMap<>());
         return new ResponseEntity<>(errorResponse, ex.getStatus());
     }

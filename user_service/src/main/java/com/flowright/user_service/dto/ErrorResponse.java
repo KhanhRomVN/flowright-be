@@ -1,4 +1,4 @@
-package com.flowright.workspace_service.dto;
+package com.flowright.user_service.dto;
 
 import java.util.Map;
 
