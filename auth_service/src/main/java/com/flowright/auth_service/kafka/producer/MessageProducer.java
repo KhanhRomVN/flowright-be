@@ -1,4 +1,4 @@
-package com.flowright.auth_service.service.kafka;
+package com.flowright.auth_service.kafka.producer;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

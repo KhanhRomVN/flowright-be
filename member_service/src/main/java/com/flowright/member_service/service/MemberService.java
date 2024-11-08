@@ -56,6 +56,10 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public int getTotalMember(UUID workspaceId) {
+        return memberRepository.countByWorkspaceId(workspaceId);
+    }
+
     public MemberResponse getMemberById(UUID id) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
         return toMemberResponse(member);

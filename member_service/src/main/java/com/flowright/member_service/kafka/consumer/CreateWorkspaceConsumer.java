@@ -1,4 +1,4 @@
-package com.flowright.member_service.service.kafka;
+package com.flowright.member_service.kafka.consumer;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.flowright.user_service.service.kafka;
+package com.flowright.user_service.kafka.consumer;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;

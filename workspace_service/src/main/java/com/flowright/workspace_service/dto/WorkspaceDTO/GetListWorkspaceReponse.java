@@ -16,4 +16,9 @@ public class GetListWorkspaceReponse {
     private String name;
     private UUID ownerId;
     private String ownerName;
+    private int totalMembers;
+
+    public void setTotalMembers(int totalMembers) {
+        this.totalMembers = totalMembers;
+    }
 }
