@@ -2,6 +2,7 @@ package com.flowright.member_service.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,10 +12,10 @@ import org.springframework.stereotype.Repository;
 import com.flowright.member_service.entity.Role;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
-    List<Role> findByWorkspaceId(Long workspaceId);
+public interface RoleRepository extends JpaRepository<Role, UUID> {
+    List<Role> findByWorkspaceId(UUID workspaceId);
 
-    Optional<Role> findByWorkspaceIdAndName(Long workspaceId, String name);
+    Optional<Role> findByWorkspaceIdAndName(UUID workspaceId, String name);
 
-    Page<Role> findByWorkspaceId(Long workspaceId, Pageable pageable);
+    Page<Role> findByWorkspaceId(UUID workspaceId, Pageable pageable);
 }

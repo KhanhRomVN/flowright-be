@@ -50,6 +50,10 @@ replay_pid*
 # Spring Boot specific
 spring-boot-*.pid
 
+# API Gateway specific configuration files
+/api-gateway/src/main/resources/application*.yaml
+/api-gateway/src/main/resources/application*.properties
+
 # Auth service specific configuration files
 /auth-service/src/main/resources/application*.yaml
 /auth-service/src/main/resources/application*.properties

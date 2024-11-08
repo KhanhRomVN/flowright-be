@@ -1,5 +1,7 @@
 package com.flowright.auth_service.service;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class AuthService {
         }
 
         User user = User.builder()
+                .id(UUID.randomUUID())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -43,6 +46,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .access_token(access_token)
                 .refresh_token(refresh_token)
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
@@ -65,6 +69,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .access_token(access_token)
                 .refresh_token(refresh_token)
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();

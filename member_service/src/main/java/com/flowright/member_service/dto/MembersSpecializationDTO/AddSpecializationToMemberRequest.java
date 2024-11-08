@@ -1,5 +1,7 @@
 package com.flowright.member_service.dto.MembersSpecializationDTO;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddSpecializationToMemberRequest {
-    private Long specializationId;
+    private UUID specializationId;
     private String level;
     private int yearsOfExperience;
     private Boolean isDefault;

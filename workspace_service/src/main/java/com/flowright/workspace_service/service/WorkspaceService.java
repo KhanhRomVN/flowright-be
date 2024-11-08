@@ -1,99 +1,44 @@
 package com.flowright.workspace_service.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.flowright.workspace_service.client.MemberServiceClient;
-import com.flowright.workspace_service.client.dto.CreateRoleRequest;
-import com.flowright.workspace_service.client.dto.RoleResponse;
-import com.flowright.workspace_service.client.dto.CreateMemberRequest;
-import com.flowright.workspace_service.dto.WorkspaceDTO;
+import com.flowright.workspace_service.dto.WorkspaceDTO.CreateWorkspaceReponse;
+import com.flowright.workspace_service.dto.WorkspaceDTO.CreateWorkspaceRequest;
 import com.flowright.workspace_service.entity.Workspace;
-import com.flowright.workspace_service.exception.ResourceNotFoundException;
-import com.flowright.workspace_service.exception.UnauthorizedException;
 import com.flowright.workspace_service.repository.WorkspaceRepository;
-
-
-import jakarta.transaction.Transactional;
+import com.flowright.workspace_service.service.kafka.CreateWorkspaceProducer;
 
 import lombok.RequiredArgsConstructor;
 
 
-@Service
+@Service    
 @RequiredArgsConstructor
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
-    private final MemberServiceClient memberServiceClient;
-
-    
-    
-    @Transactional
-    public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO, String token) {
-        // Save workspace
+    private final CreateWorkspaceProducer createWorkspaceProducer;
+    public CreateWorkspaceReponse createWorkspace(CreateWorkspaceRequest requestBody, UUID ownerId) {
+        // Create a new Workspace entity from the request body
         Workspace workspace = Workspace.builder()
-                .name(workspaceDTO.getName())
-                .ownerId(workspaceDTO.getOwnerId())
+                .name(requestBody.getName())
+                .ownerId(ownerId)
                 .build();
-        workspace = workspaceRepository.save(workspace);
+    
+        // Save the workspace to the repository
+        Workspace savedWorkspace = workspaceRepository.save(workspace);
+
+        String name = "Admin";
+        String description = "Admin Role Can Access All Resources";
         
-        // Create admin role
-        CreateRoleRequest roleRequest = CreateRoleRequest.builder()
-                .name("Admin")
-                .description("Workspace Administrator")
-                .workspaceId(workspace.getId())
-                .build();
-        
-        memberServiceClient.createRole(roleRequest, token);
-        
-        // Create first member as admin
-        // CreateMemberRequest memberRequest = CreateMemberRequest.builder()
-        //         .workspaceId(workspace.getId())
-        //         .build();
-        
-        // memberServiceClient.createFirstMember(memberRequest, token);
-        
-        return convertToDTO(workspace);
-    }
-
-    public List<WorkspaceDTO> getWorkspacesByOwnerId(Long ownerId) {
-        return workspaceRepository.findByOwnerId(ownerId).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    public WorkspaceDTO updateWorkspace(Long id, WorkspaceDTO workspaceDTO, Long userId) {
-        Workspace workspace = workspaceRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
-
-        if (!workspace.getOwnerId().equals(userId)) {
-            throw new UnauthorizedException("You don't have permission to update this workspace");
-        }
-
-        workspace.setName(workspaceDTO.getName());
-        workspace = workspaceRepository.save(workspace);
-        return convertToDTO(workspace);
-    }
-
-    public void deleteWorkspace(Long id, Long userId) {
-        Workspace workspace = workspaceRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
-
-        if (!workspace.getOwnerId().equals(userId)) {
-            throw new UnauthorizedException("You don't have permission to delete this workspace");
-        }
-
-        workspaceRepository.delete(workspace);
-    }
-
-    private WorkspaceDTO convertToDTO(Workspace workspace) {
-        return WorkspaceDTO.builder()
-                .id(workspace.getId())
-                .name(workspace.getName())
-                .ownerId(workspace.getOwnerId())
+        // Send a message to the kafka topic
+        createWorkspaceProducer.sendMessage(savedWorkspace.getId(), savedWorkspace.getOwnerId(), name, description);
+    
+        // Create and return the response DTO
+        return CreateWorkspaceReponse.builder()
+                .id(savedWorkspace.getId())
+                .name(savedWorkspace.getName())
+                .ownerId(savedWorkspace.getOwnerId())
                 .build();
     }
 }

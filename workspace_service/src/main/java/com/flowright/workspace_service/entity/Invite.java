@@ -1,7 +1,7 @@
 package com.flowright.workspace_service.entity;
 
 import java.time.LocalDateTime;
-
+import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class Invite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false)
     private String email;
@@ -34,7 +34,7 @@ public class Invite {
     private String otp;
 
     @Column(name = "role_id", nullable = false)
-    private Long roleId;
+    private UUID roleId;
 
     @Column(nullable = false)
     private String status;
@@ -43,7 +43,7 @@ public class Invite {
     private LocalDateTime expiresAt;
 
     @Column(name = "workspace_id", nullable = false)
-    private Long workspaceId;
+    private UUID workspaceId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

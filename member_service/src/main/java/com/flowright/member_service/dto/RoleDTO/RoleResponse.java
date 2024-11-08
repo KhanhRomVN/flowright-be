@@ -1,5 +1,7 @@
 package com.flowright.member_service.dto.RoleDTO;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleResponse {
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
-    private Long workspaceId;
+    private UUID workspaceId;
 }

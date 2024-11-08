@@ -1,5 +1,7 @@
 package com.flowright.member_service.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public RoleResponse createRole(CreateRoleRequest request, Long workspaceId) {
+    public RoleResponse createRole(CreateRoleRequest request, UUID workspaceId) {
         Role role = Role.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -30,8 +32,17 @@ public class RoleService {
         return toRoleResponse(savedRole);
     }
 
+    public void createFirstRole(UUID workspaceId, String name, String description) {
+        Role role = Role.builder()
+                .name(name)
+                .description(description)
+                .workspaceId(workspaceId)
+                .build();
+        roleRepository.save(role);
+    }
+
     @Transactional
-    public RoleResponse updateRole(Long id, UpdateRoleRequest request) {
+    public RoleResponse updateRole(UUID id, UpdateRoleRequest request) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
 
         if (request.getName() != null) {
@@ -46,14 +57,14 @@ public class RoleService {
     }
 
     @Transactional
-    public void deleteRole(Long id) {
+    public void deleteRole(UUID id) {
         if (!roleRepository.existsById(id)) {
             throw new RuntimeException("Role not found");
         }
         roleRepository.deleteById(id);
     }
 
-    public RoleResponse getRoleById(Long id) {
+    public RoleResponse getRoleById(UUID id) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
         return toRoleResponse(role);
     }
@@ -71,18 +82,18 @@ public class RoleService {
                 .build();
     }
 
-    public RoleResponse getAdminRoleByWorkspaceId(Long workspaceId) {
+    public RoleResponse getAdminRoleByWorkspaceId(UUID workspaceId) {
         Role role = roleRepository
                 .findByWorkspaceIdAndName(workspaceId, "Admin")
                 .orElseThrow(() -> new RuntimeException("Admin role not found"));
         return toRoleResponse(role);
     }
 
-    public Page<RoleResponse> getAllRolesByWorkspaceId(Long workspaceId) {
+    public Page<RoleResponse> getAllRolesByWorkspaceId(UUID workspaceId) {
         return roleRepository.findByWorkspaceId(workspaceId, Pageable.unpaged()).map(this::toRoleResponse);
     }
 
-    public String getRoleNameById(Long id) {
+    public String getRoleNameById(UUID id) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
         return role.getName();
     }
