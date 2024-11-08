@@ -56,7 +56,6 @@ public class RoleController {
     @GetMapping("/workspace/roles")
     public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
-        System.out.println(workspaceId);
         return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
     }
 }

@@ -22,6 +22,10 @@ public class RoleService {
 
     @Transactional
     public RoleResponse createRole(CreateRoleRequest request, UUID workspaceId) {
+        if (roleRepository.existsByNameAndWorkspaceId(request.getName(), workspaceId)) {
+            throw new RuntimeException("Role already exists");
+        }
+
         Role role = Role.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -32,7 +36,25 @@ public class RoleService {
         return toRoleResponse(savedRole);
     }
 
-    public void createFirstRole(UUID workspaceId, String name, String description) {
+    public UUID createFirstAdminRole(UUID workspaceId, String name, String description) {
+        if (roleRepository.existsByNameAndWorkspaceId(name, workspaceId)) {
+            throw new RuntimeException("Role already exists");
+        }
+
+        Role role = Role.builder()
+                .name(name)
+                .description(description)
+                .workspaceId(workspaceId)
+                .build();
+        Role savedRole = roleRepository.save(role);
+        return savedRole.getId();
+    }
+
+    public void createFirstGuestRole(UUID workspaceId, String name, String description) {
+        if (roleRepository.existsByNameAndWorkspaceId(name, workspaceId)) {
+            throw new RuntimeException("Role already exists");
+        }
+
         Role role = Role.builder()
                 .name(name)
                 .description(description)

@@ -26,7 +26,7 @@ public class MemberService {
 
     public MemberResponse createMember(UUID workspaceId, UUID userId) {
         if (memberRepository.existsByUserIdAndWorkspaceId(userId, workspaceId)) {
-            throw new RuntimeException("Member already exists in workspace");
+            return null;
         }
 
         Role defaultRole = roleRepository
@@ -43,19 +43,14 @@ public class MemberService {
         return toMemberResponse(savedMember);
     }
 
-    public void createFirstMember(UUID workspaceId, UUID userId) {
-        if (!memberRepository.findByWorkspaceId(workspaceId).isEmpty()) {
-            throw new RuntimeException("Workspace already has members");
-        }
-
-        Role defaultRole = roleRepository
-                .findByWorkspaceIdAndName(workspaceId, "Admin")
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+    public void createFirstMember(UUID workspaceId, UUID userId, UUID roleId, String username, String email) {
 
         Member member = Member.builder()
                 .userId(userId)
                 .workspaceId(workspaceId)
-                .roleId(defaultRole.getId())
+                .roleId(roleId)
+                .username(username)
+                .email(email)
                 .build();
 
         memberRepository.save(member);
