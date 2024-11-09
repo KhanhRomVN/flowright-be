@@ -26,7 +26,6 @@ public class PermissionController {
     // Create a new permission: POST /member-service/permissions
     @PostMapping
     public ResponseEntity<PermissionResponse> createPermission(@Valid @RequestBody CreatePermissionRequest request) {
-        System.out.println("Creating permission: " + request);
         return ResponseEntity.ok(permissionService.createPermission(request));
     }
 

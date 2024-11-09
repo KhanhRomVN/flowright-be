@@ -25,38 +25,74 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  # api_gateway:
-  #   build:
-  #     context: ./api_gateway
-  #     dockerfile: Dockerfile
-  #   image: api-gateway
-  #   ports:
-  #     - 8080:8080
-  #   restart: on-failure
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: dev
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  elasticsearch: # configures the Elasticsearch container.
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    container_name: elasticsearch # Sets the name of the container to "elasticsearch."
+    environment: # Configures environment variables for the Elasticsearch container, such as node name, discovery type, memory lock, and Java options for heap size.
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - xpack.security.enabled=false # Disable security
+      # - ELASTIC_PASSWORD=changeme
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elk
 
-  # auth_service:
-  #   build:
-  #     context: ./auth_service
-  #     dockerfile: Dockerfile
-  #   image: auth-service
-  #   ports:
-  #     - 8001:8001
-  #   restart: on-failure
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: dev
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  logstash: #c onfigures the Logstash container.
+    image: docker.elastic.co/logstash/logstash:8.15.3
+    container_name: logstash # Sets the name of the container to "logstash."
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - /logs/sample.log:/usr/share/logstash/data/sample.log # add your log file path to here
+      - ./logs:/usr/share/logstash/logs
+    ports:
+      - 5000:5000
+    environment:  
+      - 'LS_JAVA_OPTS=-Xmx256m -Xms256m' # Sets the Java options for Logstash heap size.
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
-  # user_service:
-  #   build:
-  #     context: ./user_service
-  #     dockerfile: Dockerfile
-  #   image: user-service
-  #   ports:
-  #     - 8002:8002
-  #   restart: on-failure
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: dev
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  kibana: # Configures the Kibana container.
+    image: docker.elastic.co/kibana/kibana:8.15.3
+    container_name: kibana # Sets the name of the container to "kibana."
+    ports:
+      - 5601:5601
+    environment: # Sets the Elasticsearch URL and Node.js options for the Kibana container.
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - 'NODE_OPTIONS=--max-old-space-size=2048'
+      # - ELASTICSEARCH_USERNAME=elastic
+      # - ELASTICSEARCH_PASSWORD=changeme
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  auth_service:
+    image: flowright/auth_service:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - elk
+    depends_on:
+      - logstash
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  es-data:
+    driver: local

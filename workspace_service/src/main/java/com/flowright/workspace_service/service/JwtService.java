@@ -4,8 +4,13 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.UUID;
 
+import com.flowright.workspace_service.exception.WorkspaceException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import org.springframework.http.HttpStatus;
+
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,8 +30,17 @@ public class JwtService {
     }
 
     public UUID extractUserId(String token) {
-        String userIdString = extractAllClaims(token).get("user_id", String.class);
-        return UUID.fromString(userIdString); 
+        if (extractAllClaims(token).get("user_id") == null) {
+            throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("user_id", String.class));
+    }
+
+    public UUID extractWorkspaceId(String token) {
+        if (extractAllClaims(token).get("workspace_id") == null) {
+            throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("workspace_id", String.class));
     }
 
     private Key getSignInKey() {

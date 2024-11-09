@@ -17,8 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MemberException.class)
     public ResponseEntity<ErrorResponse> handleMemberException(MemberException ex) {
-        ErrorResponse errorResponse =
-                new ErrorResponse(ex.getStatus().value(), ex.getMessage(), System.currentTimeMillis());
+        ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage(), new HashMap<>());
         return new ResponseEntity<>(errorResponse, ex.getStatus());
     }
 
@@ -31,15 +30,14 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(), "Validation failed", System.currentTimeMillis(), errors);
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Validation failed", errors);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred", System.currentTimeMillis());
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred", new HashMap<>());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

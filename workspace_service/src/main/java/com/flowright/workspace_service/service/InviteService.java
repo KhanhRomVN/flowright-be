@@ -2,13 +2,24 @@ package com.flowright.workspace_service.service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
+import com.flowright.workspace_service.dto.InviteDTO.CreateInviteResponse;
+import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
+import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
+import com.flowright.workspace_service.kafka.producer.CreateMemberWorkspaceProducer;    
+import com.flowright.workspace_service.kafka.consumer.CreateMemberWorkspaceConsumer;
 import com.flowright.workspace_service.entity.Invite;
-import com.flowright.workspace_service.exception.ResourceNotFoundException;
+import com.flowright.workspace_service.kafka.consumer.CheckMemberWorkspaceConsumer;
+import com.flowright.workspace_service.kafka.producer.CheckMemberWorkspaceProducer;
+import com.flowright.workspace_service.kafka.producer.GetAccessTokenByWorkspaceIdProducer;
+import com.flowright.workspace_service.kafka.consumer.GetAccessTokenByWorkspaceIdConsumer;
 import com.flowright.workspace_service.repository.InviteRepository;
+import com.flowright.workspace_service.exception.WorkspaceException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,52 +27,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InviteService {
     private final InviteRepository inviteRepository;
+    private final CreateMemberWorkspaceProducer createMemberWorkspaceProducer;
+    private final CreateMemberWorkspaceConsumer createMemberWorkspaceConsumer;
+    private final GetAccessTokenByWorkspaceIdProducer getAccessTokenByWorkspaceIdProducer;
+    private final GetAccessTokenByWorkspaceIdConsumer getAccessTokenByWorkspaceIdConsumer;
+    private final CheckMemberWorkspaceProducer checkMemberWorkspaceProducer;
+    private final CheckMemberWorkspaceConsumer checkMemberWorkspaceConsumer;
+    public CreateInviteResponse createInvite(UUID workspaceId, CreateInviteRequest request) {
+        checkMemberWorkspaceProducer.sendMessage(workspaceId, request.getEmail());  
 
-    public CreateInviteRequest createInvite(CreateInviteRequest inviteDTO) {
-        Invite invite = Invite.builder()
-                .email(inviteDTO.getEmail())
-                .otp(generateOTP())
-                .roleId(inviteDTO.getRoleId())
-                .status("PENDING")
+        String exists = checkMemberWorkspaceConsumer.getResponse();
+
+        if (exists.equals("true")) {
+            throw new WorkspaceException("Member already exists in workspace", HttpStatus.BAD_REQUEST);
+        }
+
+        String token = generateToken();
+        inviteRepository.save(Invite.builder()
+                .workspaceId(workspaceId)
+                .email(request.getEmail())
+                .roleId(request.getRoleId())
+                .token(token)
+                .status("pending")
                 .expiresAt(LocalDateTime.now().plusDays(7))
-                .workspaceId(inviteDTO.getWorkspaceId())
+                .build());
+
+        return CreateInviteResponse.builder()
+                .token(token)
                 .build();
-
-        invite = inviteRepository.save(invite);
-        return convertToDTO(invite);
     }
 
-    public CreateInviteRequest verifyInvite(String email, String otp) {
-        Invite invite = inviteRepository
-                .findByEmailAndOtp(email, otp)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid invite"));
+    private String generateToken() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder token = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            token.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return token.toString();
+    }   
 
-        if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ResourceNotFoundException("Invite has expired");
+    public AcceptInviteReponse acceptInvite(AcceptInviteRequest request, UUID userId) {
+        Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(request.getToken(), UUID.fromString(request.getWorkspaceId()), request.getEmail());
+
+        if (invite == null) {
+            throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
-        if (!"PENDING".equals(invite.getStatus())) {
-            throw new ResourceNotFoundException("Invite is not pending");
-        }
+        createMemberWorkspaceProducer.sendMessage(userId.toString(), invite.getWorkspaceId().toString(), invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
+        String memberId = createMemberWorkspaceConsumer.getMemberId();
 
-        invite.setStatus("ACCEPTED");
-        invite = inviteRepository.save(invite);
-        return convertToDTO(invite);
-    }
 
-    private String generateOTP() {
-        return String.format("%06d", new Random().nextInt(999999));
-    }
+        getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(), invite.getRoleId().toString());
+        String accessToken = getAccessTokenByWorkspaceIdConsumer.getAccessToken();
 
-    private CreateInviteRequest convertToDTO(Invite invite) {
-        return CreateInviteRequest.builder()
-                .id(invite.getId())
-                .email(invite.getEmail())
-                .otp(invite.getOtp())
-                .roleId(invite.getRoleId())
-                .status(invite.getStatus())
-                .workspaceId(invite.getWorkspaceId())
-                .expiresAt(invite.getExpiresAt())
+        inviteRepository.delete(invite);
+
+        return AcceptInviteReponse.builder()
+                .accessToken(accessToken)
                 .build();
     }
 }

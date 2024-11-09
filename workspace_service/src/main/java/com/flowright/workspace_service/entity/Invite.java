@@ -24,41 +24,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Invite {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
-
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String otp;
-
-    @Column(name = "role_id", nullable = false)
-    private UUID roleId;
-
-    @Column(nullable = false)
-    private String status;
-
-    @Column(name = "expires_at", nullable = false)
-    private LocalDateTime expiresAt;
 
     @Column(name = "workspace_id", nullable = false)
     private UUID workspaceId;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "email", nullable = false)
+    private String email;
+    
+    @Column(name = "role_id", nullable = false)
+    private UUID roleId;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "token", nullable = false)
+    private String token;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "status", nullable = false)
+    private String status;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
 }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
+import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
+import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
 import com.flowright.member_service.repository.MemberRepository;
@@ -20,27 +22,25 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
+    private final JwtService jwtService;
     // private final RoleService roleService;
     // private final MemberSpecializationService memberSpecializationService;
     // private final SpecializationService specializationService;
 
-    public MemberResponse createMember(UUID workspaceId, UUID userId) {
-        if (memberRepository.existsByUserIdAndWorkspaceId(userId, workspaceId)) {
-            return null;
+    public String createMember(UUID userId, UUID workspaceId, String email, String username, UUID roleId) {
+        if (memberRepository.existsByEmailAndWorkspaceId(email, workspaceId)) {
+            throw new RuntimeException("Member already exists");
         }
-
-        Role defaultRole = roleRepository
-                .findByWorkspaceIdAndName(workspaceId, "Guest")
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         Member member = Member.builder()
                 .userId(userId)
+                .email(email)
+                .username(username)
+                .roleId(roleId)
                 .workspaceId(workspaceId)
-                .roleId(defaultRole.getId())
                 .build();
-
-        Member savedMember = memberRepository.save(member);
-        return toMemberResponse(savedMember);
+        memberRepository.save(member);
+        return member.getId().toString();
     }
 
     public void createFirstMember(UUID workspaceId, UUID userId, UUID roleId, String username, String email) {
@@ -56,9 +56,25 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public int getTotalMember(UUID workspaceId) {
+        return memberRepository.countByWorkspaceId(workspaceId);
+    }
+
     public MemberResponse getMemberById(UUID id) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("Member not found"));
         return toMemberResponse(member);
+    }
+
+    public TokenResponse getNewAccessToken(UUID workspaceId, UUID userId) {
+        Member member = memberRepository
+                .findByUserIdAndWorkspaceId(userId, workspaceId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        String accessToken = jwtService.generateAccessToken(
+                userId.toString(),
+                member.getId().toString(),
+                workspaceId.toString(),
+                member.getRoleId().toString());
+        return TokenResponse.builder().access_token(accessToken).build();
     }
 
     // public List<MemberResponse> getWorkspaceMembers(UUID workspaceId) {
@@ -85,6 +101,19 @@ public class MemberService {
 
     //     return members;
     // }
+
+    public List<SimpleMemberResponse> getSimpleMembersByWorkspaceId(UUID workspaceId) {
+        List<Member> members = memberRepository.findByWorkspaceId(workspaceId);
+        return members.stream().map(this::toSimpleMemberResponse).collect(Collectors.toList());
+    }
+
+    private SimpleMemberResponse toSimpleMemberResponse(Member member) {
+        return SimpleMemberResponse.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .username(member.getUsername())
+                .build();
+    }
 
     private BasicMemberResponse toBasicMemberResponse(Member member) {
         return BasicMemberResponse.builder()
@@ -116,5 +145,9 @@ public class MemberService {
         member.setRoleId(role.getId());
         Member updatedMember = memberRepository.save(member);
         return toMemberResponse(updatedMember);
+    }
+
+    public boolean checkMemberWorkspace(UUID workspaceId, String email) {
+        return memberRepository.existsByWorkspaceIdAndEmail(workspaceId, email);
     }
 }

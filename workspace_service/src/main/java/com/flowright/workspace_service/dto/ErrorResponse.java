@@ -1,21 +1,18 @@
 package com.flowright.workspace_service.dto;
 
-import java.util.List;
+import java.util.Map;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class ErrorResponse {
-    private String code;
-    private String message;
-    private List<String> details;
+    private final int status;
+    private final String message;
+    private final Map<String, String> errors;
 
-    public ErrorResponse(String code, String message) {
-        this.code = code;
+    public ErrorResponse(int status, String message, Map<String, String> errors) {
+        this.status = status;
         this.message = message;
+        this.errors = errors;
     }
 }

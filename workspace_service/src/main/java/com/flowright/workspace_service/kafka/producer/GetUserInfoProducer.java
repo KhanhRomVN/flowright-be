@@ -1,4 +1,4 @@
-package com.flowright.workspace_service.service.kafka;
+package com.flowright.workspace_service.kafka.producer;
 
 import java.util.UUID;
 

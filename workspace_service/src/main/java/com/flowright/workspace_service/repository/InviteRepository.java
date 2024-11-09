@@ -9,5 +9,6 @@ import com.flowright.workspace_service.entity.Invite;
 
 @Repository
 public interface InviteRepository extends JpaRepository<Invite, UUID> {
-    Optional<Invite> findByEmailAndOtp(String email, String otp);
+    Optional<Invite> findByEmailAndToken(String email, String token);
+    Invite findByTokenAndWorkspaceIdAndEmail(String token, UUID workspaceId, String email);
 }
