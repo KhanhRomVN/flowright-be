@@ -51,6 +51,8 @@ FloWright is a comprehensive project management system built using microservices
 - **Build Tool:** Maven
 - **Cloud:** Spring Cloud
 - **Testing:** JUnit 5, Mockito
+- **Logging:** ELK Stack (Elasticsearch, Logstash, Kibana)
+- **Messaging:** Kafka, Zookeeper
 
 ## 🌐 Services Overview
 
@@ -68,10 +70,10 @@ FloWright is a comprehensive project management system built using microservices
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Java 21
+- Java 21 SDK
 - Maven
-- MySQL Cloud Aiven
-- Docker (optional)
+- Vscode or Intelji IDE
+- Docker Desktop
 
 ### Installation
 
@@ -81,23 +83,25 @@ git clone https://github.com/KhanhRomVN/flowright-be.git
 cd flowright-be
 ```
 
-2. Build all services
-cd to all services folder and run
-```
-mvn clean install
-```
-
-3. Run all services
-[1]. Run Kafka Docker Compose
+[2]. Build ELK, kafka, zookeeper, redis to Docker Compose
 ```
 docker-compose up -d
 ```
-[2]. Run All Services
-- if you use vscode ide
+
+[3]. Build all spring-boot services
+```
+mvn clean install
+mvn spring-boot:run
+```
+
+[4]. Run all spring-boot services
 ```
 mvn spring-boot:run
 ```
-- if you run intelji ide, click the green play button on the left sidebar
+
+[5]. Run docker compose for kafka, zookeeper, redis by open Docker Desktop and start
+
+
 
 
 ## 📚 API Documentation

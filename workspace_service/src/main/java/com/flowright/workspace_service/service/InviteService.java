@@ -3,11 +3,12 @@ package com.flowright.workspace_service.service;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.entity.Invite;
-import com.flowright.workspace_service.exception.ResourceNotFoundException;
+import com.flowright.workspace_service.exception.WorkspaceException;
 import com.flowright.workspace_service.repository.InviteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -33,15 +34,15 @@ public class InviteService {
 
     public CreateInviteRequest verifyInvite(String email, String otp) {
         Invite invite = inviteRepository
-                .findByEmailAndOtp(email, otp)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid invite"));
+                .findByEmailAndOtp(email, otp)  
+                .orElseThrow(() -> new WorkspaceException("Invalid invite", HttpStatus.BAD_REQUEST));
 
         if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ResourceNotFoundException("Invite has expired");
+            throw new WorkspaceException("Invite has expired", HttpStatus.BAD_REQUEST);
         }
 
         if (!"PENDING".equals(invite.getStatus())) {
-            throw new ResourceNotFoundException("Invite is not pending");
+            throw new WorkspaceException("Invite is not pending", HttpStatus.BAD_REQUEST);
         }
 
         invite.setStatus("ACCEPTED");
