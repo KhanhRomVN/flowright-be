@@ -15,23 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateInviteRequest {
-    @NotNull(message = "ID cannot be null")
-    private UUID id;
-
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
-    private String otp;
-
     @NotNull(message = "Role ID cannot be null")
     private UUID roleId;
-
-    @NotNull(message = "Status cannot be null")
-    private String status;
-
-    @NotNull(message = "Workspace ID cannot be null")
-    private UUID workspaceId;
-
-    @NotNull(message = "Expires at cannot be null")
-    private LocalDateTime expiresAt;
 }

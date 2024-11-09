@@ -1,8 +1,15 @@
 package com.flowright.member_service.controller;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.member_service.dto.RoleDTO.RoleResponse;
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.RoleService;
 
@@ -40,9 +47,9 @@ public class RoleController {
     // }
 
     // get all roles: /member-service/workspace/roles
-    // @GetMapping("/workspace/roles")
-    // public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
-    //     UUID workspaceId = jwtService.extractWorkspaceId(token);
-    //     return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
-    // }
+    @GetMapping("/workspace/roles")
+    public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
+        return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
+    }
 }

@@ -12,13 +12,13 @@ CREATE TABLE `flowright`.`workspaces` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `owner_id` INT NOT NULL
-);
+);  
 
 CREATE TABLE `flowright`.`invites` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `workspace_id` BINARY(16) NOT NULL,
-    `user_id` BINARY(16) NULL,
     `email` VARCHAR(100) NOT NULL,
+    `role_id` BINARY(16) NOT NULL,
     `token` VARCHAR(10) NOT NULL,
     `status` VARCHAR(50) NOT NULL, -- pending, accepted, rejected
     `expires_at` DATETIME NOT NULL
