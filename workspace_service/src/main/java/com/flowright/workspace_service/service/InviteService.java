@@ -20,7 +20,6 @@ import com.flowright.workspace_service.kafka.producer.GetAccessTokenByWorkspaceI
 import com.flowright.workspace_service.kafka.consumer.GetAccessTokenByWorkspaceIdConsumer;
 import com.flowright.workspace_service.repository.InviteRepository;
 import com.flowright.workspace_service.exception.WorkspaceException;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +32,8 @@ public class InviteService {
     private final GetAccessTokenByWorkspaceIdConsumer getAccessTokenByWorkspaceIdConsumer;
     private final CheckMemberWorkspaceProducer checkMemberWorkspaceProducer;
     private final CheckMemberWorkspaceConsumer checkMemberWorkspaceConsumer;
+    private final WorkspaceMemberService workspaceMemberService;
+
     public CreateInviteResponse createInvite(UUID workspaceId, CreateInviteRequest request) {
         checkMemberWorkspaceProducer.sendMessage(workspaceId, request.getEmail());  
 
@@ -80,6 +81,8 @@ public class InviteService {
 
         getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(), invite.getRoleId().toString());
         String accessToken = getAccessTokenByWorkspaceIdConsumer.getAccessToken();
+
+        workspaceMemberService.createWorkspaceMember(userId, invite.getWorkspaceId());
 
         inviteRepository.delete(invite);
 

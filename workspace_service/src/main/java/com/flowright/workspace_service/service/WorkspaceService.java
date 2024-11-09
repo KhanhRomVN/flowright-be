@@ -92,4 +92,9 @@ public class WorkspaceService {
         }
         return response;
     }
+
+    public Workspace findWorkspaceById(UUID workspaceId) {
+        return workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new RuntimeException("Workspace not found"));
+    }
 }

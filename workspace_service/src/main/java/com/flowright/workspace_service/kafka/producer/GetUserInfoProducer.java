@@ -14,6 +14,6 @@ public class GetUserInfoProducer {
     }
 
     public void sendMessage(UUID ownerId) {
-        kafkaTemplate.send("user-request-topic", ownerId.toString());
+        kafkaTemplate.send("get-user-info-request", ownerId.toString());
     }
 }

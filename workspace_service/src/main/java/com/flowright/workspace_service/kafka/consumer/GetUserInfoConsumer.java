@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class GetUserInfoConsumer {
     private String response;
 
-    @KafkaListener(topics = "user-response-topic", groupId = "workspace-service")
+    @KafkaListener(topics = "get-user-info-response", groupId = "workspace-service")
     public void listen(String message) {
         this.response = message;
     }

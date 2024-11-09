@@ -20,10 +20,10 @@ public class UserRequestConsumer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "user-request-topic", groupId = "user-service")
+    @KafkaListener(topics = "get-user-info-request", groupId = "user-service")
     public void listen(String ownerId) {
         UserDTO user = userService.getCurrentUser(UUID.fromString(ownerId));
         String responseMessage = user.getUsername() + "," + user.getEmail();
-        kafkaTemplate.send("user-response-topic", responseMessage);
+        kafkaTemplate.send("get-user-info-response", responseMessage);
     }
 }
