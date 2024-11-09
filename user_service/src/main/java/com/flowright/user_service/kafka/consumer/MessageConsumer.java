@@ -7,6 +7,5 @@ import org.springframework.stereotype.Service;
 public class MessageConsumer {
 
     @KafkaListener(topics = "user-topic", groupId = "user-service")
-    public void listen(String message) {
-    }
+    public void listen(String message) {}
 }

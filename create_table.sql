@@ -14,6 +14,12 @@ CREATE TABLE `flowright`.`workspaces` (
     `owner_id` INT NOT NULL
 );  
 
+CREATE TABLE `flowright`.`workspace_members` (
+    `id` BINARY(16) PRIMARY KEY NOT NULL,
+    `user_id` INT NOT NULL,
+    `workspace_id` BINARY(16) NOT NULL
+);
+
 CREATE TABLE `flowright`.`invites` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `workspace_id` BINARY(16) NOT NULL,
