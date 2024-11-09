@@ -1,5 +1,6 @@
 package com.flowright.member_service.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.service.JwtService;
 import com.flowright.member_service.service.MemberService;
@@ -52,6 +54,14 @@ public class MemberController {
     //     UUID workspaceId = jwtService.extractWorkspaceId(token);
     //     return ResponseEntity.ok(memberService.getWorkspaceMembers(workspaceId));
     // }
+
+    // get list simple member by workspace_id: /member-service/members/workspace/simple
+    @GetMapping("/workspace/simple")
+    public ResponseEntity<List<SimpleMemberResponse>> getSimpleMembersByWorkspaceId(
+            @RequestHeader("access_token") String token) {
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
+        return ResponseEntity.ok(memberService.getSimpleMembersByWorkspaceId(workspaceId));
+    }
 
     // get list member by role_id: /member-service/members/role/{role_id}
     // @GetMapping("/role/{role_id}")

@@ -35,7 +35,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(workspaceService.createWorkspace(requestBody, ownerId));
     }
 
-    // get all workspaces of the owner
+    // get all workspaces of the owner: /workspace-service/workspaces
     @GetMapping
     public ResponseEntity<List<GetListWorkspaceReponse>> getWorkspaces(@RequestHeader("access_token") String token) {
         UUID ownerId = jwtService.extractUserId(token);

@@ -26,7 +26,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserDocumentRepository userDocumentRepository;
 
-
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AuthException("Username already exists", HttpStatus.CONFLICT);

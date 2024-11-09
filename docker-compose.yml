@@ -78,6 +78,17 @@ services:
     depends_on:
       - elasticsearch
 
+  auth_service:
+    image: flowright/auth_service:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - elk
+    depends_on:
+      - logstash
+
 networks:
   elk:
     driver: bridge

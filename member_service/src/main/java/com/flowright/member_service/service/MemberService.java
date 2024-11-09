@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
+import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
@@ -105,6 +106,19 @@ public class MemberService {
 
     //     return members;
     // }
+
+    public List<SimpleMemberResponse> getSimpleMembersByWorkspaceId(UUID workspaceId) {
+        List<Member> members = memberRepository.findByWorkspaceId(workspaceId);
+        return members.stream().map(this::toSimpleMemberResponse).collect(Collectors.toList());
+    }
+
+    private SimpleMemberResponse toSimpleMemberResponse(Member member) {
+        return SimpleMemberResponse.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .username(member.getUsername())
+                .build();
+    }
 
     private BasicMemberResponse toBasicMemberResponse(Member member) {
         return BasicMemberResponse.builder()
