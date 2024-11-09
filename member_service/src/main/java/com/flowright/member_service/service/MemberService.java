@@ -27,12 +27,17 @@ public class MemberService {
     // private final MemberSpecializationService memberSpecializationService;
     // private final SpecializationService specializationService;
 
-    public String createMember(UUID workspaceId, String email, String username, UUID roleId) {
+    public String createMember(UUID userId, UUID workspaceId, String email, String username, UUID roleId) {
+        if (memberRepository.existsByEmailAndWorkspaceId(email, workspaceId)) {
+            throw new RuntimeException("Member already exists");
+        }
+
         Member member = Member.builder()
-                .workspaceId(workspaceId)
+                .userId(userId)
                 .email(email)
                 .username(username)
                 .roleId(roleId)
+                .workspaceId(workspaceId)
                 .build();
         memberRepository.save(member);
         return member.getId().toString();

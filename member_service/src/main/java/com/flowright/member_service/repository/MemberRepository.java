@@ -22,4 +22,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     int countByWorkspaceId(UUID workspaceId);
 
     boolean existsByWorkspaceIdAndEmail(UUID workspaceId, String email);
+
+    boolean existsByEmailAndWorkspaceId(String email, UUID workspaceId);
 }

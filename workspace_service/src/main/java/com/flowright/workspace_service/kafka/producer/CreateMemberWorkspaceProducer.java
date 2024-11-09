@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 public class CreateMemberWorkspaceProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void sendMessage(String workspaceId, String email, String username, String roleId) {
-        String message = workspaceId + "," + email + "," + username + "," + roleId;
+    public void sendMessage(String userId, String workspaceId, String email, String username, String roleId) {
+        String message = userId + "," + workspaceId + "," + email + "," + username + "," + roleId;
         kafkaTemplate.send("create-member-workspace-request", message);
     }
 }

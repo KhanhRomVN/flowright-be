@@ -19,11 +19,12 @@ public class CreateMemberWorkspaceConsumer {
     @KafkaListener(topics = "create-member-workspace-request", groupId = "member-service")
     public void listen(String message) {
         String[] parts = message.split(",");
-        UUID workspaceId = UUID.fromString(parts[0]);
-        String email = parts[1];
-        String username = parts[2];
-        UUID roleId = UUID.fromString(parts[3]);
-        String memberId = memberService.createMember(workspaceId, email, username, roleId);
+        UUID userId = UUID.fromString(parts[0]);
+        UUID workspaceId = UUID.fromString(parts[1]);
+        String email = parts[2];
+        String username = parts[3];
+        UUID roleId = UUID.fromString(parts[4]);
+        String memberId = memberService.createMember(userId, workspaceId, email, username, roleId);
         kafkaTemplate.send("create-member-workspace-response", memberId);
     }
 }

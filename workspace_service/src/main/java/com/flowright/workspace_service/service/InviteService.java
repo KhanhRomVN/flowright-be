@@ -74,13 +74,15 @@ public class InviteService {
             throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
-        createMemberWorkspaceProducer.sendMessage(invite.getWorkspaceId().toString(), invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
+        createMemberWorkspaceProducer.sendMessage(userId.toString(), invite.getWorkspaceId().toString(), invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
         String memberId = createMemberWorkspaceConsumer.getMemberId();
 
 
         getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(), invite.getRoleId().toString());
         String accessToken = getAccessTokenByWorkspaceIdConsumer.getAccessToken();
-        
+
+        inviteRepository.delete(invite);
+
         return AcceptInviteReponse.builder()
                 .accessToken(accessToken)
                 .build();
