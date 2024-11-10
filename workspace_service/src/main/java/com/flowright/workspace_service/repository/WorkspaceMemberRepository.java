@@ -11,4 +11,7 @@ import com.flowright.workspace_service.entity.WorkspaceMember;
 @Repository
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember, UUID> {
     List<WorkspaceMember> findByUserId(UUID userId);
+    WorkspaceMember findByUserIdAndWorkspaceId(UUID userId, UUID workspaceId);
+    List<WorkspaceMember> findByWorkspaceId(UUID workspaceId);
+    
 }
