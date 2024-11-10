@@ -1,5 +1,6 @@
 package com.flowright.workspace_service.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,11 +27,15 @@ public class WorkspaceMemberService {
     private WorkspaceMemberRepository workspaceMemberRepository;
     @Autowired
     private WorkspaceRepository workspaceRepository;
+    @Autowired
     private GetUserInfoProducer getUserInfoProducer;
+    @Autowired
     private GetUserInfoConsumer getUserInfoConsumer;
+    @Autowired
     private GetTotalMemberProducer getTotalMemberProducer;
+    @Autowired
     private GetTotalMemberConsumer getTotalMemberConsumer;
-    private List<GetListWorkspaceMemberReponse> listWorkspaceMemberReponse;
+
     
     public void createWorkspaceMember(UUID userId, UUID workspaceId) {
         if (workspaceMemberRepository.findByUserIdAndWorkspaceId(userId, workspaceId) != null) {
@@ -48,31 +53,25 @@ public class WorkspaceMemberService {
         List<UUID> listWorkspaceId = workspaceMemberRepository.findByUserId(userId).stream()
                 .map(workspaceMember -> workspaceMember.getWorkspaceId())
                 .collect(Collectors.toList());
-        getUserInfoProducer.sendMessage(listWorkspaceId.get(0));
-        System.out.println("listWorkspaceId: " + listWorkspaceId.get(0));
-        // for (UUID workspaceId : listWorkspaceId) {
-        //     Workspace workspace = workspaceRepository.findById(workspaceId)
-        //             .orElseThrow(() -> new RuntimeException("Workspace not found"));
-        //     getUserInfoProducer.sendMessage(workspace.getOwnerId());
-        //     String response = getUserInfoConsumer.getResponse();
-        //     System.out.print("response: " + response);
-        //     String[] responseArray = response.split(",");
-        //     String username = responseArray[0];
+        List<GetListWorkspaceMemberReponse> listWorkspaceMembers = new ArrayList<>();
+        for (UUID workspaceId : listWorkspaceId) {
+            Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new WorkspaceException("Workspace not found", HttpStatus.NOT_FOUND));
+            getUserInfoProducer.sendMessage(workspace.getOwnerId());
+            String message = getUserInfoConsumer.getResponse();
+            String ownerUsername = message.split(",")[0];
 
-        //     getTotalMemberProducer.sendMessage(workspaceId);
-        //     int totalMembers = getTotalMemberConsumer.getTotalMember();
-        //     System.out.println("totalMembers: " + totalMembers);
-            
+            getTotalMemberProducer.sendMessage(workspaceId);
+            int totalMembers = getTotalMemberConsumer.getTotalMember();
 
-        //     GetListWorkspaceMemberReponse getListWorkspaceMemberReponse = GetListWorkspaceMemberReponse.builder()
-        //             .userId(userId)
-        //             .workspaceId(workspaceId)
-        //             .ownerId(workspace.getOwnerId())
-        //             .ownerUsername(username)
-        //             .totalMembers(totalMembers)
-        //             .build();
-        //     listWorkspaceMemberReponse.add(getListWorkspaceMemberReponse);
-        // }
-        return listWorkspaceMemberReponse;
+            GetListWorkspaceMemberReponse workspaceMember = GetListWorkspaceMemberReponse.builder()
+                    .id(workspace.getId())
+                    .name(workspace.getName())
+                    .ownerId(workspace.getOwnerId())
+                    .ownerUsername(ownerUsername)
+                    .totalMembers(totalMembers)
+                    .build();
+            listWorkspaceMembers.add(workspaceMember);
+        }
+        return listWorkspaceMembers;
     }
 }
