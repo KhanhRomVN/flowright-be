@@ -16,7 +16,7 @@ CREATE TABLE `flowright`.`workspaces` (
 
 CREATE TABLE `flowright`.`workspace_members` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `user_id` INT NOT NULL,
+    `user_id` BINARY(16) NOT NULL,
     `workspace_id` BINARY(16) NOT NULL
 );
 

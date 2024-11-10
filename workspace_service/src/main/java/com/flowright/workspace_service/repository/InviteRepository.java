@@ -1,5 +1,6 @@
 package com.flowright.workspace_service.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,5 @@ public interface InviteRepository extends JpaRepository<Invite, UUID> {
     void deleteInviteByEmailAndToken(String email, String token);
     void deleteInviteById(UUID id);
     Invite findByWorkspaceIdAndEmail(UUID workspaceId, String email);
+    List<Invite> findByWorkspaceId(UUID workspaceId);
 }

@@ -1,6 +1,7 @@
 package com.flowright.workspace_service.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -12,15 +13,21 @@ import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
 import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteResponse;
+import com.flowright.workspace_service.dto.InviteDTO.GetInviteResponse;
 import com.flowright.workspace_service.entity.Invite;
 import com.flowright.workspace_service.exception.WorkspaceException;
 import com.flowright.workspace_service.kafka.consumer.CheckMemberWorkspaceConsumer;
 import com.flowright.workspace_service.kafka.consumer.CreateMemberWorkspaceConsumer;
 import com.flowright.workspace_service.kafka.consumer.GetAccessTokenByWorkspaceIdConsumer;
+import com.flowright.workspace_service.kafka.consumer.GetRoleInfoConsumer;
 import com.flowright.workspace_service.kafka.producer.CheckMemberWorkspaceProducer;
 import com.flowright.workspace_service.kafka.producer.CreateMemberWorkspaceProducer;
 import com.flowright.workspace_service.kafka.producer.GetAccessTokenByWorkspaceIdProducer;
+import com.flowright.workspace_service.kafka.producer.GetRoleInfoProducer;
 import com.flowright.workspace_service.repository.InviteRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,15 +36,27 @@ import lombok.RequiredArgsConstructor;
 public class InviteService {
     @Autowired
     private final InviteRepository inviteRepository;
+    @Autowired
+    private final GetRoleInfoProducer getRoleInfoProducer;
+    @Autowired
+    private final GetRoleInfoConsumer getRoleInfoConsumer;
+    @Autowired
     private final CreateMemberWorkspaceProducer createMemberWorkspaceProducer;
+    @Autowired
     private final CreateMemberWorkspaceConsumer createMemberWorkspaceConsumer;
+    @Autowired
     private final GetAccessTokenByWorkspaceIdProducer getAccessTokenByWorkspaceIdProducer;
+    @Autowired
     private final GetAccessTokenByWorkspaceIdConsumer getAccessTokenByWorkspaceIdConsumer;
+    @Autowired
     private final CheckMemberWorkspaceProducer checkMemberWorkspaceProducer;
+    @Autowired
     private final CheckMemberWorkspaceConsumer checkMemberWorkspaceConsumer;
+    @Autowired
     private final WorkspaceMemberService workspaceMemberService;
+    @Autowired
     private final MailService mailService;
-
+    
     public CreateInviteResponse createInvite(UUID workspaceId, CreateInviteRequest request) {
         if (inviteRepository.findByWorkspaceIdAndEmail(workspaceId, request.getEmail()) != null) {
             inviteRepository.deleteInviteByWorkspaceIdAndEmail(workspaceId, request.getEmail());
@@ -108,5 +127,24 @@ public class InviteService {
                 .accessToken(accessToken)   
                 .inviteId(invite.getId())
                 .build();
+    }
+
+    public List<GetInviteResponse> getListInvite(UUID workspaceId) {
+        List<Invite> invites = inviteRepository.findByWorkspaceId(workspaceId);
+        List<GetInviteResponse> getInviteResponses = new ArrayList<>();
+        for (Invite invite : invites) {
+            getRoleInfoProducer.sendMessage(invite.getRoleId().toString());
+            String roleName = getRoleInfoConsumer.getResponse();
+            GetInviteResponse getInviteResponse = GetInviteResponse.builder()
+                    .id(invite.getId())
+                    .roleId(invite.getRoleId())
+                    .roleName(roleName)
+                    .token(invite.getToken())
+                    .status(invite.getStatus())
+                    .expiresAt(invite.getExpiresAt())
+                    .build();
+            getInviteResponses.add(getInviteResponse);
+        }
+        return getInviteResponses;
     }
 }

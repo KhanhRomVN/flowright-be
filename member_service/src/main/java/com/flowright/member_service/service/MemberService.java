@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
+import com.flowright.member_service.dto.MemberDTO.DeleteMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
 import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
@@ -20,8 +22,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+    @Autowired
     private final MemberRepository memberRepository;
+
+    @Autowired
     private final RoleRepository roleRepository;
+
+    @Autowired
     private final JwtService jwtService;
     // private final RoleService roleService;
     // private final MemberSpecializationService memberSpecializationService;
@@ -149,5 +156,10 @@ public class MemberService {
 
     public boolean checkMemberWorkspace(UUID workspaceId, String email) {
         return memberRepository.existsByWorkspaceIdAndEmail(workspaceId, email);
+    }
+
+    public DeleteMemberResponse deleteMember(UUID memberId, UUID workspaceId) {
+        memberRepository.deleteById(memberId);
+        return DeleteMemberResponse.builder().message("Member deleted").build();
     }
 }

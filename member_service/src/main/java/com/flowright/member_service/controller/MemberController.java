@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.member_service.dto.MemberDTO.DeleteMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.service.JwtService;
@@ -89,4 +91,12 @@ public class MemberController {
     //     UUID workspaceId = jwtService.extractWorkspaceId(token);
     //     return ResponseEntity.ok(memberService.updateMemberRole(member_id, role_id, workspaceId));
     // }
+
+    // delete member: /member-service/members/
+    @DeleteMapping
+    public ResponseEntity<DeleteMemberResponse> deleteMember(
+            @RequestParam("member_id") UUID member_id, @RequestHeader("access_token") String token) {
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
+        return ResponseEntity.ok(memberService.deleteMember(member_id, workspaceId));
+    }
 }

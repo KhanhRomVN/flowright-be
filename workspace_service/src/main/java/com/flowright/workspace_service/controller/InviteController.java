@@ -1,19 +1,25 @@
 package com.flowright.workspace_service.controller;
 
-import jakarta.validation.Valid;
-
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
+import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteResponse;
-import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
-import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
+import com.flowright.workspace_service.dto.InviteDTO.GetInviteResponse;
 import com.flowright.workspace_service.service.InviteService;
 import com.flowright.workspace_service.service.JwtService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -36,5 +42,12 @@ public class InviteController {
         UUID userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(inviteService.acceptInvite(request, userId));
     }
-
+    
+    // get list invite: /workspace-service/invites
+    @GetMapping
+    public ResponseEntity<List<GetInviteResponse>> getListInvite(@RequestHeader("access_token") String token) {
+        UUID workspaceId = jwtService.extractWorkspaceId(token);
+        return ResponseEntity.ok(inviteService.getListInvite(workspaceId));
+    }
+ 
 }
