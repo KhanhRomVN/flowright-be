@@ -1,5 +1,7 @@
 package com.flowright.team_service.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Team {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -31,8 +33,8 @@ public class Team {
     private String status;
 
     @Column(name = "leader_id", nullable = false)
-    private Long leaderId;
+    private UUID leaderId;
 
     @Column(name = "workspace_id", nullable = false)
-    private Long workspaceId;
+    private UUID workspaceId;
 }

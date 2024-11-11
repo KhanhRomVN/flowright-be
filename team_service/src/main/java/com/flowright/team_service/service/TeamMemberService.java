@@ -1,5 +1,7 @@
 package com.flowright.team_service.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.flowright.team_service.entity.TeamMember;
@@ -12,16 +14,10 @@ import lombok.RequiredArgsConstructor;
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
 
-    public Integer getNumberOfMembersInTeam(Long teamId, Long workspaceId) {
-        return teamMemberRepository.countByTeamIdAndWorkspaceId(teamId, workspaceId);
-    }
-
-    public void addMemberToTeam(Long teamId, Long userId, Long workspaceId) {
-        TeamMember teamMember = TeamMember.builder()
-                .teamId(teamId)
-                .userId(userId)
-                .workspaceId(workspaceId)
-                .build();
+    public String addMemberToTeam(UUID teamId, UUID memberId) {
+        TeamMember teamMember =
+                TeamMember.builder().teamId(teamId).memberId(memberId).build();
         teamMemberRepository.save(teamMember);
+        return "Member added to team successfully";
     }
 }
