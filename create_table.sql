@@ -117,7 +117,6 @@ CREATE TABLE `flowright`.`projects` (
 CREATE TABLE `flowright`.`project_assignment` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `project_id` BINARY(16) NOT NULL,
-    `member_id` BINARY(16) NOT NULL,
     `team_id` BINARY(16) NOT NULL
 );
 
