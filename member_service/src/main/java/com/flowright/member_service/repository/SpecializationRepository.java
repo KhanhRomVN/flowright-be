@@ -1,5 +1,6 @@
 package com.flowright.member_service.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,5 +13,5 @@ import com.flowright.member_service.entity.Specialization;
 public interface SpecializationRepository extends JpaRepository<Specialization, UUID> {
     Optional<Specialization> findByName(String name);
 
-    Optional<Specialization> findById(UUID id);
+    List<Specialization> findByWorkspaceId(UUID workspaceId);
 }

@@ -78,17 +78,41 @@ services:
     depends_on:
       - elasticsearch
 
-  auth_service:
-    image: flowright/auth_service:latest
+  redis: 
+    image: redis/redis-stack-server:7.2.0-v6
     ports:
-      - 8080:8080
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    networks:
-      - elk
-    depends_on:
-      - logstash
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    volumes:
+      - redis_data:/data
 
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/tmp:/prometheus
+      - ./prometheus/config:/etc/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/tmp:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alert-manager/tmp:/data
+      - ./alert-manager/config:/config
+    command: --config.file=/config/alertmanager.yml --log.level=debug
+      
 networks:
   elk:
     driver: bridge
@@ -96,3 +120,4 @@ networks:
 volumes:
   es-data:
     driver: local
+  redis_data:

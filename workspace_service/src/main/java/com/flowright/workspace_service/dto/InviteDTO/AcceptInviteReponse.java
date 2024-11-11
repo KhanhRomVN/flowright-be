@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AcceptInviteReponse {
     private String accessToken;
+    private UUID inviteId;
 }

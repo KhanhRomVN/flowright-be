@@ -1,14 +1,16 @@
 package com.flowright.member_service.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.flowright.member_service.dto.SpecializationDTO.CreateSpecializationRequest;
 import com.flowright.member_service.dto.SpecializationDTO.SpecializationResponse;
 import com.flowright.member_service.entity.Specialization;
+import com.flowright.member_service.exception.MemberException;
 import com.flowright.member_service.repository.SpecializationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,7 @@ public class SpecializationService {
 
     public SpecializationResponse createSpecialization(CreateSpecializationRequest request, UUID workspaceId) {
         if (request.getName() == null || request.getName().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name cannot be null or empty");
+            throw new MemberException("Name cannot be null or empty", HttpStatus.BAD_REQUEST);
         }
 
         Specialization specialization = Specialization.builder()
@@ -38,22 +40,30 @@ public class SpecializationService {
                     .workspaceId(savedSpecialization.getWorkspaceId())
                     .build();
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error saving specialization", e);
+            throw new MemberException("Error saving specialization", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Specialization getSpecializationById(UUID id) {
+        return specializationRepository
+                .findById(id)
+                .orElseThrow(() -> new MemberException("Specialization not found", HttpStatus.NOT_FOUND));
     }
 
     public void deleteSpecialization(UUID id) {
         if (!specializationRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Specialization not found");
+            throw new MemberException("Specialization not found", HttpStatus.NOT_FOUND);
         }
         specializationRepository.deleteById(id);
     }
 
-    public SpecializationResponse getSpecializationById(UUID id, boolean isDefault) {
-        Specialization specialization = specializationRepository
-                .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specialization not found"));
+    public List<SpecializationResponse> getAllSpecializations(UUID workspaceId) {
+        return specializationRepository.findByWorkspaceId(workspaceId).stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
 
+    private SpecializationResponse convertToResponse(Specialization specialization) {
         return SpecializationResponse.builder()
                 .id(specialization.getId())
                 .name(specialization.getName())

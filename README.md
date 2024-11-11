@@ -53,6 +53,7 @@ FloWright is a comprehensive project management system built using microservices
 - **Testing:** JUnit 5, Mockito
 - **Logging:** ELK Stack (Elasticsearch, Logstash, Kibana)
 - **Messaging:** Kafka, Zookeeper
+- **Caching:** Redis
 
 ## 🌐 Services Overview
 
@@ -65,12 +66,15 @@ FloWright is a comprehensive project management system built using microservices
 | Task Service     | 8084  | Manages tasks and assignments        |
 | Team Service     | 8085  | Handles team organization            |
 | User Service     | 8086  | Manages user profiles                |
-| Workspace Service | 8087  | Manages workspaces                   |
+| Workspace Service| 8087  | Manages workspaces                   |
 | Elasticsearch    | 9200  | Elasticsearch                        |
 | Logstash         | 5000  | Logstash                             |
 | Kibana           | 5601  | Kibana                               |
 | Zookeeper        | 2181  | Zookeeper                            |
 | Kafka            | 9092  | Kafka                                |
+| Redis            | 6379  | Redis                                |
+| Grafana          | 3000  | Grafana                              |
+| Prometheus       | 9090  | Prometheus                           |
 
 ## 🚀 Getting Started
 
@@ -105,6 +109,12 @@ FloWright is a comprehensive project management system built using microservices
    ```
 
 5. **Run Docker Compose for Kafka, Zookeeper, Redis by opening Docker Desktop and starting it.**
+
+## Grafana & Prometheus Tutorial
+1. Access Grafana at `http://localhost:3000`
+2. Access Prometheus at `http://localhost:9090`
+3. Go to `Configuration` -> `Data Sources` -> `Add data source` -> Select `Prometheus` -> `Name`: `Prometheus` -> `Url`: `http://localhost:9090` -> `Save & Test`
+4. Go to `Dashboards` -> `New` -> `Import` -> `Upload .json file` -> Import Dashboard
 
 ## 📚 API Documentation
 
