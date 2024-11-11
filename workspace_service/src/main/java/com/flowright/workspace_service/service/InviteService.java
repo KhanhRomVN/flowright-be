@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
@@ -54,13 +55,13 @@ public class InviteService {
     private final WorkspaceMemberService workspaceMemberService;
     @Autowired
     private final MailService mailService;
-    
+
     public CreateInviteResponse createInvite(UUID workspaceId, CreateInviteRequest request) {
         if (inviteRepository.findByWorkspaceIdAndEmail(workspaceId, request.getEmail()) != null) {
             inviteRepository.deleteInviteByWorkspaceIdAndEmail(workspaceId, request.getEmail());
         }
 
-        checkMemberWorkspaceProducer.sendMessage(workspaceId, request.getEmail());  
+        checkMemberWorkspaceProducer.sendMessage(workspaceId, request.getEmail());
 
         String exists = checkMemberWorkspaceConsumer.getResponse();
 
@@ -78,7 +79,8 @@ public class InviteService {
                 .expiresAt(LocalDateTime.now().plusDays(7))
                 .build());
 
-        mailService.sendEmail(request.getEmail(), "Invite to workspace", "You are invited to workspace " + workspaceId + " with token " + token);
+        mailService.sendEmail(request.getEmail(), "Invite to workspace",
+                "You are invited to workspace " + workspaceId + " with token " + token);
 
         return CreateInviteResponse.builder()
                 .token(token)
@@ -93,23 +95,25 @@ public class InviteService {
             token.append(characters.charAt(random.nextInt(characters.length())));
         }
         return token.toString();
-    }   
+    }
 
     public AcceptInviteReponse acceptInvite(AcceptInviteRequest request, UUID userId) {
-        Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(request.getToken(), UUID.fromString(request.getWorkspaceId()), request.getEmail());
+        Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(request.getToken(),
+                UUID.fromString(request.getWorkspaceId()), request.getEmail());
 
         if (invite == null) {
             throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
-        createMemberWorkspaceProducer.sendMessage(userId.toString(), invite.getWorkspaceId().toString(), invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
+        createMemberWorkspaceProducer.sendMessage(userId.toString(), invite.getWorkspaceId().toString(),
+                invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
         String memberId = createMemberWorkspaceConsumer.getMemberId();
         if (memberId == null) {
             throw new WorkspaceException("Member not created", HttpStatus.BAD_REQUEST);
         }
 
-
-        getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(), invite.getRoleId().toString());
+        getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(),
+                invite.getRoleId().toString());
         String accessToken = getAccessTokenByWorkspaceIdConsumer.getAccessToken();
         if (accessToken == null) {
             throw new WorkspaceException("Access token not created", HttpStatus.BAD_REQUEST);
@@ -122,7 +126,7 @@ public class InviteService {
         }
 
         return AcceptInviteReponse.builder()
-                .accessToken(accessToken)   
+                .accessToken(accessToken)
                 .inviteId(invite.getId())
                 .build();
     }
@@ -135,6 +139,7 @@ public class InviteService {
             String roleName = getRoleInfoConsumer.getResponse();
             GetInviteResponse getInviteResponse = GetInviteResponse.builder()
                     .id(invite.getId())
+                    .email(invite.getEmail())
                     .roleId(invite.getRoleId())
                     .roleName(roleName)
                     .token(invite.getToken())
@@ -144,5 +149,14 @@ public class InviteService {
             getInviteResponses.add(getInviteResponse);
         }
         return getInviteResponses;
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void changeStatusInviteSchedule() {
+        List<Invite> pendingInvites = inviteRepository.findByStatusAndExpiresAtBefore("pending", LocalDateTime.now());
+        for (Invite invite : pendingInvites) {
+            invite.setStatus("expired");
+            inviteRepository.save(invite);
+        }
     }
 }

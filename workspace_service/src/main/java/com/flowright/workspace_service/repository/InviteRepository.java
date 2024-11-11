@@ -1,5 +1,6 @@
 package com.flowright.workspace_service.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,4 +19,5 @@ public interface InviteRepository extends JpaRepository<Invite, UUID> {
     void deleteInviteById(UUID id);
     Invite findByWorkspaceIdAndEmail(UUID workspaceId, String email);
     List<Invite> findByWorkspaceId(UUID workspaceId);
+    List<Invite> findByStatusAndExpiresAtBefore(String status, LocalDateTime expiresAt);
 }

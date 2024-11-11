@@ -66,7 +66,7 @@ FloWright is a comprehensive project management system built using microservices
 | Task Service     | 8084  | Manages tasks and assignments        |
 | Team Service     | 8085  | Handles team organization            |
 | User Service     | 8086  | Manages user profiles                |
-| Workspace Service | 8087  | Manages workspaces                   |
+| Workspace Service| 8087  | Manages workspaces                   |
 | Elasticsearch    | 9200  | Elasticsearch                        |
 | Logstash         | 5000  | Logstash                             |
 | Kibana           | 5601  | Kibana                               |
@@ -75,7 +75,6 @@ FloWright is a comprehensive project management system built using microservices
 | Redis            | 6379  | Redis                                |
 | Grafana          | 3000  | Grafana                              |
 | Prometheus       | 9090  | Prometheus                           |
-| Zipkin           | 9411  | Zipkin                               |
 
 ## 🚀 Getting Started
 

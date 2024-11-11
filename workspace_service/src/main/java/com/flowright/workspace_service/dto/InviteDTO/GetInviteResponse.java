@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetInviteResponse {
     private UUID id;
+    private String email;
     private UUID roleId;
     private String roleName;
     private String token;
