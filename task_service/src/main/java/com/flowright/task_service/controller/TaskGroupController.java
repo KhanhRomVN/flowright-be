@@ -1,5 +1,7 @@
 package com.flowright.task_service.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,8 +26,9 @@ public class TaskGroupController {
     // create task group: /task-service/task-groups
     @PostMapping
     public ResponseEntity<CreateTaskGroupResponse> createTaskGroup(
-            @RequestBody CreateTaskGroupRequest request, @RequestHeader("access_token") String token) {
+            @Valid @RequestBody CreateTaskGroupRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
+        System.out.println(request);
         return ResponseEntity.ok(taskGroupService.createTaskGroup(request));
     }
 }

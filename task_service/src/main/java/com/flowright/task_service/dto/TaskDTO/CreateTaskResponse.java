@@ -1,4 +1,4 @@
-package com.flowright.task_service.dto.TaskGroupDTO;
+package com.flowright.task_service.dto.TaskDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTaskGroupResponse {
+public class CreateTaskResponse {
     private String message;
 }

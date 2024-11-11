@@ -2,6 +2,7 @@ package com.flowright.task_service.service;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class TaskGroupService {
+    @Autowired
     private final TaskGroupRepository taskGroupRepository;
 
     @Transactional
@@ -26,10 +28,7 @@ public class TaskGroupService {
                 .build();
         taskGroupRepository.save(taskGroup);
         return CreateTaskGroupResponse.builder()
-                .id(taskGroup.getId())
-                .name(taskGroup.getName())
-                .description(taskGroup.getDescription())
-                .projectId(taskGroup.getProjectId())
+                .message("Task group created successfully")
                 .build();
     }
 }

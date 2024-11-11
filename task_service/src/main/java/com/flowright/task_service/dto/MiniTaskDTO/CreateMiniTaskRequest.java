@@ -1,4 +1,4 @@
-package com.flowright.task_service.dto.TaskGroupDTO;
+package com.flowright.task_service.dto.MiniTaskDTO;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -11,12 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTaskGroupRequest {
+public class CreateMiniTaskRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
     private String description;
 
-    @NotBlank(message = "Project ID is required")
-    private String projectId;
+    @NotBlank(message = "Team ID is required")
+    private String teamId;
+
+    @NotBlank(message = "Member ID is required")
+    private String memberId;
 }

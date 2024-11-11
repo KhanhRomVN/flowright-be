@@ -141,6 +141,7 @@ CREATE TABLE `flowright`.`tasks` (
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
     `creator_id` INT NOT NULL,
+    `owner_id` INT NOT NULL,
     `project_id` BINARY(16) NULL,
     `priority` VARCHAR(50) NOT NULL, -- low, medium, high
     `start_date` DATETIME NOT NULL,
@@ -149,6 +150,18 @@ CREATE TABLE `flowright`.`tasks` (
     `previous_task_id` BINARY(16) NULL,
     `next_task_id` BINARY(16) NULL,
     `task_group_id` BINARY(16) NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `flowright`.`mini_tasks` (
+    `id` BINARY(16) PRIMARY KEY NOT NULL,
+    `task_id` BINARY(16) NOT NULL,
+    `name` VARCHAR(50) NOT NULL,
+    `description` VARCHAR(255),
+    `status` VARCHAR(50) NOT NULL,
+    `team_id` BINARY(16) NOT NULL,
+    `member_id` BINARY(16) NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
