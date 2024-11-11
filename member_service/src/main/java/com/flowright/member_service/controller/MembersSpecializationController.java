@@ -34,10 +34,12 @@ public class MembersSpecializationController {
         return ResponseEntity.ok(memberSpecializationService.addSpecializationToMember(request, memberId));
     }
 
-    // Get list member by specialization_id: /member-service/members-specializations/specialization/{specializationId}
+    // Get list member by specialization_id:
+    // /member-service/members-specializations/specialization?specialization_id={specializationId}
     @GetMapping("/specialization")
     public ResponseEntity<List<GetListMemberSpecialization>> getMembersBySpecializationId(
-            @RequestHeader("access_token") String accessToken, @RequestParam String specializationId) {
+            @RequestHeader("access_token") String accessToken,
+            @RequestParam("specialization_id") String specializationId) {
         jwtService.validateToken(accessToken);
         return ResponseEntity.ok(memberSpecializationService.getMembersBySpecializationId(specializationId));
     }

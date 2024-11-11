@@ -72,6 +72,10 @@ public class MemberService {
         return toMemberResponse(member);
     }
 
+    public Member getMemberByUserId(UUID userId) {
+        return memberRepository.findById(userId).orElseThrow(() -> new RuntimeException("Member not found"));
+    }
+
     public TokenResponse getNewAccessToken(UUID workspaceId, UUID userId) {
         Member member = memberRepository
                 .findByUserIdAndWorkspaceId(userId, workspaceId)

@@ -44,6 +44,12 @@ public class SpecializationService {
         }
     }
 
+    public Specialization getSpecializationById(UUID id) {
+        return specializationRepository
+                .findById(id)
+                .orElseThrow(() -> new MemberException("Specialization not found", HttpStatus.NOT_FOUND));
+    }
+
     public void deleteSpecialization(UUID id) {
         if (!specializationRepository.existsById(id)) {
             throw new MemberException("Specialization not found", HttpStatus.NOT_FOUND);
