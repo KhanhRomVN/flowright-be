@@ -41,6 +41,14 @@ public class JwtService {
         return UUID.fromString(extractAllClaims(token).get("workspace_id", String.class));
     }
 
+    public void validateToken(String token) {
+        if (extractAllClaims(token).get("user_id") == null) {
+            throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
+    }
+
+
     private Key getSignInKey() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);

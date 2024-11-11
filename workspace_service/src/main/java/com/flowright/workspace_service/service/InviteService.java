@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
 import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
@@ -158,5 +159,10 @@ public class InviteService {
             invite.setStatus("expired");
             inviteRepository.save(invite);
         }
+    }
+
+    @Transactional
+    public void deleteInvite(UUID id) {
+        inviteRepository.deleteInviteById(id);
     }
 }

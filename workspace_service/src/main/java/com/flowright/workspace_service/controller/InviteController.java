@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteReponse;
@@ -48,6 +50,14 @@ public class InviteController {
     public ResponseEntity<List<GetInviteResponse>> getListInvite(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(inviteService.getListInvite(workspaceId));
+    }
+
+    // delete invite: /workspace-service/invites
+    @DeleteMapping
+    public ResponseEntity<String> deleteInvite(@RequestParam("id") String id, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        inviteService.deleteInvite(UUID.fromString(id));
+        return ResponseEntity.ok("Invite deleted successfully");
     }
  
 }
