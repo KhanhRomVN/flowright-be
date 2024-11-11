@@ -129,6 +129,13 @@ CREATE TABLE `flowright`.`project_logs` (
 );
 
 -- task_service
+CREATE TABLE `flowright`.`task_groups` (
+    `id` BINARY(16) PRIMARY KEY NOT NULL,
+    `name` VARCHAR(50) NOT NULL,
+    `description` VARCHAR(255),
+    `project_id` BINARY(16) NOT NULL
+);
+
 CREATE TABLE `flowright`.`tasks` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `name` VARCHAR(50) NOT NULL,
@@ -141,6 +148,7 @@ CREATE TABLE `flowright`.`tasks` (
     `status` VARCHAR(50) NOT NULL, -- todo, in_progress, done
     `previous_task_id` BINARY(16) NULL,
     `next_task_id` BINARY(16) NULL,
+    `task_group_id` BINARY(16) NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
@@ -149,7 +157,7 @@ CREATE TABLE `flowright`.`task_assignments` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `task_id` BINARY(16) NOT NULL,
     `member_id` BINARY(16) NOT NULL,
-    `group_id` BINARY(16) NOT NULL
+    `team_id` BINARY(16) NOT NULL
 );
 
 CREATE TABLE `flowright`.`task_links` (
