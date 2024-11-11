@@ -1,5 +1,6 @@
 package com.flowright.team_service.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -19,5 +20,9 @@ public class TeamMemberService {
                 TeamMember.builder().teamId(teamId).memberId(memberId).build();
         teamMemberRepository.save(teamMember);
         return "Member added to team successfully";
+    }
+
+    public List<TeamMember> getMemberTeamWorkspace(UUID memberId) {
+        return teamMemberRepository.findByMemberId(memberId);
     }
 }

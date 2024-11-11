@@ -41,4 +41,11 @@ public class TeamController {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(teamService.getAllTeamWorkspace(workspaceId));
     }
+
+    // get all team in workspace that user is member of: /team-service/teams/member
+    @GetMapping("/member")
+    public ResponseEntity<List<Team>> getMemberTeamWorkspace(@RequestHeader("access_token") String token) {
+        UUID memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(teamService.getMemberTeamWorkspace(memberId));
+    }
 }

@@ -79,7 +79,7 @@ CREATE TABLE `flowright`.`members_specializations` (
 -- team_service
 CREATE TABLE `flowright`.`teams` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `leader_id` INT NOT NULL,
+    `leader_id` INT NOT NULL,   
     `workspace_id` BINARY(16) NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
