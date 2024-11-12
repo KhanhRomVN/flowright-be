@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      serviceAccountName: spring-cloud-kubernetes
+      containers:
+      - name: api-gateway
+        image: khanhromvn/flowright_api_gateway:latest
+        ports:
+        - containerPort: 8080

@@ -1,0 +1,88 @@
+version: "3"
+
+services:
+  api_gateway:
+    container_name: api_gateway
+    image: khanhromvn/api_gateway:latest
+    build:
+      context: ./api_gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - elk
+    restart: always
+
+  auth_service:
+    container_name: auth_service
+    image: khanhromvn/auth_service:latest
+    build:
+      context: ./auth_service
+    ports:
+      - "8081:8080"
+    networks:
+      - elk
+    restart: always
+
+  member_service:
+    container_name: member_service
+    image: khanhromvn/member_service:latest
+    build:
+      context: ./member_service
+    ports:
+      - "8082:8080"
+    networks:
+      - elk
+    restart: always
+  project_service:
+    container_name: project_service
+    image: khanhromvn/project_service:latest
+    build:
+      context: ./project_service
+    ports:
+      - "8083:8080"
+    networks:
+      - elk
+    restart: always
+  task_service:
+    container_name: task_service
+    image: khanhromvn/task_service:latest
+    build:
+      context: ./task_service
+    ports:
+      - "8084:8080"
+    networks:
+      - elk
+    restart: always
+  team_service:
+    container_name: team_service
+    image: khanhromvn/team_service:latest
+    build:
+      context: ./team_service
+    ports:
+      - "8085:8080"
+    networks:
+      - elk
+    restart: always
+
+  user_service:
+    container_name: user_service
+    image: khanhromvn/user_service:latest
+    build:
+      context: ./user_service
+    ports:
+      - "8086:8080"
+    networks:
+      - elk
+    restart: always
+    
+  workspace_service:
+    container_name: workspace_service
+    image: khanhromvn/workspace_service:latest
+    build:
+      context: ./workspace_service
+    ports:
+      - "8087:8080"
+    networks:
+      - elk
+    restart: always
+

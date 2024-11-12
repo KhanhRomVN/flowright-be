@@ -112,7 +112,7 @@ services:
       - ./alert-manager/tmp:/data
       - ./alert-manager/config:/config
     command: --config.file=/config/alertmanager.yml --log.level=debug
-      
+
 networks:
   elk:
     driver: bridge

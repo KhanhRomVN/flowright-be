@@ -116,6 +116,75 @@ FloWright is a comprehensive project management system built using microservices
 3. Go to `Configuration` -> `Data Sources` -> `Add data source` -> Select `Prometheus` -> `Name`: `Prometheus` -> `Url`: `http://localhost:9090` -> `Save & Test`
 4. Go to `Dashboards` -> `New` -> `Import` -> `Upload .json file` -> Import Dashboard
 
+## Kubernetes Tutorial (Optional)
+1. To run all services in Kubernetes, you can use the `k8s` folder.
+2. Make sure you have minikube installed.
+3. Run `minikube start` to start the cluster.
+4. Run `kubectl apply -f k8s` to deploy all services.
+
+Make sure:
+- you have Docker Desktop installed.
+- you have minikube installed.
+- you have kubectl installed.
+- you have minikube installed.
+- you have deloy image in Docker Hub.
+
+## Deploy Image to Docker Hub Tutorial
+1. Turn on Docker Desktop
+2. docker login
+3. Run `docker build -t <your-dockerhub-username>/<service-name>:<tag> .` for each service.
+4. Run `docker push <your-dockerhub-username>/<service-name>:<tag>` for each service.
+
+Example:
+If you want to deploy auth_service image to Docker Hub, make sure you are in the root folder and mvn clean install then start all services docker compose.
+```bash
+docker build -t khanhromvn/auth_service:latest .
+docker push khanhromvn/auth_service:latest
+```
+api_gateway
+```bash
+docker build -t khanhromvn/flowright_api_gateway:latest .
+docker push khanhromvn/flowright_api_gateway:latest
+```
+auth_service
+```bash
+docker build -t khanhromvn/flowright_auth_service:latest .
+docker push khanhromvn/flowright_auth_service:latest
+```
+member_service
+```bash
+docker build -t khanhromvn/flowright_member_service:latest .
+docker push khanhromvn/flowright_member_service:latest
+```
+project_service
+```bash
+docker build -t khanhromvn/flowright_project_service:latest .
+docker push khanhromvn/flowright_project_service:latest
+```
+task_service
+```bash
+docker build -t khanhromvn/flowright_task_service:latest .
+docker push khanhromvn/flowright_task_service:latest
+```
+team_service
+```bash
+docker build -t khanhromvn/flowright_team_service:latest .
+docker push khanhromvn/flowright_team_service:latest
+```
+user_service
+```bash
+docker build -t khanhromvn/flowright_user_service:latest .
+docker push khanhromvn/flowright_user_service:latest
+```
+workspace_service
+```bash
+docker build -t khanhromvn/flowright_workspace_service:latest .
+docker push khanhromvn/flowright_workspace_service:latest
+```
+
+Run `kubectl apply -f k8s` to deploy all services.
+Run `minikube dashboard` to view the dashboard.
+
 ## 📚 API Documentation
 
 Access the API documentation at:
