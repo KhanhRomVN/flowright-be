@@ -2,9 +2,13 @@ package com.flowright.team_service.service;
 
 import java.security.Key;
 import java.util.Base64;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import com.flowright.team_service.exception.TeamException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,23 +28,38 @@ public class JwtService {
     }
 
     public void validateToken(String token) {
+        if (extractAllClaims(token).get("user_id") == null) {
+            throw new TeamException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
         Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
     }
 
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("user_id", Long.class);
+    public UUID extractUserId(String token) {
+        if (extractAllClaims(token).get("user_id") == null) {
+            throw new TeamException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("user_id", String.class));
     }
 
-    public Long extractMemberId(String token) {
-        return extractAllClaims(token).get("member_id", Long.class);
+    public UUID extractMemberId(String token) {
+        if (extractAllClaims(token).get("member_id") == null) {
+            throw new TeamException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("member_id", String.class));
     }
 
-    public Long extractWorkspaceId(String token) {
-        return extractAllClaims(token).get("workspace_id", Long.class);
+    public UUID extractWorkspaceId(String token) {
+        if (extractAllClaims(token).get("workspace_id") == null) {
+            throw new TeamException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("workspace_id", String.class));
     }
 
-    public Long extractRoleId(String token) {
-        return extractAllClaims(token).get("role_id", Long.class);
+    public UUID extractRoleId(String token) {
+        if (extractAllClaims(token).get("role_id") == null) {
+            throw new TeamException("Invalid token", HttpStatus.BAD_REQUEST);
+        }
+        return UUID.fromString(extractAllClaims(token).get("role_id", String.class));
     }
 
     private Key getSignInKey() {

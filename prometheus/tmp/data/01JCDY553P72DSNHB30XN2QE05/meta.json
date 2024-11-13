@@ -1,0 +1,17 @@
+{
+	"ulid": "01JCDY553P72DSNHB30XN2QE05",
+	"minTime": 1731306699127,
+	"maxTime": 1731312000000,
+	"stats": {
+		"numSamples": 408,
+		"numSeries": 117,
+		"numChunks": 117
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01JCDY553P72DSNHB30XN2QE05"
+		]
+	},
+	"version": 1
+}
