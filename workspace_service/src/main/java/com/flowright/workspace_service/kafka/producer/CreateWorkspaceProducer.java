@@ -1,6 +1,6 @@
 package com.flowright.workspace_service.kafka.producer;
 
-import java.util.UUID;  
+import java.util.UUID;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

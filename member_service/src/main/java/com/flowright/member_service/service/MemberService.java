@@ -80,6 +80,9 @@ public class MemberService {
         Member member = memberRepository
                 .findByUserIdAndWorkspaceId(userId, workspaceId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
+        if (member == null) {
+            throw new RuntimeException("Member not found");
+        }
         String accessToken = jwtService.generateAccessToken(
                 userId.toString(),
                 member.getId().toString(),

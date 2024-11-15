@@ -10,7 +10,6 @@ public class GetUserInfoConsumer {
     private String response;
     private final CountDownLatch latch = new CountDownLatch(1);
 
-
     @KafkaListener(topics = "get-user-info-response", groupId = "workspace-service")
     public void listen(String message) {
         this.response = message;
@@ -23,6 +22,6 @@ public class GetUserInfoConsumer {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return response;    
+        return response;
     }
 }

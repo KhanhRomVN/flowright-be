@@ -16,13 +16,13 @@ import com.flowright.team_service.service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/team-service/teams/members")
+@RequestMapping("/team/service/teams/members")
 @RequiredArgsConstructor
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
     private final JwtService jwtService;
 
-    // add member to team: /team-service/teams/members
+    // add member to team: /team/service/teams/members
     @PostMapping
     public ResponseEntity<String> addMemberToTeam(
             @RequestBody AddMemberRequest request, @RequestHeader("access_token") String token) {

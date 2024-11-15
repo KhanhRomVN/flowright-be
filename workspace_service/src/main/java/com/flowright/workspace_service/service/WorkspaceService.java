@@ -19,7 +19,7 @@ import com.flowright.workspace_service.repository.WorkspaceRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Service    
+@Service
 @RequiredArgsConstructor
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
@@ -36,33 +36,24 @@ public class WorkspaceService {
             throw new RuntimeException("Workspace name already exists");
         }
 
-        // Send a message to the kafka topic to get user info(username, email)
         getUserInfoProducer.sendMessage(ownerId);
-        
-        // Receive a message from the kafka topic to get user info(username, email)
+
         String response = getUserInfoConsumer.getResponse();
-        
-        // Split the response to get username and email
+
         String[] userParts = response.split(",");
         String username = userParts[0];
         String email = userParts[1];
-        
-        // Create a new Workspace entity from the request body
-        Workspace workspace = Workspace.builder()
-        .name(requestBody.getName())
-        .ownerId(ownerId)
-        .build();
-        
-        // Save the workspace to the repository
+
+        Workspace workspace =
+                Workspace.builder().name(requestBody.getName()).ownerId(ownerId).build();
+
         Workspace savedWorkspace = workspaceRepository.save(workspace);
-        
-        // Send a message to the kafka topic
+
         createWorkspaceProducer.sendMessage(savedWorkspace.getId(), savedWorkspace.getOwnerId(), username, email);
 
-        // Create and return the response DTO
         return CreateWorkspaceReponse.builder()
-        .id(savedWorkspace.getId())
-        .name(savedWorkspace.getName())
+                .id(savedWorkspace.getId())
+                .name(savedWorkspace.getName())
                 .ownerId(savedWorkspace.getOwnerId())
                 .build();
     }
@@ -70,13 +61,13 @@ public class WorkspaceService {
     public List<GetListWorkspaceReponse> getListWorkspacesByOwnerId(UUID ownerId) {
         List<Workspace> workspaces = workspaceRepository.findByOwnerId(ownerId);
         List<GetListWorkspaceReponse> response = workspaces.stream()
-            .map(workspace -> GetListWorkspaceReponse.builder()
-                .id(workspace.getId())  
-                .name(workspace.getName())
-                .ownerId(workspace.getOwnerId())
-                .build())
-            .collect(Collectors.toList());
-        
+                .map(workspace -> GetListWorkspaceReponse.builder()
+                        .id(workspace.getId())
+                        .name(workspace.getName())
+                        .ownerId(workspace.getOwnerId())
+                        .build())
+                .collect(Collectors.toList());
+
         for (GetListWorkspaceReponse workspace : response) {
             getTotalMemberProducer.sendMessage(workspace.getId());
             Integer totalMember = getTotalMemberConsumer.getTotalMember();
@@ -94,7 +85,6 @@ public class WorkspaceService {
     }
 
     public Workspace findWorkspaceById(UUID workspaceId) {
-        return workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new RuntimeException("Workspace not found"));
+        return workspaceRepository.findById(workspaceId).orElseThrow(() -> new RuntimeException("Workspace not found"));
     }
 }

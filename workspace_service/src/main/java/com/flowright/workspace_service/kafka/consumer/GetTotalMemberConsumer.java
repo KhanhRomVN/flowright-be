@@ -13,7 +13,7 @@ public class GetTotalMemberConsumer {
     private int totalMember;
     private final CountDownLatch latch = new CountDownLatch(1);
 
-    @KafkaListener(topics = "get_total_member_response", groupId = "workspace_service")
+    @KafkaListener(topics = "get_total_member_response", groupId = "workspace-service")
     public void listen(String message) {
         this.totalMember = Integer.parseInt(message);
         latch.countDown();
@@ -28,4 +28,3 @@ public class GetTotalMemberConsumer {
         return totalMember;
     }
 }
-

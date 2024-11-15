@@ -19,7 +19,7 @@ import com.flowright.task_service.service.TaskService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/task-service/tasks")
+@RequestMapping("/task/service/tasks")
 @RequiredArgsConstructor
 public class TaskController {
     private final JwtService jwtService;

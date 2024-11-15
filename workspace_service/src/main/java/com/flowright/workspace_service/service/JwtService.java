@@ -28,6 +28,9 @@ public class JwtService {
     }
 
     public UUID extractUserId(String token) {
+        if (token == null) {
+            throw new WorkspaceException("Missing token", HttpStatus.BAD_REQUEST);
+        }
         if (extractAllClaims(token).get("user_id") == null) {
             throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
         }
@@ -35,6 +38,9 @@ public class JwtService {
     }
 
     public UUID extractWorkspaceId(String token) {
+        if (token == null) {
+            throw new WorkspaceException("Missing token", HttpStatus.BAD_REQUEST);
+        }
         if (extractAllClaims(token).get("workspace_id") == null) {
             throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
         }
@@ -42,12 +48,14 @@ public class JwtService {
     }
 
     public void validateToken(String token) {
+        if (token == null) {
+            throw new WorkspaceException("Missing token", HttpStatus.BAD_REQUEST);
+        }
         if (extractAllClaims(token).get("user_id") == null) {
             throw new WorkspaceException("Invalid token", HttpStatus.BAD_REQUEST);
         }
         Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
     }
-
 
     private Key getSignInKey() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);

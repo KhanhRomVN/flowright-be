@@ -57,24 +57,26 @@ FloWright is a comprehensive project management system built using microservices
 
 ## 🌐 Services Overview
 
-| Service          | Port  | Description                          |
-|------------------|-------|--------------------------------------|
-| API Gateway      | 8080  | Routes and filters requests          |
+| Service          | Port  | Description                           |
+|------------------|-------|---------------------------------------|
+| Eruka Server     | 8761  | Eruka                                 |
+| Gateway Service  | 8080  | Routes and filters requests           |
 | Auth Service     | 8081  | Handles authentication & authorization|
-| Member Service   | 8082  | Manages workspace membership         |
-| Project Service  | 8083  | Handles project management           |
-| Task Service     | 8084  | Manages tasks and assignments        |
-| Team Service     | 8085  | Handles team organization            |
-| User Service     | 8086  | Manages user profiles                |
-| Workspace Service| 8087  | Manages workspaces                   |
-| Elasticsearch    | 9200  | Elasticsearch                        |
-| Logstash         | 5000  | Logstash                             |
-| Kibana           | 5601  | Kibana                               |
-| Zookeeper        | 2181  | Zookeeper                            |
-| Kafka            | 9092  | Kafka                                |
-| Redis            | 6379  | Redis                                |
-| Grafana          | 3000  | Grafana                              |
-| Prometheus       | 9090  | Prometheus                           |
+| Member Service   | 8082  | Manages workspace membership          |
+| Project Service  | 8083  | Handles project management            |
+| Task Service     | 8084  | Manages tasks and assignments         |
+| Team Service     | 8085  | Handles team organization             |
+| User Service     | 8086  | Manages user profiles                 |
+| Workspace Service| 8087  | Manages workspaces                    |
+| Other Service    | 8088  | Other services                        |
+| Elasticsearch    | 9200  | Elasticsearch                         |
+| Logstash         | 5000  | Logstash                              |
+| Kibana           | 5601  | Kibana                                |
+| Zookeeper        | 2181  | Zookeeper                             |
+| Kafka            | 9092  | Kafka                                 |
+| Redis            | 6379  | Redis                                 |
+| Grafana          | 3000  | Grafana                               |
+| Prometheus       | 9090  | Prometheus                            |
 
 ## 🚀 Getting Started
 
@@ -183,6 +185,7 @@ docker push khanhromvn/flowright_workspace_service:latest
 ```
 
 Run `kubectl apply -f k8s` to deploy all services.
+Run `kubectl delete -f k8s` to delete all services.
 Run `minikube dashboard` to view the dashboard.
 
 ## 📚 API Documentation

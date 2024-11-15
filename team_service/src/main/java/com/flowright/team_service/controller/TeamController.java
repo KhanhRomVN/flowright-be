@@ -21,13 +21,13 @@ import com.flowright.team_service.service.TeamService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/team-service/teams")
+@RequestMapping("/team/service/teams")
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
     private final JwtService jwtService;
 
-    // create team: /team-service/teams
+    // create team: /team/service/teams
     @PostMapping
     public ResponseEntity<String> createTeam(
             @Valid @RequestBody CreateTeamRequest request, @RequestHeader("access_token") String token) {
@@ -35,14 +35,14 @@ public class TeamController {
         return ResponseEntity.ok(teamService.createTeam(request, workspaceId));
     }
 
-    // get all team in workspace: /team-service/teams
+    // get all team in workspace: /team/service/teams
     @GetMapping
     public ResponseEntity<List<Team>> getAllTeamWorkspace(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(teamService.getAllTeamWorkspace(workspaceId));
     }
 
-    // get all team in workspace that user is member of: /team-service/teams/member
+    // get all team in workspace that user is member of: /team/service/teams/member
     @GetMapping("/member")
     public ResponseEntity<List<Team>> getMemberTeamWorkspace(@RequestHeader("access_token") String token) {
         UUID memberId = jwtService.extractMemberId(token);

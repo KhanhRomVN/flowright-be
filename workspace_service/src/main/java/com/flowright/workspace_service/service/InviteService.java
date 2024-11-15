@@ -36,24 +36,34 @@ import lombok.RequiredArgsConstructor;
 public class InviteService {
     @Autowired
     private final InviteRepository inviteRepository;
+
     @Autowired
     private final GetRoleInfoProducer getRoleInfoProducer;
+
     @Autowired
     private final GetRoleInfoConsumer getRoleInfoConsumer;
+
     @Autowired
     private final CreateMemberWorkspaceProducer createMemberWorkspaceProducer;
+
     @Autowired
     private final CreateMemberWorkspaceConsumer createMemberWorkspaceConsumer;
+
     @Autowired
     private final GetAccessTokenByWorkspaceIdProducer getAccessTokenByWorkspaceIdProducer;
+
     @Autowired
     private final GetAccessTokenByWorkspaceIdConsumer getAccessTokenByWorkspaceIdConsumer;
+
     @Autowired
     private final CheckMemberWorkspaceProducer checkMemberWorkspaceProducer;
+
     @Autowired
     private final CheckMemberWorkspaceConsumer checkMemberWorkspaceConsumer;
+
     @Autowired
     private final WorkspaceMemberService workspaceMemberService;
+
     @Autowired
     private final MailService mailService;
 
@@ -80,12 +90,12 @@ public class InviteService {
                 .expiresAt(LocalDateTime.now().plusDays(7))
                 .build());
 
-        mailService.sendEmail(request.getEmail(), "Invite to workspace",
+        mailService.sendEmail(
+                request.getEmail(),
+                "Invite to workspace",
                 "You are invited to workspace " + workspaceId + " with token " + token);
 
-        return CreateInviteResponse.builder()
-                .token(token)
-                .build();
+        return CreateInviteResponse.builder().token(token).build();
     }
 
     private String generateToken() {
@@ -99,21 +109,28 @@ public class InviteService {
     }
 
     public AcceptInviteReponse acceptInvite(AcceptInviteRequest request, UUID userId) {
-        Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(request.getToken(),
-                UUID.fromString(request.getWorkspaceId()), request.getEmail());
+        Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(
+                request.getToken(), UUID.fromString(request.getWorkspaceId()), request.getEmail());
 
         if (invite == null) {
             throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
-        createMemberWorkspaceProducer.sendMessage(userId.toString(), invite.getWorkspaceId().toString(),
-                invite.getEmail(), request.getUsername(), invite.getRoleId().toString());
+        createMemberWorkspaceProducer.sendMessage(
+                userId.toString(),
+                invite.getWorkspaceId().toString(),
+                invite.getEmail(),
+                request.getUsername(),
+                invite.getRoleId().toString());
         String memberId = createMemberWorkspaceConsumer.getMemberId();
         if (memberId == null) {
             throw new WorkspaceException("Member not created", HttpStatus.BAD_REQUEST);
         }
 
-        getAccessTokenByWorkspaceIdProducer.sendMessage(userId.toString(), memberId, invite.getWorkspaceId().toString(),
+        getAccessTokenByWorkspaceIdProducer.sendMessage(
+                userId.toString(),
+                memberId,
+                invite.getWorkspaceId().toString(),
                 invite.getRoleId().toString());
         String accessToken = getAccessTokenByWorkspaceIdConsumer.getAccessToken();
         if (accessToken == null) {

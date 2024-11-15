@@ -13,4 +13,3 @@ public class GetRoleInfoProducer {
         kafkaTemplate.send("get-role-info-request", message);
     }
 }
-
