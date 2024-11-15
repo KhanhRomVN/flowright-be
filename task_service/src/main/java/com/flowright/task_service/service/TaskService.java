@@ -18,7 +18,10 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.entity.Task;
+import com.flowright.task_service.entity.TaskGroup;
+import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
+import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
 import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
@@ -44,6 +47,15 @@ public class TaskService {
 
     @Autowired
     private GetUserInfoConsumer getUserInfoConsumer;
+
+    @Autowired
+    private GetProjectInfoProducer getProjectInfoProducer;
+
+    @Autowired
+    private GetProjectInfoConsumer getProjectInfoConsumer;
+
+    @Autowired
+    private TaskGroupService taskGroupService;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         Task task = Task.builder()
@@ -101,6 +113,10 @@ public class TaskService {
         return GetAllTaskWorkspaceResponse.builder().tasks(tasks).build();
     }
 
+    public Task getTaskById(UUID taskId) {
+        return taskRepository.findById(taskId).get();
+    }
+
     public GetAllTaskTeamResponse getAllTaskTeam(UUID teamId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskTeam(teamId);
         List<GetAllTaskTeamResponse> tasks = new ArrayList<>();
@@ -131,7 +147,27 @@ public class TaskService {
             String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
             String[] responseSplit = getUserInfoConsumerResponse.split(",");
             task.setCreatorUsername(responseSplit[0]);
+            // get project name
+            getProjectInfoProducer.sendMessage(task.getProjectId());
+            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            task.setProjectName(projectResponseSplit[0]);
+            // get task group name
+            if (task.getTaskGroupId() != null) {
+                TaskGroup taskGroup = taskGroupService.getTaskGroupById(task.getTaskGroupId());
+                task.setTaskGroupName(taskGroup.getName());
+            }
+            // get next task name
+            if (task.getNextTaskId() != null) {
+                Task nextTask = getTaskById(task.getNextTaskId());
+                task.setNextTaskName(nextTask.getName());
+            }
+            // get previous task name
+            if (task.getPreviousTaskId() != null) {
+                Task previousTask = getTaskById(task.getPreviousTaskId());
+                task.setPreviousTaskName(previousTask.getName());
+            }
         }
-        return null;
+        // return GetAllTaskTeamResponse.builder().tasks(tasks).build();
     }
 }

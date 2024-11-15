@@ -49,7 +49,7 @@ public class ProjectService {
         return GetAllProjectsResponse.builder().projects(projects).build();
     }
 
-    public String getProjectNameById(UUID projectId) {
-        return projectRepository.findById(projectId).get().getName();
+    public Project getProjectById(UUID projectId) {
+        return projectRepository.findById(projectId).get();
     }
 }
