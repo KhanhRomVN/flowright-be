@@ -17,13 +17,13 @@ import com.flowright.task_service.service.TaskGroupService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/task-service/task-groups")
+@RequestMapping("/task/service/task-groups")
 @RequiredArgsConstructor
 public class TaskGroupController {
     private final JwtService jwtService;
     private final TaskGroupService taskGroupService;
 
-    // create task group: /task-service/task-groups
+    // create task group: /task/service/task-groups
     @PostMapping
     public ResponseEntity<CreateTaskGroupResponse> createTaskGroup(
             @Valid @RequestBody CreateTaskGroupRequest request, @RequestHeader("access_token") String token) {

@@ -1,5 +1,5 @@
 # IDE files
-/.idea
+/.idea/
 *.iws
 *.iml
 *.ipr
@@ -8,6 +8,9 @@
 .classpath
 .project
 .factorypath
+.apt_generated
+.springBeans
+.sts4-cache
 
 # Compiled files
 *.class
@@ -15,6 +18,16 @@ target/
 build/
 out/
 bin/
+dist/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 # Logs
 *.log
@@ -28,59 +41,20 @@ logs/
 *.zip
 *.tar.gz
 *.rar
+!.mvn/wrapper/maven-wrapper.jar
 
 # Virtual machine crash logs
 hs_err_pid*
 replay_pid*
 
-# Application properties/yaml files containing sensitive data
-**/src/main/resources/application*.yml
-**/src/main/resources/application*.yaml
-**/src/main/resources/application*.properties
-
-# Environment files
-.env
-.env.*
-
 # Maven specific
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
 .flattened-pom.xml
+release.properties
+dependency-reduced-pom.xml
 
 # Spring Boot specific
 spring-boot-*.pid
-
-# API Gateway specific configuration files
-/api-gateway/src/main/resources/application*.yaml
-/api-gateway/src/main/resources/application*.properties
-
-# Auth service specific configuration files
-/auth-service/src/main/resources/application*.yaml
-/auth-service/src/main/resources/application*.properties
-
-# User service specific configuration files
-/user-service/src/main/resources/application*.yaml
-/user-service/src/main/resources/application*.properties
-
-# Workspace service specific configuration files
-/workspace-service/src/main/resources/application*.yaml
-/workspace-service/src/main/resources/application*.properties
-
-# Member service specific configuration files
-/member-service/src/main/resources/application*.yaml
-/member-service/src/main/resources/application*.properties
-
-# Team service specific configuration files
-/team-service/src/main/resources/application*.yaml
-/team-service/src/main/resources/application*.properties
-
-# Project service specific configuration files
-/project-service/src/main/resources/application*.yaml
-/project-service/src/main/resources/application*.properties 
-
-# Task service specific configuration files
-/task-service/src/main/resources/application*.yaml
-/task-service/src/main/resources/application*.properties
 
 # Certificates and keys
 *.jks
@@ -89,4 +63,40 @@ spring-boot-*.pid
 *.pem
 *.crt
 *.key
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# Test coverage reports
+/coverage/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# Node (if using Node.js for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
 .fake
+HELP.md
+
+# Environment files
+.env
+.env.*
+
+/k8s/
+
+/target/
+

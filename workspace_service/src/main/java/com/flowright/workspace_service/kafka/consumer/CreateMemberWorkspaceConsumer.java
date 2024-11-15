@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class CreateMemberWorkspaceConsumer {
     private String response;
     private final CountDownLatch latch = new CountDownLatch(1);
-    
+
     @KafkaListener(topics = "create-member-workspace-response", groupId = "workspace-service")
     public void listen(String memberId) {
         this.response = memberId;
@@ -28,4 +28,3 @@ public class CreateMemberWorkspaceConsumer {
         return response;
     }
 }
-

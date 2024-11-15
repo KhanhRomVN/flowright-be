@@ -20,12 +20,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/project-service/projects")
+@RequestMapping("/project/service/projects")
 public class ProjectController {
     private final ProjectService projectService;
     private final JwtService jwtService;
 
-    // create project: /project-service/projects
+    // create project: /project/service/projects
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
             @RequestBody CreateProjectRequest request, @RequestHeader("access_token") String token) {
@@ -34,7 +34,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.createProject(request, workspaceId, creatorId));
     }
 
-    // get all projects: /project-service/projects
+    // get all projects: /project/service/projects
     @GetMapping
     public ResponseEntity<GetAllProjectsResponse> getAllProjects(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);

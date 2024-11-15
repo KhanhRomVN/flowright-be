@@ -16,13 +16,13 @@ import com.flowright.member_service.service.RoleService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/member-service/roles")
+@RequestMapping("/member/service/roles")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;
     private final JwtService jwtService;
 
-    // create role: /member-service/roles
+    // create role: /member/service/roles
     // @PostMapping
     // public ResponseEntity<RoleResponse> createRole(
     //         @Valid @RequestBody CreateRoleRequest request, @RequestHeader("access_token") String token) {
@@ -30,7 +30,7 @@ public class RoleController {
     //     return ResponseEntity.ok(roleService.createRole(request, workspaceId));
     // }
 
-    // get role by id: /member-service/roles/{id}
+    // get role by id: /member/service/roles/{id}
     // @GetMapping("/{id}")
     // public ResponseEntity<RoleResponse> getRoleById(
     //         @PathVariable UUID id, @RequestHeader("access_token") String token) {
@@ -38,7 +38,7 @@ public class RoleController {
     //     return ResponseEntity.ok(roleService.getRoleById(id));
     // }
 
-    // get admin role by workspace id: /member-service/roles/admin/{workspaceId}
+    // get admin role by workspace id: /member/service/roles/admin/{workspaceId}
     // @GetMapping("/admin/{workspaceId}")
     // public ResponseEntity<RoleResponse> getAdminRoleByWorkspaceId(
     //         @PathVariable UUID workspaceId, @RequestHeader("access_token") String token) {
@@ -46,7 +46,7 @@ public class RoleController {
     //     return ResponseEntity.ok(roleService.getAdminRoleByWorkspaceId(workspaceId));
     // }
 
-    // get all roles: /member-service/workspace/roles
+    // get all roles: /member/service/workspace/roles
     @GetMapping("/workspace/roles")
     public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);

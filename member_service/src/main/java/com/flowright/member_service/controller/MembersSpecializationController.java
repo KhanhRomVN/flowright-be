@@ -20,13 +20,13 @@ import com.flowright.member_service.service.MemberSpecializationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/member-service/members-specializations")
+@RequestMapping("/member/service/members-specializations")
 @RequiredArgsConstructor
 public class MembersSpecializationController {
     private final MemberSpecializationService memberSpecializationService;
     private final JwtService jwtService;
 
-    // Add specialization to member: /member-service/members-specializations
+    // Add specialization to member: /member/service/members-specializations
     @PostMapping
     public ResponseEntity<String> addSpecializationToMember(
             @RequestHeader("access_token") String accessToken, @RequestBody AddSpecializationToMemberRequest request) {
@@ -35,7 +35,7 @@ public class MembersSpecializationController {
     }
 
     // Get list member by specialization_id:
-    // /member-service/members-specializations/specialization?specialization_id={specializationId}
+    // /member/service/members-specializations/specialization?specialization_id={specializationId}
     @GetMapping("/specialization")
     public ResponseEntity<List<GetListMemberSpecialization>> getMembersBySpecializationId(
             @RequestHeader("access_token") String accessToken,

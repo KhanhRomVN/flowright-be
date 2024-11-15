@@ -19,4 +19,3 @@ public class CheckMemberWorkspaceConsumer {
         return response;
     }
 }
-

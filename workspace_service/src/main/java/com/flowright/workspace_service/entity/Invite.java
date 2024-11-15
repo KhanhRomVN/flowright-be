@@ -2,6 +2,7 @@ package com.flowright.workspace_service.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +30,7 @@ public class Invite {
 
     @Column(name = "email", nullable = false)
     private String email;
-    
+
     @Column(name = "role_id", nullable = false)
     private UUID roleId;
 

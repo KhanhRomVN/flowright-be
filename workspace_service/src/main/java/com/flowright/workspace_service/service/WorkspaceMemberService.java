@@ -20,23 +20,26 @@ import com.flowright.workspace_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowright.workspace_service.repository.WorkspaceRepository;
 
-
 @Service
 public class WorkspaceMemberService {
     @Autowired
     private WorkspaceMemberRepository workspaceMemberRepository;
+
     @Autowired
     private WorkspaceRepository workspaceRepository;
+
     @Autowired
     private GetUserInfoProducer getUserInfoProducer;
+
     @Autowired
     private GetUserInfoConsumer getUserInfoConsumer;
+
     @Autowired
     private GetTotalMemberProducer getTotalMemberProducer;
+
     @Autowired
     private GetTotalMemberConsumer getTotalMemberConsumer;
 
-    
     public void createWorkspaceMember(UUID userId, UUID workspaceId) {
         if (workspaceMemberRepository.findByUserIdAndWorkspaceId(userId, workspaceId) != null) {
             throw new WorkspaceException("User already in workspace", HttpStatus.BAD_REQUEST);
@@ -46,7 +49,7 @@ public class WorkspaceMemberService {
                 .workspaceId(workspaceId)
                 .build();
 
-        workspaceMemberRepository.save(workspaceMember);    
+        workspaceMemberRepository.save(workspaceMember);
     }
 
     public List<GetListWorkspaceMemberReponse> getListMembersWorkspaceByUserId(UUID userId) {
@@ -55,7 +58,9 @@ public class WorkspaceMemberService {
                 .collect(Collectors.toList());
         List<GetListWorkspaceMemberReponse> listWorkspaceMembers = new ArrayList<>();
         for (UUID workspaceId : listWorkspaceId) {
-            Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new WorkspaceException("Workspace not found", HttpStatus.NOT_FOUND));
+            Workspace workspace = workspaceRepository
+                    .findById(workspaceId)
+                    .orElseThrow(() -> new WorkspaceException("Workspace not found", HttpStatus.NOT_FOUND));
             getUserInfoProducer.sendMessage(workspace.getOwnerId());
             String message = getUserInfoConsumer.getResponse();
             String ownerUsername = message.split(",")[0];

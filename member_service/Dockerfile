@@ -1,4 +1,5 @@
-FROM openjdk:21-jdk-slim
-ARG JAR_FILE=target/*.jar
-COPY ./target/member-service.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY target/*.jar app.jar
+EXPOSE 8082
+ENTRYPOINT ["java","-jar","app.jar"]

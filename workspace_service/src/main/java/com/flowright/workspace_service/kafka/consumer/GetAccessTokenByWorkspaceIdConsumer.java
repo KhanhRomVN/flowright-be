@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class GetAccessTokenByWorkspaceIdConsumer {
     private String accessToken;
     private final CountDownLatch latch = new CountDownLatch(1);
+
     @KafkaListener(topics = "get-access-token-by-workspace-id-response", groupId = "workspace-service")
     public void listen(String message) {
         String[] parts = message.split(",");

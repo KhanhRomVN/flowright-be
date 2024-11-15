@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class GetRoleInfoConsumer {
     private String response;
     private final CountDownLatch latch = new CountDownLatch(1);
-    
+
     @KafkaListener(topics = "get-role-info-response", groupId = "workspace-service")
     public void consume(String message) {
         this.response = message;
@@ -25,4 +25,3 @@ public class GetRoleInfoConsumer {
         return response;
     }
 }
-

@@ -16,15 +16,16 @@ import com.flowright.workspace_service.service.WorkspaceMemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspace-service/workspace-members")
+@RequestMapping("/workspace/workspace-members")
 @RequiredArgsConstructor
 public class WorkspaceMemberController {
     private final WorkspaceMemberService workspaceMemberService;
     private final JwtService jwtService;
 
-    // Get list members workspace by user id: /workspace-service/workspace-members
+    // Get list members workspace by user id: /workspace/workspace-members
     @GetMapping
-    public ResponseEntity<List<GetListWorkspaceMemberReponse>> getListMembersWorkspaceByUserId(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<GetListWorkspaceMemberReponse>> getListMembersWorkspaceByUserId(
+            @RequestHeader("access_token") String token) {
         UUID userId = jwtService.extractUserId(token);
         return ResponseEntity.ok(workspaceMemberService.getListMembersWorkspaceByUserId(userId));
     }
