@@ -16,7 +16,7 @@ import com.flowright.workspace_service.service.WorkspaceMemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspace/workspace-members")
+@RequestMapping("/workspace/service/workspace-members")
 @RequiredArgsConstructor
 public class WorkspaceMemberController {
     private final WorkspaceMemberService workspaceMemberService;

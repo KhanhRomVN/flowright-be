@@ -1,7 +1,9 @@
 package com.flowright.task_service.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,9 @@ import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
 import com.flowright.task_service.dto.TaskAssignmentDTO.CreateTaskAssignmentRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.entity.Task;
 import com.flowright.task_service.repository.TaskRepository;
@@ -68,5 +73,23 @@ public class TaskService {
         }
 
         return CreateTaskResponse.builder().message("Task created successfully").build();
+    }
+
+    public GetAllTaskWorkspaceResponse getAllTaskWorkspace(String token) {
+        List<GetTaskResponse> tasks = taskRepository.findAll().stream()
+                .map(task -> GetTaskResponse.builder()
+                        .taskId(task.getId())
+                        .name(task.getName())
+                        .description(task.getDescription())
+                        .priority(task.getPriority())
+                        .build())
+                .collect(Collectors.toList());
+        return GetAllTaskWorkspaceResponse.builder().tasks(tasks).build();
+    }
+
+    public GetAllTaskTeamResponse getAllTaskTeam(UUID teamId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskTeam(teamId);
+        System.out.println("taskIds: " + taskIds);
+        return null;
     }
 }
