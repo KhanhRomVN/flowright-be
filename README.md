@@ -57,26 +57,26 @@ FloWright is a comprehensive project management system built using microservices
 
 ## 🌐 Services Overview
 
-| Service          | Port  | Description                           |
-|------------------|-------|---------------------------------------|
-| Eruka Server     | 8761  | Eruka                                 |
-| Gateway Service  | 8080  | Routes and filters requests           |
-| Auth Service     | 8081  | Handles authentication & authorization|
-| Member Service   | 8082  | Manages workspace membership          |
-| Project Service  | 8083  | Handles project management            |
-| Task Service     | 8084  | Manages tasks and assignments         |
-| Team Service     | 8085  | Handles team organization             |
-| User Service     | 8086  | Manages user profiles                 |
-| Workspace Service| 8087  | Manages workspaces                    |
-| Other Service    | 8088  | Other services                        |
-| Elasticsearch    | 9200  | Elasticsearch                         |
-| Logstash         | 5000  | Logstash                              |
-| Kibana           | 5601  | Kibana                                |
-| Zookeeper        | 2181  | Zookeeper                             |
-| Kafka            | 9092  | Kafka                                 |
-| Redis            | 6379  | Redis                                 |
-| Grafana          | 3000  | Grafana                               |
-| Prometheus       | 9090  | Prometheus                            |
+| STT | Service          | Port  | Description                           |
+|-----|------------------|-------|---------------------------------------|
+| 1   | Eruka Server     | 8761  | Eruka                                 |
+| 2   | Gateway Service  | 8080  | Routes and filters requests           |
+| 3   | Auth Service     | 8081  | Handles authentication & authorization|
+| 4   | Member Service   | 8082  | Manages workspace membership          |
+| 5   | Project Service  | 8083  | Handles project management            |
+| 6   | Task Service     | 8084  | Manages tasks and assignments         |
+| 7   | Team Service     | 8085  | Handles team organization             |
+| 8   | User Service     | 8086  | Manages user profiles                 |
+| 9   | Workspace Service| 8087  | Manages workspaces                    |
+| 10  | Other Service    | 8088  | Other services                        |
+| 11  | Elasticsearch    | 9200  | Elasticsearch                         |
+| 12  | Logstash         | 5000  | Logstash                              |
+| 13  | Kibana           | 5601  | Kibana                                |
+| 14  | Zookeeper        | 2181  | Zookeeper                             |
+| 15  | Kafka            | 9092  | Kafka                                 |
+| 16  | Redis            | 6379  | Redis                                 |
+| 17  | Grafana          | 3000  | Grafana                               |
+| 18  | Prometheus       | 9090  | Prometheus                            |
 
 ## 🚀 Getting Started
 
@@ -101,92 +101,11 @@ FloWright is a comprehensive project management system built using microservices
 
 3. **Build all Spring Boot services**
    ```bash
-   mvn clean install
-   mvn spring-boot:run
+   cd <service-name>
+   mvn clean install spring-boot:run
    ```
 
-4. **Run all Spring Boot services**
-   ```bash
-   mvn spring-boot:run
-   ```
-
-5. **Run Docker Compose for Kafka, Zookeeper, Redis by opening Docker Desktop and starting it.**
-
-## Grafana & Prometheus Tutorial
-1. Access Grafana at `http://localhost:3000`
-2. Access Prometheus at `http://localhost:9090`
-3. Go to `Configuration` -> `Data Sources` -> `Add data source` -> Select `Prometheus` -> `Name`: `Prometheus` -> `Url`: `http://localhost:9090` -> `Save & Test`
-4. Go to `Dashboards` -> `New` -> `Import` -> `Upload .json file` -> Import Dashboard
-
-## Kubernetes Tutorial (Optional)
-1. To run all services in Kubernetes, you can use the `k8s` folder.
-2. Make sure you have minikube installed.
-3. Run `minikube start` to start the cluster.
-4. Run `kubectl apply -f k8s` to deploy all services.
-
-Make sure:
-- you have Docker Desktop installed.
-- you have minikube installed.
-- you have kubectl installed.
-- you have minikube installed.
-- you have deloy image in Docker Hub.
-
-## Deploy Image to Docker Hub Tutorial
-1. Turn on Docker Desktop
-2. docker login
-3. Run `docker build -t <your-dockerhub-username>/<service-name>:<tag> .` for each service.
-4. Run `docker push <your-dockerhub-username>/<service-name>:<tag>` for each service.
-
-Example:
-If you want to deploy auth_service image to Docker Hub, make sure you are in the root folder and mvn clean install then start all services docker compose.
-```bash
-docker build -t khanhromvn/auth_service:latest .
-docker push khanhromvn/auth_service:latest
-```
-api_gateway
-```bash
-docker build -t khanhromvn/flowright_api_gateway:latest .
-docker push khanhromvn/flowright_api_gateway:latest
-```
-auth_service
-```bash
-docker build -t khanhromvn/flowright_auth_service:latest .
-docker push khanhromvn/flowright_auth_service:latest
-```
-member_service
-```bash
-docker build -t khanhromvn/flowright_member_service:latest .
-docker push khanhromvn/flowright_member_service:latest
-```
-project_service
-```bash
-docker build -t khanhromvn/flowright_project_service:latest .
-docker push khanhromvn/flowright_project_service:latest
-```
-task_service
-```bash
-docker build -t khanhromvn/flowright_task_service:latest .
-docker push khanhromvn/flowright_task_service:latest
-```
-team_service
-```bash
-docker build -t khanhromvn/flowright_team_service:latest .
-docker push khanhromvn/flowright_team_service:latest
-```
-user_service
-```bash
-docker build -t khanhromvn/flowright_user_service:latest .
-docker push khanhromvn/flowright_user_service:latest
-```
-workspace_service
-```bash
-docker build -t khanhromvn/flowright_workspace_service:latest .
-docker push khanhromvn/flowright_workspace_service:latest
-```
-
-Run `kubectl apply -f k8s` to deploy all services.
-Run `kubectl delete -f k8s` to delete all services.
-Run `minikube dashboard` to view the dashboard.
+4. **Run Docker Compose for Kafka, Zookeeper, Redis by opening Docker Desktop and starting it.**
 
 ## 📚 API Documentation
 
