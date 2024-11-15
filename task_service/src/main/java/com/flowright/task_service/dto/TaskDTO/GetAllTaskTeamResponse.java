@@ -24,8 +24,8 @@ public class GetAllTaskTeamResponse {
     private String priority;
     private UUID projectId;
     private String projectName;
-    private UUID groupTaskId;
-    private String groupTaskName;
+    private UUID taskGroupId;
+    private String taskGroupName;
     private UUID nextTaskId;
     private String nextTaskName;
     private UUID previousTaskId;

@@ -1,6 +1,7 @@
 package com.flowright.task_service.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.entity.Task;
+import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
+import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,9 +30,20 @@ public class TaskService {
     @Autowired
     private final TaskRepository taskRepository;
 
+    @Autowired
     private final TaskAssignmentService taskAssignmentService;
+
+    @Autowired
     private final TaskLinkService taskLinkService;
+
+    @Autowired
     private final MiniTaskService miniTaskService;
+
+    @Autowired
+    private GetUserInfoProducer getUserInfoProducer;
+
+    @Autowired
+    private GetUserInfoConsumer getUserInfoConsumer;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         Task task = Task.builder()
@@ -89,7 +103,35 @@ public class TaskService {
 
     public GetAllTaskTeamResponse getAllTaskTeam(UUID teamId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskTeam(teamId);
-        System.out.println("taskIds: " + taskIds);
+        List<GetAllTaskTeamResponse> tasks = new ArrayList<>();
+        // taskId, taskName, taskDescription, priority, creatorId, projectId, taskGroupId , nextTaskId, previousTaskId,
+        // startDate, endDate, status
+        for (UUID taskId : taskIds) {
+            Task task = taskRepository.findById(taskId).get();
+            tasks.add(GetAllTaskTeamResponse.builder()
+                    .taskId(task.getId())
+                    .taskName(task.getName())
+                    .taskDescription(task.getDescription())
+                    .priority(task.getPriority())
+                    .creatorId(task.getCreatorId())
+                    .projectId(task.getProjectId())
+                    .taskGroupId(task.getTaskGroupId())
+                    .nextTaskId(task.getNextTaskId())
+                    .previousTaskId(task.getPreviousTaskId())
+                    .startDate(task.getStartDate())
+                    .endDate(task.getEndDate())
+                    .status(task.getStatus())
+                    .build());
+        }
+
+        // creatorUsername, projectName, taskGroupName, nextTaskName, previousTaskName
+        for (GetAllTaskTeamResponse task : tasks) {
+            // get creator username
+            getUserInfoProducer.sendMessage(task.getCreatorId());
+            String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+            String[] responseSplit = getUserInfoConsumerResponse.split(",");
+            task.setCreatorUsername(responseSplit[0]);
+        }
         return null;
     }
 }

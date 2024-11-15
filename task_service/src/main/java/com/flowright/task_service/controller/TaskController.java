@@ -29,7 +29,7 @@ public class TaskController {
     private final JwtService jwtService;
     private final TaskService taskService;
 
-    // create task: /task-service/tasks
+    // create task: /task/service/tasks
     @PostMapping
     public ResponseEntity<CreateTaskResponse> createTask(
             @Valid @RequestBody CreateTaskRequest request, @RequestHeader("access_token") String token) {
@@ -37,13 +37,13 @@ public class TaskController {
         return ResponseEntity.ok(taskService.createTask(request, creatorId));
     }
 
-    // get all task team: /task-service/tasks?teamId=
+    // get all task team: /task/service/tasks?teamId=
     @GetMapping
     public ResponseEntity<GetAllTaskTeamResponse> getAllTaskTeam(@RequestParam String teamId) {
         return ResponseEntity.ok(taskService.getAllTaskTeam(UUID.fromString(teamId)));
     }
 
-    // get all task workspace: /task-service/tasks/workspace
+    // get all task workspace: /task/service/tasks/workspace
     @GetMapping("/workspace")
     public ResponseEntity<GetAllTaskWorkspaceResponse> getAllTaskWorkspace(
             @RequestHeader("access_token") String token) {

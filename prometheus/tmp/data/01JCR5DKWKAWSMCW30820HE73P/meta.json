@@ -1,0 +1,17 @@
+{
+	"ulid": "01JCR5DKWKAWSMCW30820HE73P",
+	"minTime": 1731672001417,
+	"maxTime": 1731679200000,
+	"stats": {
+		"numSamples": 3360,
+		"numSeries": 7,
+		"numChunks": 28
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01JCR5DKWKAWSMCW30820HE73P"
+		]
+	},
+	"version": 1
+}
