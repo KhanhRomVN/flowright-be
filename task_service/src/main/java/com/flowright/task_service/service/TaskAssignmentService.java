@@ -41,4 +41,8 @@ public class TaskAssignmentService {
     public List<TaskAssignment> getAllTaskAssignmentByTaskId(UUID taskId) {
         return taskAssignmentRepository.findAllByTaskId(taskId);
     }
+
+    public void deleteTaskAssignment(UUID taskAssignmentId) {
+        taskAssignmentRepository.deleteById(taskAssignmentId);
+    }
 }
