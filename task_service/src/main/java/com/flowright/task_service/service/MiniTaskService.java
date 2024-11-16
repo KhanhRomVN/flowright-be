@@ -20,6 +20,9 @@ public class MiniTaskService {
     @Autowired
     private final MiniTaskRepository miniTaskRepository;
 
+    @Autowired
+    private final TaskLogService taskLogService;
+
     public void createMiniTask(UUID taskId, String name, String description, String status, UUID memberId) {
         MiniTask miniTask = MiniTask.builder()
                 .taskId(taskId)
@@ -30,10 +33,12 @@ public class MiniTaskService {
                 .build();
 
         miniTaskRepository.save(miniTask);
+        taskLogService.createTaskLog(taskId, "Mini task created", "Mini task created successfully");
     }
 
     public CreateMiniTaskResponse createMiniTaskById(UUID taskId, String name, String description, UUID memberId) {
         createMiniTask(taskId, name, description, "in_progress", memberId);
+        taskLogService.createTaskLog(taskId, "Mini task created", "Mini task created successfully");
         return CreateMiniTaskResponse.builder()
                 .message("Mini task created successfully")
                 .build();
@@ -45,6 +50,7 @@ public class MiniTaskService {
 
     public DeleteMiniTaskResponse deleteMiniTaskById(UUID miniTaskId) {
         miniTaskRepository.deleteById(miniTaskId);
+        taskLogService.createTaskLog(miniTaskId, "Mini task deleted", "Mini task deleted successfully");
         return DeleteMiniTaskResponse.builder()
                 .message("Mini task deleted successfully")
                 .build();
@@ -55,6 +61,8 @@ public class MiniTaskService {
                 miniTaskRepository.findById(miniTaskId).orElseThrow(() -> new RuntimeException("Mini task not found"));
         miniTask.setStatus(status);
         miniTaskRepository.save(miniTask);
+        taskLogService.createTaskLog(
+                miniTask.getTaskId(), "Mini task status changed", "Mini task status changed successfully");
         return ChangeMiniTaskStatusResponse.builder()
                 .message("Mini task status changed successfully")
                 .build();

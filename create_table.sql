@@ -182,14 +182,14 @@ CREATE TABLE `flowright`.`task_links` (
 CREATE TABLE `flowright`.`task_comments` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
     `task_id` BINARY(16) NOT NULL,
-    `member_id` BINARY(16) NOT NULL,
+    `member_id` BINARY(16) NOT NULL,    
     `comment` TEXT NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `flowright`.`task_logs` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `task_id` BINARY(16) NOT NULL,
+    `task_id` BINARY(16) NOT NULL,  
     `log_title` VARCHAR(50) NOT NULL,
     `log_description` VARCHAR(255) NOT NULL,
     `log_date` DATETIME NOT NULL

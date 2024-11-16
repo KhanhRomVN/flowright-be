@@ -18,6 +18,9 @@ public class TaskAssignmentService {
     @Autowired
     private final TaskAssignmentRepository taskAssignmentRepository;
 
+    @Autowired
+    private final TaskLogService taskLogService;
+
     public void createTaskAssignment(UUID taskId, UUID memberId, UUID teamId) {
         TaskAssignment taskAssignment = TaskAssignment.builder()
                 .taskId(taskId)
@@ -26,6 +29,7 @@ public class TaskAssignmentService {
                 .build();
 
         taskAssignmentRepository.save(taskAssignment);
+        taskLogService.createTaskLog(taskId, "Task assignment created", "Task assignment created successfully");
     }
 
     public List<UUID> getAllTaskAssignmentTeamId(UUID teamId) {

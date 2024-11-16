@@ -1,5 +1,6 @@
 package com.flowright.task_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,5 +17,14 @@ public class TaskLogService {
 
     public List<TaskLog> getAllTaskLogsByTaskId(UUID taskId) {
         return taskLogRepository.findByTaskId(taskId);
+    }
+
+    public void createTaskLog(UUID taskId, String logTitle, String logDescription) {
+        taskLogRepository.save(TaskLog.builder()
+                .taskId(taskId)
+                .logTitle(logTitle)
+                .logDescription(logDescription)
+                .logDate(LocalDateTime.now())
+                .build());
     }
 }

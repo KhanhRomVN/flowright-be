@@ -124,6 +124,8 @@ public class TaskService {
             }
         }
 
+        taskLogService.createTaskLog(savedTask.getId(), "Task created", "Task created successfully");
+
         return CreateTaskResponse.builder().message("Task created successfully").build();
     }
 
@@ -374,6 +376,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
         task.setName(name);
         taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task name updated", "Task name updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task name updated successfully")
                 .build();
@@ -383,6 +386,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
         task.setDescription(description);
         taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task description updated", "Task description updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task description updated successfully")
                 .build();
@@ -392,6 +396,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
         task.setPriority(priority);
         taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task priority updated", "Task priority updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task priority updated successfully")
                 .build();
@@ -401,6 +406,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
         task.setStatus(status);
         taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task status updated", "Task status updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task status updated successfully")
                 .build();
@@ -410,6 +416,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
         task.setEndDate(endDate);
         taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task end date updated", "Task end date updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task end date updated successfully")
                 .build();
