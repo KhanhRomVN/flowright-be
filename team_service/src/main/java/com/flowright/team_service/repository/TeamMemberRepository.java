@@ -9,4 +9,6 @@ import com.flowright.team_service.entity.TeamMember;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, UUID> {
     List<TeamMember> findByMemberId(UUID memberId);
+
+    List<TeamMember> findByTeamId(UUID teamId);
 }
