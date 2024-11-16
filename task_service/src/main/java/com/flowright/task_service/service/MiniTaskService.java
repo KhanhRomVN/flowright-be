@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskResponse;
+import com.flowright.task_service.dto.MiniTaskDTO.DeleteMiniTaskResponse;
 import com.flowright.task_service.entity.MiniTask;
 import com.flowright.task_service.repository.MiniTaskRepository;
 
@@ -41,5 +42,12 @@ public class MiniTaskService {
 
     public List<MiniTask> getAllMiniTasksByTaskId(UUID taskId) {
         return miniTaskRepository.findByTaskId(taskId);
+    }
+
+    public DeleteMiniTaskResponse deleteMiniTaskById(UUID miniTaskId) {
+        miniTaskRepository.deleteById(miniTaskId);
+        return DeleteMiniTaskResponse.builder()
+                .message("Mini task deleted successfully")
+                .build();
     }
 }
