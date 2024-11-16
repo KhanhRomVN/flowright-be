@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkResponse;
+import com.flowright.task_service.dto.TaskLinkDTO.DeleteTaskLinkResponse;
 import com.flowright.task_service.entity.TaskLink;
 import com.flowright.task_service.repository.TaskLinkRepository;
 
@@ -36,5 +37,12 @@ public class TaskLinkService {
 
     public List<TaskLink> getAllTaskLinksByTaskId(UUID taskId) {
         return taskLinkRepository.findByTaskId(taskId);
+    }
+
+    public DeleteTaskLinkResponse deleteTaskLinkById(UUID taskLinkId) {
+        taskLinkRepository.deleteById(taskLinkId);
+        return DeleteTaskLinkResponse.builder()
+                .message("Task link deleted successfully")
+                .build();
     }
 }
