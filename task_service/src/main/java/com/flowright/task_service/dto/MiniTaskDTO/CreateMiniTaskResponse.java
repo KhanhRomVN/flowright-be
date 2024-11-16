@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateMiniTaskRequest {
-    private String name;
-    private String description;
-    private String memberId;
+public class CreateMiniTaskResponse {
+    private String message;
 }

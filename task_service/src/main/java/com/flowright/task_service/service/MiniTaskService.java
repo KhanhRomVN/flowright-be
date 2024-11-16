@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskResponse;
 import com.flowright.task_service.entity.MiniTask;
 import com.flowright.task_service.repository.MiniTaskRepository;
 
@@ -29,6 +30,13 @@ public class MiniTaskService {
                 .build();
 
         miniTaskRepository.save(miniTask);
+    }
+
+    public CreateMiniTaskResponse createMiniTaskById(UUID taskId, String name, String description, UUID memberId) {
+        createMiniTask(taskId, name, description, "in_progress", null, memberId);
+        return CreateMiniTaskResponse.builder()
+                .message("Mini task created successfully")
+                .build();
     }
 
     public List<MiniTask> getAllMiniTasksByTaskId(UUID taskId) {

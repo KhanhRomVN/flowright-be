@@ -1,7 +1,7 @@
 {
-	"ulid": "01JCSNFQ9R240AS8B6CH8ZHNPA",
-	"minTime": 1731722402008,
-	"maxTime": 1731729600000,
+	"ulid": "01JCTGZ40S8A4ZW37A0YB8FWA7",
+	"minTime": 1731744000000,
+	"maxTime": 1731751200000,
 	"stats": {
 		"numSamples": 3360,
 		"numSeries": 7,
@@ -10,7 +10,7 @@
 	"compaction": {
 		"level": 1,
 		"sources": [
-			"01JCSNFQ9R240AS8B6CH8ZHNPA"
+			"01JCTGZ40S8A4ZW37A0YB8FWA7"
 		]
 	},
 	"version": 1

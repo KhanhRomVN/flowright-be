@@ -159,8 +159,7 @@ CREATE TABLE `flowright`.`mini_tasks` (
     `task_id` BINARY(16) NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
-    `status` VARCHAR(50) NOT NULL,
-    `team_id` BINARY(16) NOT NULL,
+    `status` VARCHAR(50) NOT NULL, -- in_progress, done
     `member_id` BINARY(16) NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP
