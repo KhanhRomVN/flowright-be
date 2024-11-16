@@ -42,10 +42,4 @@ public class WorkspaceController {
         UUID ownerId = jwtService.extractUserId(token);
         return ResponseEntity.ok(workspaceService.getListWorkspacesByOwnerId(ownerId));
     }
-
-    // test endpoint: /workspace/workspaces/test
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Hello World");
-    }
 }

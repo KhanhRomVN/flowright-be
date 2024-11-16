@@ -1,17 +1,43 @@
 package com.flowright.task_service.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
+import com.flowright.task_service.dto.MiniTaskDTO.GetMiniTaskResponse;
 import com.flowright.task_service.dto.TaskAssignmentDTO.CreateTaskAssignmentRequest;
+import com.flowright.task_service.dto.TaskAssignmentDTO.GetTaskAssignmentResponse;
+import com.flowright.task_service.dto.TaskCommentDTO.GetTaskCommentResponse;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
+import com.flowright.task_service.dto.TaskLinkDTO.GetTaskLinkResponse;
+import com.flowright.task_service.dto.TaskLogDTO.GetTaskLogResponse;
+import com.flowright.task_service.entity.MiniTask;
 import com.flowright.task_service.entity.Task;
+import com.flowright.task_service.entity.TaskAssignment;
+import com.flowright.task_service.entity.TaskComment;
+import com.flowright.task_service.entity.TaskGroup;
+import com.flowright.task_service.entity.TaskLink;
+import com.flowright.task_service.entity.TaskLog;
+import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
+import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
+import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
+import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,9 +48,41 @@ public class TaskService {
     @Autowired
     private final TaskRepository taskRepository;
 
+    @Autowired
     private final TaskAssignmentService taskAssignmentService;
+
+    @Autowired
     private final TaskLinkService taskLinkService;
+
+    @Autowired
     private final MiniTaskService miniTaskService;
+
+    @Autowired
+    private GetUserInfoProducer getUserInfoProducer;
+
+    @Autowired
+    private GetUserInfoConsumer getUserInfoConsumer;
+
+    @Autowired
+    private GetProjectInfoProducer getProjectInfoProducer;
+
+    @Autowired
+    private GetProjectInfoConsumer getProjectInfoConsumer;
+
+    @Autowired
+    private TaskGroupService taskGroupService;
+
+    @Autowired
+    private GetMemberInfoProducer getMemberInfoProducer;
+
+    @Autowired
+    private GetMemberInfoConsumer getMemberInfoConsumer;
+
+    @Autowired
+    private TaskCommentService taskCommentService;
+
+    @Autowired
+    private TaskLogService taskLogService;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         Task task = Task.builder()
@@ -62,11 +120,305 @@ public class TaskService {
                         miniTask.getName(),
                         miniTask.getDescription(),
                         "todo",
-                        UUID.fromString(miniTask.getTeamId()),
                         UUID.fromString(miniTask.getMemberId()));
             }
         }
 
+        taskLogService.createTaskLog(savedTask.getId(), "Task created", "Task created successfully");
+
         return CreateTaskResponse.builder().message("Task created successfully").build();
+    }
+
+    public GetAllTaskWorkspaceResponse getAllTaskWorkspace(String token) {
+        List<GetTaskWorkspaceResponse> tasks = taskRepository.findAll().stream()
+                .map(task -> GetTaskWorkspaceResponse.builder()
+                        .taskId(task.getId())
+                        .name(task.getName())
+                        .description(task.getDescription())
+                        .priority(task.getPriority())
+                        .build())
+                .collect(Collectors.toList());
+        return GetAllTaskWorkspaceResponse.builder().tasks(tasks).build();
+    }
+
+    public Task getTaskById(UUID taskId) {
+        return taskRepository.findById(taskId).get();
+    }
+
+    public GetAllTaskTeamListResponse getAllTaskTeam(UUID teamId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentTeamId(teamId);
+        List<GetAllTaskTeamResponse> tasks = new ArrayList<>();
+        // taskId, taskName, taskDescription, priority, creatorId, projectId,
+        // taskGroupId , nextTaskId, previousTaskId,
+        // startDate, endDate, status
+        for (UUID taskId : taskIds) {
+            Task task = taskRepository.findById(taskId).get();
+            tasks.add(GetAllTaskTeamResponse.builder()
+                    .taskId(task.getId())
+                    .taskName(task.getName())
+                    .taskDescription(task.getDescription())
+                    .priority(task.getPriority())
+                    .creatorId(task.getCreatorId())
+                    .projectId(task.getProjectId())
+                    .taskGroupId(task.getTaskGroupId())
+                    .nextTaskId(task.getNextTaskId())
+                    .previousTaskId(task.getPreviousTaskId())
+                    .startDate(task.getStartDate())
+                    .endDate(task.getEndDate())
+                    .status(task.getStatus())
+                    .taskAssignments(new ArrayList<>())
+                    .build());
+        }
+
+        // creatorUsername, projectName, taskGroupName, nextTaskName, previousTaskName
+        for (GetAllTaskTeamResponse task : tasks) {
+            // get creator username
+            getUserInfoProducer.sendMessage(task.getCreatorId());
+            String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+            String[] responseSplit = getUserInfoConsumerResponse.split(",");
+            task.setCreatorUsername(responseSplit[0]);
+            // get project name
+            getProjectInfoProducer.sendMessage(task.getProjectId());
+            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            task.setProjectName(projectResponseSplit[0]);
+            // get task group name
+            if (task.getTaskGroupId() != null) {
+                TaskGroup taskGroup = taskGroupService.getTaskGroupById(task.getTaskGroupId());
+                task.setTaskGroupName(taskGroup.getName());
+            }
+            // get next task name
+            if (task.getNextTaskId() != null) {
+                Task nextTask = getTaskById(task.getNextTaskId());
+                task.setNextTaskName(nextTask.getName());
+            }
+            // get previous task name
+            if (task.getPreviousTaskId() != null) {
+                Task previousTask = getTaskById(task.getPreviousTaskId());
+                task.setPreviousTaskName(previousTask.getName());
+            }
+
+            // get task assignment
+            List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getTaskId());
+            for (TaskAssignment taskAssignment : taskAssignments) {
+                getUserInfoProducer.sendMessage(taskAssignment.getMemberId());
+                String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+                String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
+                String assigneeUsername = _responseSplit[0];
+                task.getTaskAssignments()
+                        .add(GetTaskAssignmentResponse.builder()
+                                .assignmentMemberId(taskAssignment.getMemberId())
+                                .assigneeUsername(assigneeUsername)
+                                .build());
+            }
+        }
+        return GetAllTaskTeamListResponse.builder().tasks(tasks).build();
+    }
+
+    public GetTaskResponse getTaskByTaskId(UUID taskId) {
+        Task task = getTaskById(taskId);
+        List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();
+        List<GetTaskLinkResponse> taskLinkResponses = new ArrayList<>();
+        List<GetTaskCommentResponse> taskCommentResponses = new ArrayList<>();
+        List<GetTaskLogResponse> taskLogResponses = new ArrayList<>();
+        List<GetMiniTaskResponse> miniTaskResponses = new ArrayList<>();
+        List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(taskId);
+        List<TaskLink> taskLinks = taskLinkService.getAllTaskLinksByTaskId(taskId);
+        List<TaskComment> taskComments = taskCommentService.getAllTaskCommentsByTaskId(taskId);
+        List<TaskLog> taskLogs = taskLogService.getAllTaskLogsByTaskId(taskId);
+        List<MiniTask> miniTasks = miniTaskService.getAllMiniTasksByTaskId(taskId);
+
+        // taskAssignmentResponses
+        if (taskAssignments != null) {
+            for (TaskAssignment taskAssignment : taskAssignments) {
+                getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
+                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String assigneeUsername = responseSplit[0];
+                String assigneeEmail = responseSplit[1];
+
+                taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                        .assignmentMemberId(taskAssignment.getMemberId())
+                        .assigneeUsername(assigneeUsername)
+                        .assigneeEmail(assigneeEmail)
+                        .build());
+            }
+        }
+
+        // taskLinkResponses
+        if (taskLinks != null) {
+            for (TaskLink taskLink : taskLinks) {
+                taskLinkResponses.add(GetTaskLinkResponse.builder()
+                        .taskLinkId(taskLink.getId())
+                        .taskId(taskLink.getTaskId())
+                        .title(taskLink.getTitle())
+                        .link(taskLink.getLink())
+                        .build());
+            }
+        }
+
+        // taskCommentResponses
+        if (taskComments != null) {
+            for (TaskComment taskComment : taskComments) {
+                getMemberInfoProducer.sendMessage(taskComment.getMemberId());
+                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String memberUsername = responseSplit[0];
+                String memberEmail = responseSplit[1];
+                taskCommentResponses.add(GetTaskCommentResponse.builder()
+                        .commentId(taskComment.getId())
+                        .taskId(taskComment.getTaskId())
+                        .memberId(taskComment.getMemberId())
+                        .memberUsername(memberUsername)
+                        .memberEmail(memberEmail)
+                        .comment(taskComment.getComment())
+                        .createdAt(taskComment.getCreatedAt())
+                        .build());
+            }
+        }
+
+        // taskLogResponses
+        if (taskLogs != null) {
+            for (TaskLog taskLog : taskLogs) {
+                taskLogResponses.add(GetTaskLogResponse.builder()
+                        .taskLogId(taskLog.getId())
+                        .taskLogTitle(taskLog.getLogTitle())
+                        .taskLogDescription(taskLog.getLogDescription())
+                        .taskLogDate(taskLog.getLogDate())
+                        .build());
+            }
+        }
+
+        // miniTaskResponses
+        if (miniTasks != null) {
+            for (MiniTask miniTask : miniTasks) {
+                getMemberInfoProducer.sendMessage(miniTask.getMemberId());
+                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String memberUsername = responseSplit[0];
+                String memberEmail = responseSplit[1];
+
+                miniTaskResponses.add(GetMiniTaskResponse.builder()
+                        .miniTaskId(miniTask.getId())
+                        .taskId(miniTask.getTaskId())
+                        .miniTaskName(miniTask.getName())
+                        .miniTaskDescription(miniTask.getDescription())
+                        .miniTaskStatus(miniTask.getStatus())
+                        .miniTaskMemberId(miniTask.getMemberId())
+                        .miniTaskMemberUsername(memberUsername)
+                        .miniTaskMemberEmail(memberEmail)
+                        .build());
+            }
+        }
+
+        // get creator info
+        getUserInfoProducer.sendMessage(task.getCreatorId());
+        String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+        String[] responseSplit = getUserInfoConsumerResponse.split(",");
+        String creatorUsername = responseSplit[0];
+        String creatorEmail = responseSplit[1];
+
+        // get project info
+        getProjectInfoProducer.sendMessage(task.getProjectId());
+        String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+        String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+        String projectName = projectResponseSplit[0];
+
+        // get task group info
+        String taskGroupName = null;
+        if (task.getTaskGroupId() != null) {
+            TaskGroup taskGroup = taskGroupService.getTaskGroupById(task.getTaskGroupId());
+            taskGroupName = taskGroup.getName();
+        }
+
+        // get next task info
+        String nextTaskName = null;
+        if (task.getNextTaskId() != null) {
+            Task nextTask = getTaskById(task.getNextTaskId());
+            nextTaskName = nextTask.getName();
+        }
+
+        // get previous task info
+        String previousTaskName = null;
+        if (task.getPreviousTaskId() != null) {
+            Task previousTask = getTaskById(task.getPreviousTaskId());
+            previousTaskName = previousTask.getName();
+        }
+
+        return GetTaskResponse.builder()
+                .taskId(task.getId())
+                .taskName(task.getName())
+                .taskDescription(task.getDescription())
+                .priority(task.getPriority())
+                .creatorId(task.getCreatorId())
+                .creatorUsername(creatorUsername)
+                .creatorEmail(creatorEmail)
+                .projectId(task.getProjectId())
+                .projectName(projectName)
+                .taskGroupId(task.getTaskGroupId())
+                .taskGroupName(taskGroupName)
+                .nextTaskId(task.getNextTaskId())
+                .nextTaskName(nextTaskName)
+                .previousTaskId(task.getPreviousTaskId())
+                .previousTaskName(previousTaskName)
+                .startDate(task.getStartDate())
+                .endDate(task.getEndDate())
+                .status(task.getStatus())
+                .taskAssignments(taskAssignmentResponses)
+                .taskLinks(taskLinkResponses)
+                .taskComments(taskCommentResponses)
+                .taskLogs(taskLogResponses)
+                .miniTasks(miniTaskResponses)
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskName(String name, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setName(name);
+        taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task name updated", "Task name updated successfully");
+        return UpdateTaskResponse.builder()
+                .message("Task name updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskDescription(String description, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setDescription(description);
+        taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task description updated", "Task description updated successfully");
+        return UpdateTaskResponse.builder()
+                .message("Task description updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskPriority(String priority, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setPriority(priority);
+        taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task priority updated", "Task priority updated successfully");
+        return UpdateTaskResponse.builder()
+                .message("Task priority updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskStatus(String status, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setStatus(status);
+        taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task status updated", "Task status updated successfully");
+        return UpdateTaskResponse.builder()
+                .message("Task status updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskEndDate(LocalDateTime endDate, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setEndDate(endDate);
+        taskRepository.save(task);
+        taskLogService.createTaskLog(taskId, "Task end date updated", "Task end date updated successfully");
+        return UpdateTaskResponse.builder()
+                .message("Task end date updated successfully")
+                .build();
     }
 }

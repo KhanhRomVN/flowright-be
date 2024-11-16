@@ -28,7 +28,6 @@ public class TaskGroupController {
     public ResponseEntity<CreateTaskGroupResponse> createTaskGroup(
             @Valid @RequestBody CreateTaskGroupRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        System.out.println(request);
         return ResponseEntity.ok(taskGroupService.createTaskGroup(request));
     }
 }

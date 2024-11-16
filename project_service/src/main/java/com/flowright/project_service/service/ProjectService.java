@@ -48,4 +48,8 @@ public class ProjectService {
         List<Project> projects = projectRepository.findByWorkspaceId(workspaceId);
         return GetAllProjectsResponse.builder().projects(projects).build();
     }
+
+    public Project getProjectById(UUID projectId) {
+        return projectRepository.findById(projectId).get();
+    }
 }

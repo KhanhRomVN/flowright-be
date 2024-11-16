@@ -31,4 +31,10 @@ public class TaskGroupService {
                 .message("Task group created successfully")
                 .build();
     }
+
+    public TaskGroup getTaskGroupById(UUID taskGroupId) {
+        return taskGroupRepository
+                .findById(taskGroupId)
+                .orElseThrow(() -> new RuntimeException("Task group not found"));
+    }
 }
