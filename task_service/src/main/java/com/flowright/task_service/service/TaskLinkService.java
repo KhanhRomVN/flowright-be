@@ -1,5 +1,6 @@
 package com.flowright.task_service.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -19,5 +20,9 @@ public class TaskLinkService {
                 TaskLink.builder().taskId(taskId).title(title).link(link).build();
 
         taskLinkRepository.save(taskLink);
+    }
+
+    public List<TaskLink> getAllTaskLinksByTaskId(UUID taskId) {
+        return taskLinkRepository.findByTaskId(taskId);
     }
 }

@@ -17,6 +17,7 @@ import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.service.JwtService;
 import com.flowright.task_service.service.TaskService;
 
@@ -37,8 +38,14 @@ public class TaskController {
         return ResponseEntity.ok(taskService.createTask(request, creatorId));
     }
 
-    // get all task team: /task/service/tasks?teamId=
+    // get task: /task/service/tasks
     @GetMapping
+    public ResponseEntity<GetTaskResponse> getTaskByTaskId(@RequestParam String taskId) {
+        return ResponseEntity.ok(taskService.getTaskByTaskId(UUID.fromString(taskId)));
+    }
+
+    // get all task team: /task/service/tasks/team?teamId=
+    @GetMapping("/team")
     public ResponseEntity<GetAllTaskTeamListResponse> getAllTaskTeam(@RequestParam String teamId) {
         return ResponseEntity.ok(taskService.getAllTaskTeam(UUID.fromString(teamId)));
     }

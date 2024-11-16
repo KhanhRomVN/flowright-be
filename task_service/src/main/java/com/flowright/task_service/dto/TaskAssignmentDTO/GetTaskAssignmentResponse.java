@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class GetTaskAssignmentResponse {
     private UUID assignmentMemberId;
     private String assigneeUsername;
+    private String assigneeEmail;
 }

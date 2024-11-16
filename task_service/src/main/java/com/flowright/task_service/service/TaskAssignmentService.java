@@ -28,7 +28,7 @@ public class TaskAssignmentService {
         taskAssignmentRepository.save(taskAssignment);
     }
 
-    public List<UUID> getAllTaskTeam(UUID teamId) {
+    public List<UUID> getAllTaskAssignmentTeamId(UUID teamId) {
         return taskAssignmentRepository.findAllByTeamId(teamId).stream()
                 .map(TaskAssignment::getTaskId)
                 .collect(Collectors.toList());

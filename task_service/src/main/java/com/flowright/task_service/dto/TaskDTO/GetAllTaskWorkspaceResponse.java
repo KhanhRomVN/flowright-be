@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 @Builder
 public class GetAllTaskWorkspaceResponse {
-    private List<GetTaskResponse> tasks;
+    private List<GetTaskWorkspaceResponse> tasks;
 }

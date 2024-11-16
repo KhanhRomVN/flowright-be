@@ -1,7 +1,7 @@
 {
-	"ulid": "01JCR5DKWKAWSMCW30820HE73P",
-	"minTime": 1731672001417,
-	"maxTime": 1731679200000,
+	"ulid": "01JCSNFQ9R240AS8B6CH8ZHNPA",
+	"minTime": 1731722402008,
+	"maxTime": 1731729600000,
 	"stats": {
 		"numSamples": 3360,
 		"numSeries": 7,
@@ -10,7 +10,7 @@
 	"compaction": {
 		"level": 1,
 		"sources": [
-			"01JCR5DKWKAWSMCW30820HE73P"
+			"01JCSNFQ9R240AS8B6CH8ZHNPA"
 		]
 	},
 	"version": 1

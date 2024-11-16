@@ -1,5 +1,6 @@
 package com.flowright.task_service.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,9 @@ public class MiniTaskService {
                 .build();
 
         miniTaskRepository.save(miniTask);
+    }
+
+    public List<MiniTask> getAllMiniTasksByTaskId(UUID taskId) {
+        return miniTaskRepository.findByTaskId(taskId);
     }
 }
