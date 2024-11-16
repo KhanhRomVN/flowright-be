@@ -33,8 +33,6 @@ public class MiniTask {
 
     private String status;
 
-    private UUID teamId;
-
     private UUID memberId;
 
     private LocalDateTime createdAt;

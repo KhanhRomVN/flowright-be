@@ -120,7 +120,6 @@ public class TaskService {
                         miniTask.getName(),
                         miniTask.getDescription(),
                         "todo",
-                        UUID.fromString(miniTask.getTeamId()),
                         UUID.fromString(miniTask.getMemberId()));
             }
         }

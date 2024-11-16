@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.flowright.task_service.dto.MiniTaskDTO.ChangeMiniTaskStatusResponse;
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskResponse;
 import com.flowright.task_service.dto.MiniTaskDTO.DeleteMiniTaskResponse;
 import com.flowright.task_service.entity.MiniTask;
@@ -19,14 +20,12 @@ public class MiniTaskService {
     @Autowired
     private final MiniTaskRepository miniTaskRepository;
 
-    public void createMiniTask(
-            UUID taskId, String name, String description, String status, UUID teamId, UUID memberId) {
+    public void createMiniTask(UUID taskId, String name, String description, String status, UUID memberId) {
         MiniTask miniTask = MiniTask.builder()
                 .taskId(taskId)
                 .name(name)
                 .description(description)
                 .status(status)
-                .teamId(teamId)
                 .memberId(memberId)
                 .build();
 
@@ -34,7 +33,7 @@ public class MiniTaskService {
     }
 
     public CreateMiniTaskResponse createMiniTaskById(UUID taskId, String name, String description, UUID memberId) {
-        createMiniTask(taskId, name, description, "in_progress", null, memberId);
+        createMiniTask(taskId, name, description, "in_progress", memberId);
         return CreateMiniTaskResponse.builder()
                 .message("Mini task created successfully")
                 .build();
@@ -48,6 +47,16 @@ public class MiniTaskService {
         miniTaskRepository.deleteById(miniTaskId);
         return DeleteMiniTaskResponse.builder()
                 .message("Mini task deleted successfully")
+                .build();
+    }
+
+    public ChangeMiniTaskStatusResponse changeMiniTaskStatusById(UUID miniTaskId, String status) {
+        MiniTask miniTask =
+                miniTaskRepository.findById(miniTaskId).orElseThrow(() -> new RuntimeException("Mini task not found"));
+        miniTask.setStatus(status);
+        miniTaskRepository.save(miniTask);
+        return ChangeMiniTaskStatusResponse.builder()
+                .message("Mini task status changed successfully")
                 .build();
     }
 }
