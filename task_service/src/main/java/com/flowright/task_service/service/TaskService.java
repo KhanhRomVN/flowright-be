@@ -21,6 +21,7 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.dto.TaskLinkDTO.GetTaskLinkResponse;
 import com.flowright.task_service.dto.TaskLogDTO.GetTaskLogResponse;
@@ -203,7 +204,6 @@ public class TaskService {
                 String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
                 String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
                 String assigneeUsername = _responseSplit[0];
-                System.out.println(assigneeUsername);
                 task.getTaskAssignments()
                         .add(GetTaskAssignmentResponse.builder()
                                 .assignmentMemberId(taskAssignment.getMemberId())
@@ -249,6 +249,7 @@ public class TaskService {
             for (TaskLink taskLink : taskLinks) {
                 taskLinkResponses.add(GetTaskLinkResponse.builder()
                         .taskLinkId(taskLink.getId())
+                        .taskId(taskLink.getTaskId())
                         .title(taskLink.getTitle())
                         .link(taskLink.getLink())
                         .build());
@@ -290,6 +291,12 @@ public class TaskService {
         // miniTaskResponses
         if (miniTasks != null) {
             for (MiniTask miniTask : miniTasks) {
+                getMemberInfoProducer.sendMessage(miniTask.getMemberId());
+                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String memberUsername = responseSplit[0];
+                String memberEmail = responseSplit[1];
+
                 miniTaskResponses.add(GetMiniTaskResponse.builder()
                         .miniTaskId(miniTask.getId())
                         .taskId(miniTask.getTaskId())
@@ -297,6 +304,8 @@ public class TaskService {
                         .miniTaskDescription(miniTask.getDescription())
                         .miniTaskStatus(miniTask.getStatus())
                         .miniTaskMemberId(miniTask.getMemberId())
+                        .miniTaskMemberUsername(memberUsername)
+                        .miniTaskMemberEmail(memberEmail)
                         .build());
             }
         }
@@ -359,6 +368,60 @@ public class TaskService {
                 .taskComments(taskCommentResponses)
                 .taskLogs(taskLogResponses)
                 .miniTasks(miniTaskResponses)
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskName(String name, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setName(name);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task name updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskDescription(String description, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setDescription(description);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task description updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskPriority(String priority, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setPriority(priority);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task priority updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskStatus(String status, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setStatus(status);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task status updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskStartDate(LocalDateTime startDate, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setStartDate(startDate);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task start date updated successfully")
+                .build();
+    }
+
+    public UpdateTaskResponse updateTaskEndDate(LocalDateTime endDate, UUID taskId) {
+        Task task = getTaskById(taskId);
+        task.setEndDate(endDate);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task end date updated successfully")
                 .build();
     }
 }

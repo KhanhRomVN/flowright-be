@@ -21,7 +21,7 @@ public class GetMemberInfoConsumer {
     @KafkaListener(topics = "get-member-info-request", groupId = "member-service")
     public void consume(String message) {
         MemberResponse memberInfo = memberService.getMemberById(UUID.fromString(message));
-        String messageResponse = memberInfo.getId() + "," + memberInfo.getUsername() + "," + memberInfo.getEmail();
+        String messageResponse = memberInfo.getUsername() + "," + memberInfo.getEmail();
         kafkaTemplate.send("get-member-info-response", messageResponse);
     }
 }
