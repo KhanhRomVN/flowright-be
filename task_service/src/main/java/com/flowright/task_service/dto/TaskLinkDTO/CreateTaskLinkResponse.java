@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTaskLinkRequest {
-    private String title;
-    private String link;
+public class CreateTaskLinkResponse {
+    private String message;
 }
