@@ -11,13 +11,16 @@ import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
 import com.flowright.task_service.dto.TaskAssignmentDTO.CreateTaskAssignmentRequest;
+import com.flowright.task_service.dto.TaskAssignmentDTO.GetTaskAssignmentResponse;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.entity.Task;
+import com.flowright.task_service.entity.TaskAssignment;
 import com.flowright.task_service.entity.TaskGroup;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
@@ -117,7 +120,7 @@ public class TaskService {
         return taskRepository.findById(taskId).get();
     }
 
-    public GetAllTaskTeamResponse getAllTaskTeam(UUID teamId) {
+    public GetAllTaskTeamListResponse getAllTaskTeam(UUID teamId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskTeam(teamId);
         List<GetAllTaskTeamResponse> tasks = new ArrayList<>();
         // taskId, taskName, taskDescription, priority, creatorId, projectId, taskGroupId , nextTaskId, previousTaskId,
@@ -137,6 +140,7 @@ public class TaskService {
                     .startDate(task.getStartDate())
                     .endDate(task.getEndDate())
                     .status(task.getStatus())
+                    .taskAssignments(new ArrayList<>())
                     .build());
         }
 
@@ -167,7 +171,22 @@ public class TaskService {
                 Task previousTask = getTaskById(task.getPreviousTaskId());
                 task.setPreviousTaskName(previousTask.getName());
             }
+
+            // get task assignment
+            List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getTaskId());
+            for (TaskAssignment taskAssignment : taskAssignments) {
+                getUserInfoProducer.sendMessage(taskAssignment.getMemberId());
+                String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+                String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
+                String assigneeUsername = _responseSplit[0];
+                System.out.println(assigneeUsername);
+                task.getTaskAssignments()
+                        .add(GetTaskAssignmentResponse.builder()
+                                .assignmentMemberId(taskAssignment.getMemberId())
+                                .assigneeUsername(assigneeUsername)
+                                .build());
+            }
         }
-        // return GetAllTaskTeamResponse.builder().tasks(tasks).build();
+        return GetAllTaskTeamListResponse.builder().tasks(tasks).build();
     }
 }

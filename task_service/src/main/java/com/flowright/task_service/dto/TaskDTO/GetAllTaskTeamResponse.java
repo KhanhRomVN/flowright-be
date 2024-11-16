@@ -33,5 +33,5 @@ public class GetAllTaskTeamResponse {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String status;
-    private List<GetTaskAssignmentResponse> assignees;
+    private List<GetTaskAssignmentResponse> taskAssignments;
 }

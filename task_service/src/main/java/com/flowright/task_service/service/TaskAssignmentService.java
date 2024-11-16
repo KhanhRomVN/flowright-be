@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.entity.TaskAssignment;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class TaskAssignmentService {
+    @Autowired
     private final TaskAssignmentRepository taskAssignmentRepository;
 
     public void createTaskAssignment(UUID taskId, UUID memberId, UUID teamId) {
@@ -30,5 +32,9 @@ public class TaskAssignmentService {
         return taskAssignmentRepository.findAllByTeamId(teamId).stream()
                 .map(TaskAssignment::getTaskId)
                 .collect(Collectors.toList());
+    }
+
+    public List<TaskAssignment> getAllTaskAssignmentByTaskId(UUID taskId) {
+        return taskAssignmentRepository.findAllByTaskId(taskId);
     }
 }

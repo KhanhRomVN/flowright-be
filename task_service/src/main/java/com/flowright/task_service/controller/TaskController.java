@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
-import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.service.JwtService;
 import com.flowright.task_service.service.TaskService;
@@ -39,7 +39,7 @@ public class TaskController {
 
     // get all task team: /task/service/tasks?teamId=
     @GetMapping
-    public ResponseEntity<GetAllTaskTeamResponse> getAllTaskTeam(@RequestParam String teamId) {
+    public ResponseEntity<GetAllTaskTeamListResponse> getAllTaskTeam(@RequestParam String teamId) {
         return ResponseEntity.ok(taskService.getAllTaskTeam(UUID.fromString(teamId)));
     }
 
