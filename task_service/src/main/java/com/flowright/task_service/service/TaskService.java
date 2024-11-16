@@ -407,15 +407,6 @@ public class TaskService {
                 .build();
     }
 
-    public UpdateTaskResponse updateTaskStartDate(LocalDateTime startDate, UUID taskId) {
-        Task task = getTaskById(taskId);
-        task.setStartDate(startDate);
-        taskRepository.save(task);
-        return UpdateTaskResponse.builder()
-                .message("Task start date updated successfully")
-                .build();
-    }
-
     public UpdateTaskResponse updateTaskEndDate(LocalDateTime endDate, UUID taskId) {
         Task task = getTaskById(taskId);
         task.setEndDate(endDate);

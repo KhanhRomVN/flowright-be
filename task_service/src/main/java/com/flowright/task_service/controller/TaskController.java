@@ -20,6 +20,10 @@ import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateDescriptionTaskRequest;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateEndDateTaskRequest;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdatePriorityTaskRequest;
+import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateStatusTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.updateNameTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
 import com.flowright.task_service.service.JwtService;
@@ -72,50 +76,36 @@ public class TaskController {
     // update task: /task/service/tasks/description?taskId=?description=
     @PutMapping("/description")
     public ResponseEntity<UpdateTaskResponse> updateTaskDescription(
-            @Valid @RequestBody String description,
-            @RequestParam String taskId,
-            @RequestHeader("access_token") String token) {
+            @Valid @RequestBody UpdateDescriptionTaskRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        return ResponseEntity.ok(taskService.updateTaskDescription(description, UUID.fromString(taskId)));
+        return ResponseEntity.ok(
+                taskService.updateTaskDescription(request.getDescription(), UUID.fromString(request.getTaskId())));
     }
 
     // update task: /task/service/tasks/priority?taskId=?priority=
     @PutMapping("/priority")
     public ResponseEntity<UpdateTaskResponse> updateTaskPriority(
-            @Valid @RequestBody String priority,
-            @RequestParam String taskId,
-            @RequestHeader("access_token") String token) {
+            @Valid @RequestBody UpdatePriorityTaskRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        return ResponseEntity.ok(taskService.updateTaskPriority(priority, UUID.fromString(taskId)));
+        return ResponseEntity.ok(
+                taskService.updateTaskPriority(request.getPriority(), UUID.fromString(request.getTaskId())));
     }
 
     // update task: /task/service/tasks/status?taskId=?status=
     @PutMapping("/status")
     public ResponseEntity<UpdateTaskResponse> updateTaskStatus(
-            @Valid @RequestBody String status,
-            @RequestParam String taskId,
-            @RequestHeader("access_token") String token) {
+            @Valid @RequestBody UpdateStatusTaskRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        return ResponseEntity.ok(taskService.updateTaskStatus(status, UUID.fromString(taskId)));
-    }
-
-    // update task: /task/service/tasks/startDate?taskId=?startDate=
-    @PutMapping("/startDate")
-    public ResponseEntity<UpdateTaskResponse> updateTaskStartDate(
-            @Valid @RequestBody LocalDateTime startDate,
-            @RequestParam String taskId,
-            @RequestHeader("access_token") String token) {
-        jwtService.validateToken(token);
-        return ResponseEntity.ok(taskService.updateTaskStartDate(startDate, UUID.fromString(taskId)));
+        return ResponseEntity.ok(
+                taskService.updateTaskStatus(request.getStatus(), UUID.fromString(request.getTaskId())));
     }
 
     // update task: /task/service/tasks/endDate?taskId=
     @PutMapping("/endDate")
     public ResponseEntity<UpdateTaskResponse> updateTaskEndDate(
-            @Valid @RequestBody LocalDateTime endDate,
-            @RequestParam String taskId,
-            @RequestHeader("access_token") String token) {
+            @Valid @RequestBody UpdateEndDateTaskRequest request, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
-        return ResponseEntity.ok(taskService.updateTaskEndDate(endDate, UUID.fromString(taskId)));
+        return ResponseEntity.ok(taskService.updateTaskEndDate(
+                LocalDateTime.parse(request.getEndDate()), UUID.fromString(request.getTaskId())));
     }
 }
