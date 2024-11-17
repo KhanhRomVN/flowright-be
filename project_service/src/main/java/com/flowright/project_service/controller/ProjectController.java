@@ -1,5 +1,6 @@
 package com.flowright.project_service.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class ProjectController {
 
     // get all projects: /project/service/projects
     @GetMapping
-    public ResponseEntity<GetAllProjectsResponse> getAllProjects(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<GetAllProjectsResponse>> getAllProjects(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(projectService.getAllProjects(workspaceId));
     }
