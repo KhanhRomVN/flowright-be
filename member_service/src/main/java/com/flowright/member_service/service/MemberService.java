@@ -1,5 +1,6 @@
 package com.flowright.member_service.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -7,8 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.flowright.member_service.dto.MemberDTO.BasicMemberResponse;
 import com.flowright.member_service.dto.MemberDTO.DeleteMemberResponse;
+import com.flowright.member_service.dto.MemberDTO.GetListMemberByRoleResponse;
 import com.flowright.member_service.dto.MemberDTO.MemberResponse;
 import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
@@ -129,17 +130,19 @@ public class MemberService {
                 .build();
     }
 
-    private BasicMemberResponse toBasicMemberResponse(Member member) {
-        return BasicMemberResponse.builder()
-                .id(member.getId())
-                .username(member.getUsername())
-                .email(member.getEmail())
-                .build();
-    }
-
-    public List<BasicMemberResponse> getMembersByRoleId(UUID roleId) {
+    public List<GetListMemberByRoleResponse> getListMemberByRoleId(UUID roleId) {
         List<Member> members = memberRepository.findByRoleId(roleId);
-        return members.stream().map(this::toBasicMemberResponse).collect(Collectors.toList());
+        List<GetListMemberByRoleResponse> responseList = new ArrayList<>();
+        for (Member member : members) {
+            GetListMemberByRoleResponse response = GetListMemberByRoleResponse.builder()
+                    .id(member.getId())
+                    .username(member.getUsername())
+                    .email(member.getEmail())
+                    .build();
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
     private MemberResponse toMemberResponse(Member member) {

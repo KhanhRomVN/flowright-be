@@ -1,6 +1,8 @@
 package com.flowright.member_service.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -111,8 +113,10 @@ public class RoleService {
         return toRoleResponse(role);
     }
 
-    public Page<RoleResponse> getAllRolesByWorkspaceId(UUID workspaceId) {
-        return roleRepository.findByWorkspaceId(workspaceId, Pageable.unpaged()).map(this::toRoleResponse);
+    public List<RoleResponse> getAllRolesByWorkspaceId(UUID workspaceId) {
+        return roleRepository.findByWorkspaceId(workspaceId).stream()
+                .map(this::toRoleResponse)
+                .collect(Collectors.toList());
     }
 
     public String getRoleNameById(UUID id) {

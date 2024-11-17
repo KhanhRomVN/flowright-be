@@ -7,9 +7,6 @@ import lombok.Data;
 @Data
 public class AcceptInviteRequest {
     @NotBlank
-    private String username;
-
-    @NotBlank
     private String email;
 
     @NotBlank

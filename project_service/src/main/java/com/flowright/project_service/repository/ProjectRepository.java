@@ -9,4 +9,6 @@ import com.flowright.project_service.entity.Project;
 
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
     List<Project> findByWorkspaceId(UUID workspaceId);
+
+    List<Project> findByOwnerId(UUID ownerId);
 }

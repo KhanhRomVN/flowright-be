@@ -17,16 +17,20 @@ import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteResponse;
 import com.flowright.workspace_service.dto.InviteDTO.GetInviteResponse;
+import com.flowright.workspace_service.dto.InviteDTO.GetMyInviteResponse;
 import com.flowright.workspace_service.entity.Invite;
+import com.flowright.workspace_service.entity.Workspace;
 import com.flowright.workspace_service.exception.WorkspaceException;
 import com.flowright.workspace_service.kafka.consumer.CheckMemberWorkspaceConsumer;
 import com.flowright.workspace_service.kafka.consumer.CreateMemberWorkspaceConsumer;
 import com.flowright.workspace_service.kafka.consumer.GetAccessTokenByWorkspaceIdConsumer;
 import com.flowright.workspace_service.kafka.consumer.GetRoleInfoConsumer;
+import com.flowright.workspace_service.kafka.consumer.GetUserInfoConsumer;
 import com.flowright.workspace_service.kafka.producer.CheckMemberWorkspaceProducer;
 import com.flowright.workspace_service.kafka.producer.CreateMemberWorkspaceProducer;
 import com.flowright.workspace_service.kafka.producer.GetAccessTokenByWorkspaceIdProducer;
 import com.flowright.workspace_service.kafka.producer.GetRoleInfoProducer;
+import com.flowright.workspace_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.workspace_service.repository.InviteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -66,6 +70,15 @@ public class InviteService {
 
     @Autowired
     private final MailService mailService;
+
+    @Autowired
+    private final GetUserInfoProducer getUserInfoProducer;
+
+    @Autowired
+    private final GetUserInfoConsumer getUserInfoConsumer;
+
+    @Autowired
+    private final WorkspaceService workspaceService;
 
     public CreateInviteResponse createInvite(UUID workspaceId, CreateInviteRequest request) {
         if (inviteRepository.findByWorkspaceIdAndEmail(workspaceId, request.getEmail()) != null) {
@@ -108,6 +121,7 @@ public class InviteService {
         return token.toString();
     }
 
+    @Transactional
     public AcceptInviteReponse acceptInvite(AcceptInviteRequest request, UUID userId) {
         Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(
                 request.getToken(), UUID.fromString(request.getWorkspaceId()), request.getEmail());
@@ -116,11 +130,16 @@ public class InviteService {
             throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
+        getUserInfoProducer.sendMessage(userId);
+        String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+        String[] responseSplit = getUserInfoConsumerResponse.split(",");
+        String username = responseSplit[1];
+
         createMemberWorkspaceProducer.sendMessage(
                 userId.toString(),
                 invite.getWorkspaceId().toString(),
                 invite.getEmail(),
-                request.getUsername(),
+                username,
                 invite.getRoleId().toString());
         String memberId = createMemberWorkspaceConsumer.getMemberId();
         if (memberId == null) {
@@ -139,9 +158,7 @@ public class InviteService {
 
         workspaceMemberService.createWorkspaceMember(userId, invite.getWorkspaceId());
 
-        if (invite.getId() != null) {
-            inviteRepository.deleteInviteByEmailAndToken(invite.getEmail(), invite.getToken());
-        }
+        inviteRepository.deleteInviteById(invite.getId());
 
         return AcceptInviteReponse.builder()
                 .accessToken(accessToken)
@@ -181,5 +198,33 @@ public class InviteService {
     @Transactional
     public void deleteInvite(UUID id) {
         inviteRepository.deleteInviteById(id);
+    }
+
+    public List<GetMyInviteResponse> getMyInvite(UUID userId) {
+        getUserInfoProducer.sendMessage(userId);
+        String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+        String[] responseSplit = getUserInfoConsumerResponse.split(",");
+        String email = responseSplit[1];
+
+        List<Invite> invites = inviteRepository.findByEmail(email);
+        Workspace workspace = workspaceService.findWorkspaceById(invites.get(0).getWorkspaceId());
+        List<GetMyInviteResponse> getMyInviteResponses = new ArrayList<>();
+        for (Invite invite : invites) {
+            getRoleInfoProducer.sendMessage(invite.getRoleId().toString());
+            String roleName = getRoleInfoConsumer.getResponse();
+            GetMyInviteResponse getMyInviteResponse = GetMyInviteResponse.builder()
+                    .id(invite.getId())
+                    .email(invite.getEmail())
+                    .roleId(invite.getRoleId())
+                    .roleName(roleName)
+                    .workspaceId(workspace.getId())
+                    .workspaceName(workspace.getName())
+                    .token(invite.getToken())
+                    .status(invite.getStatus())
+                    .expiresAt(invite.getExpiresAt())
+                    .build();
+            getMyInviteResponses.add(getMyInviteResponse);
+        }
+        return getMyInviteResponses;
     }
 }

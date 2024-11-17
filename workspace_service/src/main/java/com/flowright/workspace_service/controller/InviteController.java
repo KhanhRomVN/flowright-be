@@ -20,19 +20,20 @@ import com.flowright.workspace_service.dto.InviteDTO.AcceptInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteRequest;
 import com.flowright.workspace_service.dto.InviteDTO.CreateInviteResponse;
 import com.flowright.workspace_service.dto.InviteDTO.GetInviteResponse;
+import com.flowright.workspace_service.dto.InviteDTO.GetMyInviteResponse;
 import com.flowright.workspace_service.service.InviteService;
 import com.flowright.workspace_service.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/workspace/invites")
+@RequestMapping("/workspace/service/invites")
 @RequiredArgsConstructor
 public class InviteController {
     private final InviteService inviteService;
     private final JwtService jwtService;
 
-    // create invite: /workspace/invites
+    // create invite: /workspace/service/invites
     @PostMapping
     public ResponseEntity<CreateInviteResponse> createInvite(
             @RequestHeader("access_token") String token, @Valid @RequestBody CreateInviteRequest request) {
@@ -40,7 +41,14 @@ public class InviteController {
         return ResponseEntity.ok(inviteService.createInvite(workspaceId, request));
     }
 
-    // accept invite: /workspace/invites/accept
+    // get all my invite: /workspace/service/invites
+    @GetMapping
+    public ResponseEntity<List<GetMyInviteResponse>> getMyInvite(@RequestHeader("access_token") String token) {
+        UUID userId = jwtService.extractUserId(token);
+        return ResponseEntity.ok(inviteService.getMyInvite(userId));
+    }
+
+    // accept invite: /workspace/service/invites/accept
     @PostMapping("/accept")
     public ResponseEntity<AcceptInviteReponse> acceptInvite(
             @Valid @RequestBody AcceptInviteRequest request, @RequestHeader("access_token") String token) {
@@ -48,14 +56,14 @@ public class InviteController {
         return ResponseEntity.ok(inviteService.acceptInvite(request, userId));
     }
 
-    // get list invite: /workspace/invites
-    @GetMapping
+    // get list invite: /workspace/service/invites/workspace
+    @GetMapping("/workspace")
     public ResponseEntity<List<GetInviteResponse>> getListInvite(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(inviteService.getListInvite(workspaceId));
     }
 
-    // delete invite: /workspace/invites
+    // delete invite: /workspace/service/invites
     @DeleteMapping
     public ResponseEntity<String> deleteInvite(
             @RequestParam("id") String id, @RequestHeader("access_token") String token) {

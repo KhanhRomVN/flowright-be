@@ -23,6 +23,7 @@ public class UserRequestConsumer {
     @KafkaListener(topics = "get-user-info-request", groupId = "user-service")
     public void listen(String ownerId) {
         UserDTO user = userService.getCurrentUser(UUID.fromString(ownerId));
+        System.out.println("user = " + user);
         String responseMessage = user.getUsername() + "," + user.getEmail();
         kafkaTemplate.send("get-user-info-response", responseMessage);
     }

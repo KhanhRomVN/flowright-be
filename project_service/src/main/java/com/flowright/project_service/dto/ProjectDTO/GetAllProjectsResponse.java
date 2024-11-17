@@ -1,8 +1,7 @@
 package com.flowright.project_service.dto.ProjectDTO;
 
-import java.util.List;
-
-import com.flowright.project_service.entity.Project;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,5 +13,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetAllProjectsResponse {
-    private List<Project> projects;
+    private UUID id;
+    private String name;
+    private String description;
+    private UUID ownerId;
+    private String ownerUsername;
+    private UUID creatorId;
+    private String creatorUsername;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private String status;
 }

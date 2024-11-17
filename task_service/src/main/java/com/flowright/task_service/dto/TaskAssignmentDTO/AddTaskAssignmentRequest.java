@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTaskAssignmentRequest {
+public class AddTaskAssignmentRequest {
     private String memberId;
     private String teamId;
 }
