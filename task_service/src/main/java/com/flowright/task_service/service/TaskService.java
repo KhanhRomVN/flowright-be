@@ -443,9 +443,9 @@ public class TaskService {
             List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getId());
             List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();
             for (TaskAssignment taskAssignment : taskAssignments) {
-                getUserInfoProducer.sendMessage(taskAssignment.getMemberId());
-                String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
-                String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
+                getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
+                String _getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                String[] _responseSplit = _getMemberInfoConsumerResponse.split(",");
                 String assigneeUsername = _responseSplit[0];
                 taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
                         .assignmentMemberId(taskAssignment.getMemberId())
