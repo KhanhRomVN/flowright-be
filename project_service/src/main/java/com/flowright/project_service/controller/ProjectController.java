@@ -41,4 +41,11 @@ public class ProjectController {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(projectService.getAllProjects(workspaceId));
     }
+
+    // get own projects: /project/service/projects/own
+    @GetMapping("/own")
+    public ResponseEntity<List<GetAllProjectsResponse>> getOwnProjects(@RequestHeader("access_token") String token) {
+        UUID memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(projectService.getOwnProjects(memberId));
+    }
 }

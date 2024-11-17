@@ -86,4 +86,33 @@ public class ProjectService {
     public Project getProjectById(UUID projectId) {
         return projectRepository.findById(projectId).get();
     }
+
+    public List<GetAllProjectsResponse> getOwnProjects(UUID memberId) {
+        System.out.println(memberId);
+        List<Project> projects = projectRepository.findByOwnerId(memberId);
+        System.out.println(projects);
+        List<GetAllProjectsResponse> response = new ArrayList<>();
+
+        for (Project project : projects) {
+            getMemberInfoProducer.sendMessage(project.getOwnerId());
+            String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+            String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+            String ownerUsername = responseSplit[0];
+
+            getMemberInfoProducer.sendMessage(project.getCreatorId());
+            String _getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+            String[] _responseSplit = _getMemberInfoConsumerResponse.split(",");
+            String creatorUsername = _responseSplit[0];
+
+            response.add(GetAllProjectsResponse.builder()
+                    .id(project.getId())
+                    .name(project.getName())
+                    .description(project.getDescription())
+                    .ownerUsername(ownerUsername)
+                    .creatorUsername(creatorUsername)
+                    .build());
+        }
+
+        return response;
+    }
 }
