@@ -28,16 +28,16 @@ public class ProjectService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .workspaceId(workspaceId)
-                .ownerId(creatorId)
+                .ownerId(UUID.fromString(request.getOwnerId()))
                 .creatorId(creatorId)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .status("todo")
+                .status("in_progress")
                 .build();
 
         projectRepository.save(project);
 
-        projectAssignmentService.createProjectAssignment(project.getId(), UUID.fromString(request.getTeamId()));
+        projectAssignmentService.createProjectAssignment(project.getId(), UUID.fromString(request.getOwnerId()));
 
         return CreateProjectResponse.builder()
                 .message("Project created successfully")

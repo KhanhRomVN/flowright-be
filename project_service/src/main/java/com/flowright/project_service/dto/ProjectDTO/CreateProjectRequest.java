@@ -17,5 +17,4 @@ public class CreateProjectRequest {
     private String ownerId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private String teamId;
 }
