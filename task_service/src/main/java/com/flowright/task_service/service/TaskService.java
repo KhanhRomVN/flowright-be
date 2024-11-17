@@ -16,6 +16,7 @@ import com.flowright.task_service.dto.TaskAssignmentDTO.GetTaskAssignmentRespons
 import com.flowright.task_service.dto.TaskCommentDTO.GetTaskCommentResponse;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
@@ -85,15 +86,27 @@ public class TaskService {
     private TaskLogService taskLogService;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
+        String startDate = null;
+        String endDate = null;
+        if (request.getStartDate() != null) {
+            startDate = request.getStartDate();
+        }
+        if (request.getEndDate() != null) {
+            endDate = request.getEndDate();
+        }
         Task task = Task.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .creatorId(creatorId)
-                .ownerId(UUID.fromString(request.getOwnerId()))
                 .projectId(UUID.fromString(request.getProjectId()))
                 .priority(request.getPriority())
-                .startDate(LocalDateTime.parse(request.getStartDate()))
-                .endDate(request.getEndDate() != null ? LocalDateTime.parse(request.getEndDate()) : null)
+                .startDate(startDate != null ? LocalDateTime.parse(startDate) : null)
+                .endDate(endDate != null ? LocalDateTime.parse(endDate) : null)
+                .nextTaskId(request.getNextTaskId() != null ? UUID.fromString(request.getNextTaskId()) : null)
+                .taskGroupId(request.getTaskGroupId() != null ? UUID.fromString(request.getTaskGroupId()) : null)
+                .status("todo")
+                .previousTaskId(
+                        request.getPreviousTaskId() != null ? UUID.fromString(request.getPreviousTaskId()) : null)
                 .build();
 
         Task savedTask = taskRepository.save(task);
@@ -419,6 +432,54 @@ public class TaskService {
         taskLogService.createTaskLog(taskId, "Task end date updated", "Task end date updated successfully");
         return UpdateTaskResponse.builder()
                 .message("Task end date updated successfully")
+                .build();
+    }
+
+    public List<GetAllTaskProjectResponse> getAllTaskProject(UUID projectId) {
+        List<Task> tasks = taskRepository.findByProjectId(projectId);
+        List<GetAllTaskProjectResponse> response = new ArrayList<>();
+        for (Task task : tasks) {
+            // get task assignments
+            List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getId());
+            List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();
+            for (TaskAssignment taskAssignment : taskAssignments) {
+                getUserInfoProducer.sendMessage(taskAssignment.getMemberId());
+                String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+                String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
+                String assigneeUsername = _responseSplit[0];
+                taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                        .assignmentMemberId(taskAssignment.getMemberId())
+                        .assigneeUsername(assigneeUsername)
+                        .build());
+            }
+            // get task group name
+            String taskGroupName = null;
+            if (task.getTaskGroupId() != null) {
+                TaskGroup taskGroup = taskGroupService.getTaskGroupById(task.getTaskGroupId());
+                taskGroupName = taskGroup.getName();
+            }
+            response.add(GetAllTaskProjectResponse.builder()
+                    .taskId(task.getId())
+                    .taskName(task.getName())
+                    .priority(task.getPriority())
+                    .projectId(task.getProjectId())
+                    .taskGroupId(task.getTaskGroupId())
+                    .taskGroupName(taskGroupName)
+                    .startDate(task.getStartDate())
+                    .endDate(task.getEndDate())
+                    .status(task.getStatus())
+                    .taskAssignments(taskAssignmentResponses)
+                    .build());
+        }
+        return response;
+    }
+
+    public UpdateTaskResponse changeTaskGroup(UUID taskId, UUID taskGroupId) {
+        Task task = getTaskById(taskId);
+        task.setTaskGroupId(taskGroupId);
+        taskRepository.save(task);
+        return UpdateTaskResponse.builder()
+                .message("Task group updated successfully")
                 .build();
     }
 }

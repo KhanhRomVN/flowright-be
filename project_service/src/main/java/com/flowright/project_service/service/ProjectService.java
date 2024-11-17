@@ -108,8 +108,13 @@ public class ProjectService {
                     .id(project.getId())
                     .name(project.getName())
                     .description(project.getDescription())
+                    .ownerId(project.getOwnerId())
                     .ownerUsername(ownerUsername)
+                    .creatorId(project.getCreatorId())
                     .creatorUsername(creatorUsername)
+                    .startDate(project.getStartDate())
+                    .endDate(project.getEndDate())
+                    .status(project.getStatus())
                     .build());
         }
 

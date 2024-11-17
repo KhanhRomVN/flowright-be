@@ -1,7 +1,7 @@
 {
-	"ulid": "01JCWER1CSZH0WBKNCXDYA9Q17",
-	"minTime": 1731816002508,
-	"maxTime": 1731823200000,
+	"ulid": "01JCXA6ZRGFHWWBC5R8PEMJ3MK",
+	"minTime": 1731844802508,
+	"maxTime": 1731852000000,
 	"stats": {
 		"numSamples": 3360,
 		"numSeries": 7,
@@ -10,7 +10,7 @@
 	"compaction": {
 		"level": 1,
 		"sources": [
-			"01JCWER1CSZH0WBKNCXDYA9Q17"
+			"01JCXA6ZRGFHWWBC5R8PEMJ3MK"
 		]
 	},
 	"version": 1
