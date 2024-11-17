@@ -27,4 +27,6 @@ public interface InviteRepository extends JpaRepository<Invite, UUID> {
     List<Invite> findByWorkspaceId(UUID workspaceId);
 
     List<Invite> findByStatusAndExpiresAtBefore(String status, LocalDateTime expiresAt);
+
+    List<Invite> findByEmail(String email);
 }

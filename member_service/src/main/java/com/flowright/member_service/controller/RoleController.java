@@ -1,8 +1,8 @@
 package com.flowright.member_service.controller;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -48,7 +48,7 @@ public class RoleController {
 
     // get all roles: /member/service/roles
     @GetMapping
-    public ResponseEntity<Page<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<RoleResponse>> getAllRolesByWorkspaceId(@RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(roleService.getAllRolesByWorkspaceId(workspaceId));
     }
