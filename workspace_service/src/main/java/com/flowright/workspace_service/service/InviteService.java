@@ -121,6 +121,7 @@ public class InviteService {
         return token.toString();
     }
 
+    @Transactional
     public AcceptInviteReponse acceptInvite(AcceptInviteRequest request, UUID userId) {
         Invite invite = inviteRepository.findByTokenAndWorkspaceIdAndEmail(
                 request.getToken(), UUID.fromString(request.getWorkspaceId()), request.getEmail());
@@ -129,11 +130,16 @@ public class InviteService {
             throw new WorkspaceException("Invite not found", HttpStatus.BAD_REQUEST);
         }
 
+        getUserInfoProducer.sendMessage(userId);
+        String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
+        String[] responseSplit = getUserInfoConsumerResponse.split(",");
+        String username = responseSplit[1];
+
         createMemberWorkspaceProducer.sendMessage(
                 userId.toString(),
                 invite.getWorkspaceId().toString(),
                 invite.getEmail(),
-                request.getUsername(),
+                username,
                 invite.getRoleId().toString());
         String memberId = createMemberWorkspaceConsumer.getMemberId();
         if (memberId == null) {
@@ -152,9 +158,7 @@ public class InviteService {
 
         workspaceMemberService.createWorkspaceMember(userId, invite.getWorkspaceId());
 
-        if (invite.getId() != null) {
-            inviteRepository.deleteInviteByEmailAndToken(invite.getEmail(), invite.getToken());
-        }
+        inviteRepository.deleteInviteById(invite.getId());
 
         return AcceptInviteReponse.builder()
                 .accessToken(accessToken)
