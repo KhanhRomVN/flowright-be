@@ -141,7 +141,6 @@ CREATE TABLE `flowright`.`tasks` (
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(255),
     `creator_id` INT NOT NULL,
-    `owner_id` INT NOT NULL,
     `project_id` BINARY(16) NULL,
     `priority` VARCHAR(50) NOT NULL, -- low, medium, high
     `start_date` DATETIME NOT NULL,

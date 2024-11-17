@@ -29,7 +29,7 @@ public class TaskAssignmentController {
     @Autowired
     private final JwtService jwtService;
 
-    // Create a task comment: /task/service/task-comments?taskId=<taskId>
+    // Create a task comment: /task/service/task-assignments?taskId=<taskId>
     @PostMapping
     public String createTaskAssignment(
             @Valid @RequestBody AddTaskAssignmentRequest request,

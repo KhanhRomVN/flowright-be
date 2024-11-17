@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.member_service.dto.MemberDTO.DeleteMemberResponse;
+import com.flowright.member_service.dto.MemberDTO.GetListMemberByRoleResponse;
 import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.service.JwtService;
@@ -65,15 +66,13 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getSimpleMembersByWorkspaceId(workspaceId));
     }
 
-    // get list member by role_id: /member/service/members/role/{role_id}
-    // @GetMapping("/role/{role_id}")
-    // public ResponseEntity<List<BasicMemberResponse>> getMembersByRoleId(
-    //         @PathVariable UUID role_id, @RequestHeader("access_token") String token) {
-    //     jwtService.validateToken(token);
-    //     String roleId = jwtService.extractRoleId(token);
-    //     List<BasicMemberResponse> members = memberService.getMembersByRoleId(roleId);
-    //     return ResponseEntity.ok(members);
-    // }
+    // get list member by role_id: /member/service/members/role?roleId=
+    @GetMapping("/role")
+    public ResponseEntity<List<GetListMemberByRoleResponse>> getMembersByRoleId(
+            @RequestParam String roleId, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        return ResponseEntity.ok(memberService.getListMemberByRoleId(UUID.fromString(roleId)));
+    }
 
     // get new access token: /member/service/members/new/access-token
     @GetMapping("/new/access-token")

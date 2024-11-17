@@ -1,7 +1,7 @@
 {
-	"ulid": "01JCTGZ40S8A4ZW37A0YB8FWA7",
-	"minTime": 1731744000000,
-	"maxTime": 1731751200000,
+	"ulid": "01JCVV0FC36ZDJN0K9D44Q80AW",
+	"minTime": 1731765600000,
+	"maxTime": 1731772800000,
 	"stats": {
 		"numSamples": 3360,
 		"numSeries": 7,
@@ -10,7 +10,7 @@
 	"compaction": {
 		"level": 1,
 		"sources": [
-			"01JCTGZ40S8A4ZW37A0YB8FWA7"
+			"01JCVV0FC36ZDJN0K9D44Q80AW"
 		]
 	},
 	"version": 1
