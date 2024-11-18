@@ -57,4 +57,8 @@ public class TeamMemberService {
         }
         return responses;
     }
+
+    public int getTotalMemberInTeam(UUID teamId) {
+        return teamMemberRepository.findByTeamId(teamId).size();
+    }
 }

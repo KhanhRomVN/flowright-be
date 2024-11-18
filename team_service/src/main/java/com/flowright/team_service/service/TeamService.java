@@ -1,5 +1,6 @@
 package com.flowright.team_service.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -9,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.flowright.team_service.dto.TeamDTO.CreateTeamRequest;
+import com.flowright.team_service.dto.TeamDTO.GetTeamOfWorkspaceResponse;
 import com.flowright.team_service.entity.Team;
 import com.flowright.team_service.entity.TeamMember;
+import com.flowright.team_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.team_service.kafka.producer.GetMemberInfoProducer;
 import com.flowright.team_service.repository.TeamRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,12 @@ public class TeamService {
 
     @Autowired
     private final TeamMemberService teamMemberService;
+
+    @Autowired
+    private final GetMemberInfoProducer getMemberInfoProducer;
+
+    @Autowired
+    private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Transactional
     public String createTeam(CreateTeamRequest request, UUID workspaceId) {
@@ -40,8 +50,28 @@ public class TeamService {
         return "Team created successfully";
     }
 
-    public List<Team> getAllTeamWorkspace(UUID workspaceId) {
-        return teamRepository.findByWorkspaceId(workspaceId);
+    public List<GetTeamOfWorkspaceResponse> getAllTeamWorkspace(UUID workspaceId) {
+        List<Team> teams = teamRepository.findByWorkspaceId(workspaceId);
+        List<GetTeamOfWorkspaceResponse> responses = new ArrayList<>();
+        for (Team team : teams) {
+            getMemberInfoProducer.sendMessage(team.getLeaderId());
+            String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+            String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+            String leaderUsername = responseSplit[0];
+
+            int totalMember = teamMemberService.getTotalMemberInTeam(team.getId());
+
+            responses.add(GetTeamOfWorkspaceResponse.builder()
+                    .id(team.getId())
+                    .name(team.getName())
+                    .description(team.getDescription())
+                    .leaderId(team.getLeaderId())
+                    .leaderUsername(leaderUsername)
+                    .totalMember(totalMember)
+                    .status(team.getStatus())
+                    .build());
+        }
+        return responses;
     }
 
     public List<Team> getMemberTeamWorkspace(UUID memberId) {
