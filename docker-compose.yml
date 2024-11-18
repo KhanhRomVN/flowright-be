@@ -89,6 +89,17 @@ services:
       - ./alert-manager/config:/config
     command: --config.file=/config/alertmanager.yml --log.level=debug
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - elk
+    restart: always
+
 networks:
   elk:
     driver: bridge

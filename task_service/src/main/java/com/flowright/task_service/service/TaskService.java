@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
@@ -506,5 +507,48 @@ public class TaskService {
                     .build());
         }
         return response;
+    }
+
+    @Scheduled(fixedRate = 10000) // 1 minute
+    public void changeStatusTaskSchedule() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get all tasks with status "todo" or "in_progress"
+        List<Task> tasks = taskRepository.findAll().stream()
+                .filter(task ->
+                        task.getStatus().equals("todo") || task.getStatus().equals("in_progress"))
+                .collect(Collectors.toList());
+
+        for (Task task : tasks) {
+            String currentStatus = task.getStatus();
+            LocalDateTime startDate = task.getStartDate();
+            LocalDateTime endDate = task.getEndDate();
+
+            if (startDate == null || endDate == null) {
+                continue; // Skip tasks without dates
+            }
+
+            if (currentStatus.equals("todo")) {
+                // Check if current time is between start and end date
+                if (now.isAfter(startDate) && now.isBefore(endDate)) {
+                    task.setStatus("in_progress");
+                    taskRepository.save(task);
+                    taskLogService.createTaskLog(
+                            task.getId(),
+                            "Task status updated automatically",
+                            "Task status changed from 'todo' to 'in_progress'");
+                }
+            } else if (currentStatus.equals("in_progress")) {
+                // Check if current time is after end date
+                if (now.isAfter(endDate)) {
+                    task.setStatus("overdue");
+                    taskRepository.save(task);
+                    taskLogService.createTaskLog(
+                            task.getId(),
+                            "Task status updated automatically",
+                            "Task status changed from 'in_progress' to 'overdue'");
+                }
+            }
+        }
     }
 }
