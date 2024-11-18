@@ -488,12 +488,7 @@ public class TaskService {
         List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
         List<GetMemberTaskResponse> response = new ArrayList<>();
         for (UUID taskId : taskIds) {
-            System.out.println(taskId);
             Task task = getTaskById(taskId);
-            System.out.println(task);
-            if (task.getStatus().equals("done")) {
-                continue;
-            }
             getProjectInfoProducer.sendMessage(task.getProjectId());
             String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
             String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
