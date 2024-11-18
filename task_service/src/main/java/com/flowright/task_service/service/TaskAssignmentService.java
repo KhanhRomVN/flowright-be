@@ -42,6 +42,12 @@ public class TaskAssignmentService {
         return taskAssignmentRepository.findAllByTaskId(taskId);
     }
 
+    public List<UUID> getAllTaskAssignmentMemberId(UUID memberId) {
+        return taskAssignmentRepository.findAllByMemberId(memberId).stream()
+                .map(TaskAssignment::getTaskId)
+                .collect(Collectors.toList());
+    }
+
     public void deleteTaskAssignment(UUID taskAssignmentId) {
         taskAssignmentRepository.deleteById(taskAssignmentId);
     }

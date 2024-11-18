@@ -21,6 +21,7 @@ import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateDescriptionTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateEndDateTaskRequest;
@@ -125,5 +126,12 @@ public class TaskController {
         jwtService.validateToken(token);
         return ResponseEntity.ok(taskService.changeTaskGroup(
                 UUID.fromString(request.getTaskId()), UUID.fromString(request.getTaskGroupId())));
+    }
+
+    // get all task member: /task/service/tasks/member
+    @GetMapping("/member")
+    public ResponseEntity<List<GetMemberTaskResponse>> getAllTaskMember(@RequestHeader("access_token") String token) {
+        UUID memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(taskService.getAllTaskMember(memberId));
     }
 }

@@ -11,4 +11,6 @@ public interface TaskAssignmentRepository extends JpaRepository<TaskAssignment, 
     List<TaskAssignment> findAllByTeamId(UUID teamId);
 
     List<TaskAssignment> findAllByTaskId(UUID taskId);
+
+    List<TaskAssignment> findAllByMemberId(UUID memberId);
 }

@@ -20,6 +20,7 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
@@ -481,5 +482,34 @@ public class TaskService {
         return UpdateTaskResponse.builder()
                 .message("Task group updated successfully")
                 .build();
+    }
+
+    public List<GetMemberTaskResponse> getAllTaskMember(UUID memberId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
+        List<GetMemberTaskResponse> response = new ArrayList<>();
+        for (UUID taskId : taskIds) {
+            System.out.println(taskId);
+            Task task = getTaskById(taskId);
+            System.out.println(task);
+            if (task.getStatus().equals("done")) {
+                continue;
+            }
+            getProjectInfoProducer.sendMessage(task.getProjectId());
+            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            String projectName = projectResponseSplit[0];
+            response.add(GetMemberTaskResponse.builder()
+                    .id(task.getId())
+                    .name(task.getName())
+                    .description(task.getDescription())
+                    .status(task.getStatus())
+                    .priority(task.getPriority())
+                    .projectId(task.getProjectId())
+                    .projectName(projectName)
+                    .startDate(task.getStartDate())
+                    .endDate(task.getEndDate())
+                    .build());
+        }
+        return response;
     }
 }
