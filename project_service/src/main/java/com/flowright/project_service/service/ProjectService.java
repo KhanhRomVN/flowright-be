@@ -88,9 +88,7 @@ public class ProjectService {
     }
 
     public List<GetAllProjectsResponse> getOwnProjects(UUID memberId) {
-        System.out.println(memberId);
         List<Project> projects = projectRepository.findByOwnerId(memberId);
-        System.out.println(projects);
         List<GetAllProjectsResponse> response = new ArrayList<>();
 
         for (Project project : projects) {

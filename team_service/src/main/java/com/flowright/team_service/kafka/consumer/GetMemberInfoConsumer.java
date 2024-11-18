@@ -12,6 +12,7 @@ public class GetMemberInfoConsumer {
 
     @KafkaListener(topics = "get-member-info-response", groupId = "team-service")
     public void listen(String message) {
+        System.out.println(message);
         this.response = message;
         latch.countDown();
     }

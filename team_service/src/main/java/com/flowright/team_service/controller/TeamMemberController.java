@@ -42,6 +42,4 @@ public class TeamMemberController {
         jwtService.validateToken(token);
         return ResponseEntity.ok(teamMemberService.getAllMemberInTeam(UUID.fromString(teamId)));
     }
-
-    //
 }

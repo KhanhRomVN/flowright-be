@@ -24,6 +24,7 @@ public class TaskGroupService {
 
     @Transactional
     public CreateTaskGroupResponse createTaskGroup(CreateTaskGroupRequest request) {
+        System.out.println(request);
         // check if task group name & project id already exists
         if (taskGroupRepository.existsByNameAndProjectId(request.getName(), UUID.fromString(request.getProjectId()))) {
             throw new RuntimeException("Task group name already exists");

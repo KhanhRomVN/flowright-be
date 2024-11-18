@@ -56,6 +56,7 @@ public class TeamService {
         for (Team team : teams) {
             getMemberInfoProducer.sendMessage(team.getLeaderId());
             String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+            System.out.println(getMemberInfoConsumerResponse);
             String[] responseSplit = getMemberInfoConsumerResponse.split(",");
             String leaderUsername = responseSplit[0];
 
