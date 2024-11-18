@@ -31,9 +31,6 @@ public class MemberService {
 
     @Autowired
     private final JwtService jwtService;
-    // private final RoleService roleService;
-    // private final MemberSpecializationService memberSpecializationService;
-    // private final SpecializationService specializationService;
 
     public String createMember(UUID userId, UUID workspaceId, String email, String username, UUID roleId) {
         if (memberRepository.existsByEmailAndWorkspaceId(email, workspaceId)) {
