@@ -19,6 +19,7 @@ import com.flowright.task_service.dto.MiniTaskDTO.ChangeMiniTaskStatusResponse;
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskResponse;
 import com.flowright.task_service.dto.MiniTaskDTO.DeleteMiniTaskResponse;
+import com.flowright.task_service.dto.MiniTaskDTO.UpdateMiniTaskMemberIdRequest;
 import com.flowright.task_service.service.JwtService;
 import com.flowright.task_service.service.MiniTaskService;
 
@@ -59,5 +60,14 @@ public class MiniTaskController {
         jwtService.validateToken(token);
         return ResponseEntity.ok(
                 miniTaskService.changeMiniTaskStatusById(UUID.fromString(miniTaskId), request.getStatus()));
+    }
+
+    // update member_id of a mini task by mini task id: /task/service/mini-tasks/member
+    @PutMapping("/member")
+    public ResponseEntity<String> updateMiniTaskMemberId(
+            @RequestBody UpdateMiniTaskMemberIdRequest request, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        return ResponseEntity.ok(miniTaskService.updateMiniTaskMemberId(
+                UUID.fromString(request.getMiniTaskId()), UUID.fromString(request.getMemberId())));
     }
 }

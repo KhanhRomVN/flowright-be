@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -36,11 +38,14 @@ import com.flowright.task_service.entity.TaskComment;
 import com.flowright.task_service.entity.TaskGroup;
 import com.flowright.task_service.entity.TaskLink;
 import com.flowright.task_service.entity.TaskLog;
+import com.flowright.task_service.exception.TaskException;
 import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetMemberInfoTimerConsumer;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetTeamInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
+import com.flowright.task_service.kafka.producer.GetMemberInfoTimerProducer;
 import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
 import com.flowright.task_service.kafka.producer.GetTeamInfoProducer;
 import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
@@ -64,37 +69,43 @@ public class TaskService {
     private final MiniTaskService miniTaskService;
 
     @Autowired
-    private GetUserInfoProducer getUserInfoProducer;
+    private final GetUserInfoProducer getUserInfoProducer;
 
     @Autowired
-    private GetUserInfoConsumer getUserInfoConsumer;
+    private final GetUserInfoConsumer getUserInfoConsumer;
 
     @Autowired
-    private GetProjectInfoProducer getProjectInfoProducer;
+    private final GetProjectInfoProducer getProjectInfoProducer;
 
     @Autowired
-    private GetProjectInfoConsumer getProjectInfoConsumer;
+    private final GetProjectInfoConsumer getProjectInfoConsumer;
 
     @Autowired
-    private TaskGroupService taskGroupService;
+    private final TaskGroupService taskGroupService;
 
     @Autowired
-    private GetMemberInfoProducer getMemberInfoProducer;
+    private final GetMemberInfoProducer getMemberInfoProducer;
 
     @Autowired
-    private GetMemberInfoConsumer getMemberInfoConsumer;
+    private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Autowired
-    private TaskCommentService taskCommentService;
+    private final TaskCommentService taskCommentService;
 
     @Autowired
-    private TaskLogService taskLogService;
+    private final TaskLogService taskLogService;
 
     @Autowired
-    private GetTeamInfoProducer getTeamInfoProducer;
+    private final GetTeamInfoProducer getTeamInfoProducer;
 
     @Autowired
-    private GetTeamInfoConsumer getTeamInfoConsumer;
+    private final GetTeamInfoConsumer getTeamInfoConsumer;
+
+    @Autowired
+    private final GetMemberInfoTimerProducer getMemberInfoTimerProducer;
+
+    @Autowired
+    private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         String startDate = null;
@@ -258,17 +269,24 @@ public class TaskService {
         // taskAssignmentResponses
         if (taskAssignments != null) {
             for (TaskAssignment taskAssignment : taskAssignments) {
-                getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
-                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
-                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
-                String assigneeUsername = responseSplit[0];
-                String assigneeEmail = responseSplit[1];
+                try {
+                    getMemberInfoTimerProducer.sendMessage(taskAssignment.getMemberId());
+                    String getMemberInfoTimerConsumerResponse = getMemberInfoTimerConsumer
+                            .waitForResponse(taskAssignment.getMemberId())
+                            .get(5, TimeUnit.SECONDS);
+                    String[] responseSplit = getMemberInfoTimerConsumerResponse.split(",");
+                    String assigneeUsername = responseSplit[0];
+                    String assigneeEmail = responseSplit[1];
 
-                taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
-                        .assignmentMemberId(taskAssignment.getMemberId())
-                        .assigneeUsername(assigneeUsername)
-                        .assigneeEmail(assigneeEmail)
-                        .build());
+                    taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                            .assignmentId(taskAssignment.getId())
+                            .assignmentMemberId(taskAssignment.getMemberId())
+                            .assigneeUsername(assigneeUsername)
+                            .assigneeEmail(assigneeEmail)
+                            .build());
+                } catch (Exception e) {
+                    throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
         }
 
@@ -553,7 +571,6 @@ public class TaskService {
     @Scheduled(fixedRate = 10000) // 1 minute
     public void changeStatusTaskSchedule() {
         LocalDateTime now = LocalDateTime.now();
-
         // Get all tasks with status "todo" or "in_progress"
         List<Task> tasks = taskRepository.findAll().stream()
                 .filter(task ->
@@ -617,8 +634,10 @@ public class TaskService {
                     String[] responseSplit = getMemberInfoConsumerResponse.split(",");
                     String assigneeUsername = responseSplit[0];
                     taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                            .assignmentId(taskAssignment.getId())
                             .assignmentMemberId(taskAssignment.getMemberId())
                             .assigneeUsername(assigneeUsername)
+                            .assigneeEmail(responseSplit[1])
                             .build());
                 }
                 // get mini tasks
@@ -634,6 +653,10 @@ public class TaskService {
                             .miniTaskName(miniTask.getName())
                             .miniTaskDescription(miniTask.getDescription())
                             .miniTaskStatus(miniTask.getStatus())
+                            .miniTaskMemberId(miniTask.getMemberId())
+                            .miniTaskMemberUsername(assigneeUsername)
+                            .miniTaskMemberEmail(responseSplit[1])
+                            .taskId(miniTask.getTaskId())
                             .build());
                 }
 

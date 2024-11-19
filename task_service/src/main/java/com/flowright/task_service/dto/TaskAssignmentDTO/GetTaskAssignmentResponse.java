@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetTaskAssignmentResponse {
+    private UUID assignmentId;
     private UUID assignmentMemberId;
     private String assigneeUsername;
     private String assigneeEmail;

@@ -67,4 +67,12 @@ public class MiniTaskService {
                 .message("Mini task status changed successfully")
                 .build();
     }
+
+    public String updateMiniTaskMemberId(UUID miniTaskId, UUID memberId) {
+        MiniTask miniTask =
+                miniTaskRepository.findById(miniTaskId).orElseThrow(() -> new RuntimeException("Mini task not found"));
+        miniTask.setMemberId(memberId);
+        miniTaskRepository.save(miniTask);
+        return "Mini task member id updated successfully";
+    }
 }

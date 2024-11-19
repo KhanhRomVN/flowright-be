@@ -28,6 +28,7 @@ public class TeamMemberService {
     @Autowired
     private final GetMemberInfoTimerProducer getMemberInfoTimerProducer;
 
+    @Autowired
     private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
 
     public String addMemberToTeam(UUID teamId, UUID memberId) {
