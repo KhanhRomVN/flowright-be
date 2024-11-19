@@ -21,6 +21,7 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberStatusTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
@@ -530,6 +531,8 @@ public class TaskService {
             String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
             String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
             String projectName = projectResponseSplit[0];
+            getTeamInfoProducer.sendMessage(task.getTeamId());
+            String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
             response.add(GetMemberTaskResponse.builder()
                     .id(task.getId())
                     .name(task.getName())
@@ -540,6 +543,8 @@ public class TaskService {
                     .projectName(projectName)
                     .startDate(task.getStartDate())
                     .endDate(task.getEndDate())
+                    .teamId(task.getTeamId())
+                    .teamName(getTeamInfoConsumerResponse)
                     .build());
         }
         return response;
@@ -586,5 +591,69 @@ public class TaskService {
                 }
             }
         }
+    }
+
+    public List<GetMemberStatusTaskResponse> getAllTaskMemberWithStatus(UUID memberId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
+        List<GetMemberStatusTaskResponse> response = new ArrayList<>();
+        for (UUID taskId : taskIds) {
+            Task task = getTaskById(taskId);
+            if (task.getStatus().equals("todo")
+                    || task.getStatus().equals("in_progress")
+                    || task.getStatus().equals("overdue")) {
+
+                getProjectInfoProducer.sendMessage(task.getProjectId());
+                String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+                String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+                String projectName = projectResponseSplit[0];
+                getTeamInfoProducer.sendMessage(task.getTeamId());
+                String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+                // get task assignments
+                List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getId());
+                List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();
+                for (TaskAssignment taskAssignment : taskAssignments) {
+                    getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
+                    String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                    String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                    String assigneeUsername = responseSplit[0];
+                    taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                            .assignmentMemberId(taskAssignment.getMemberId())
+                            .assigneeUsername(assigneeUsername)
+                            .build());
+                }
+                // get mini tasks
+                List<MiniTask> miniTasks = miniTaskService.getAllMiniTasksByTaskId(task.getId());
+                List<GetMiniTaskResponse> miniTaskResponses = new ArrayList<>();
+                for (MiniTask miniTask : miniTasks) {
+                    getMemberInfoProducer.sendMessage(miniTask.getMemberId());
+                    String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                    String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                    String assigneeUsername = responseSplit[0];
+                    miniTaskResponses.add(GetMiniTaskResponse.builder()
+                            .miniTaskId(miniTask.getId())
+                            .miniTaskName(miniTask.getName())
+                            .miniTaskDescription(miniTask.getDescription())
+                            .miniTaskStatus(miniTask.getStatus())
+                            .build());
+                }
+
+                response.add(GetMemberStatusTaskResponse.builder()
+                        .id(task.getId())
+                        .name(task.getName())
+                        .description(task.getDescription())
+                        .status(task.getStatus())
+                        .priority(task.getPriority())
+                        .projectId(task.getProjectId())
+                        .projectName(projectName)
+                        .startDate(task.getStartDate())
+                        .endDate(task.getEndDate())
+                        .teamId(task.getTeamId())
+                        .teamName(getTeamInfoConsumerResponse)
+                        .taskAssignments(taskAssignmentResponses)
+                        .miniTasks(miniTaskResponses)
+                        .build());
+            }
+        }
+        return response;
     }
 }
