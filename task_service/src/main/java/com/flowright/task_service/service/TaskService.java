@@ -108,19 +108,8 @@ public class TaskService {
     @Autowired
     private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
 
-    private static final String TASK_CACHE_PREFIX = "task:";
-    private static final String TASK_LIST_CACHE_PREFIX = "task-list:";
-
     @Autowired
     private final RedisTemplate<String, Object> redisTemplate;
-
-    private String getTaskKey(UUID taskId) {
-        return TASK_CACHE_PREFIX + taskId.toString();
-    }
-
-    private String getTaskListKey(UUID projectId) {
-        return TASK_LIST_CACHE_PREFIX + projectId.toString();
-    }
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         String startDate = null;
