@@ -24,9 +24,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     @Autowired
-    private final ProjectAssignmentService projectAssignmentService;
-
-    @Autowired
     private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Autowired
@@ -45,8 +42,6 @@ public class ProjectService {
                 .build();
 
         projectRepository.save(project);
-
-        projectAssignmentService.createProjectAssignment(project.getId(), UUID.fromString(request.getOwnerId()));
 
         return CreateProjectResponse.builder()
                 .message("Project created successfully")
