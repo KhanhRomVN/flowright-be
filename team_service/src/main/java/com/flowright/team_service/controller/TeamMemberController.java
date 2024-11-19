@@ -3,7 +3,10 @@ package com.flowright.team_service.controller;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.team_service.dto.TeamMemberDTO.AddMemberRequest;
+import com.flowright.team_service.dto.TeamMemberDTO.DeleteMemberTeamRequest;
 import com.flowright.team_service.dto.TeamMemberDTO.GetListMemberTeamResponse;
 import com.flowright.team_service.service.JwtService;
 import com.flowright.team_service.service.TeamMemberService;
@@ -41,5 +45,12 @@ public class TeamMemberController {
             @RequestParam String teamId, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
         return ResponseEntity.ok(teamMemberService.getAllMemberInTeam(UUID.fromString(teamId)));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteMemberFromTeam(
+            @Valid @RequestBody DeleteMemberTeamRequest request, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        return ResponseEntity.ok(teamMemberService.deleteMemberFromTeam(request));
     }
 }

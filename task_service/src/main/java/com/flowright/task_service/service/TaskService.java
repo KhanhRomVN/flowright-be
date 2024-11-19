@@ -4,9 +4,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.flowright.task_service.dto.MiniTaskDTO.CreateMiniTaskRequest;
@@ -20,6 +24,8 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberStatusTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
@@ -33,11 +39,16 @@ import com.flowright.task_service.entity.TaskComment;
 import com.flowright.task_service.entity.TaskGroup;
 import com.flowright.task_service.entity.TaskLink;
 import com.flowright.task_service.entity.TaskLog;
+import com.flowright.task_service.exception.TaskException;
 import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetMemberInfoTimerConsumer;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetTeamInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
+import com.flowright.task_service.kafka.producer.GetMemberInfoTimerProducer;
 import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
+import com.flowright.task_service.kafka.producer.GetTeamInfoProducer;
 import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
@@ -59,31 +70,46 @@ public class TaskService {
     private final MiniTaskService miniTaskService;
 
     @Autowired
-    private GetUserInfoProducer getUserInfoProducer;
+    private final GetUserInfoProducer getUserInfoProducer;
 
     @Autowired
-    private GetUserInfoConsumer getUserInfoConsumer;
+    private final GetUserInfoConsumer getUserInfoConsumer;
 
     @Autowired
-    private GetProjectInfoProducer getProjectInfoProducer;
+    private final GetProjectInfoProducer getProjectInfoProducer;
 
     @Autowired
-    private GetProjectInfoConsumer getProjectInfoConsumer;
+    private final GetProjectInfoConsumer getProjectInfoConsumer;
 
     @Autowired
-    private TaskGroupService taskGroupService;
+    private final TaskGroupService taskGroupService;
 
     @Autowired
-    private GetMemberInfoProducer getMemberInfoProducer;
+    private final GetMemberInfoProducer getMemberInfoProducer;
 
     @Autowired
-    private GetMemberInfoConsumer getMemberInfoConsumer;
+    private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Autowired
-    private TaskCommentService taskCommentService;
+    private final TaskCommentService taskCommentService;
 
     @Autowired
-    private TaskLogService taskLogService;
+    private final TaskLogService taskLogService;
+
+    @Autowired
+    private final GetTeamInfoProducer getTeamInfoProducer;
+
+    @Autowired
+    private final GetTeamInfoConsumer getTeamInfoConsumer;
+
+    @Autowired
+    private final GetMemberInfoTimerProducer getMemberInfoTimerProducer;
+
+    @Autowired
+    private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
+
+    @Autowired
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         String startDate = null;
@@ -99,6 +125,7 @@ public class TaskService {
                 .description(request.getDescription())
                 .creatorId(creatorId)
                 .projectId(UUID.fromString(request.getProjectId()))
+                .teamId(UUID.fromString(request.getTeamId()))
                 .priority(request.getPriority())
                 .startDate(startDate != null ? LocalDateTime.parse(startDate) : null)
                 .endDate(endDate != null ? LocalDateTime.parse(endDate) : null)
@@ -107,6 +134,8 @@ public class TaskService {
                 .status("todo")
                 .previousTaskId(
                         request.getPreviousTaskId() != null ? UUID.fromString(request.getPreviousTaskId()) : null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         Task savedTask = taskRepository.save(task);
@@ -244,13 +273,13 @@ public class TaskService {
         // taskAssignmentResponses
         if (taskAssignments != null) {
             for (TaskAssignment taskAssignment : taskAssignments) {
-                getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
-                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
-                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String memberInfo = getMemberInfoFromCache(taskAssignment.getMemberId());
+                String[] responseSplit = memberInfo.split(",");
                 String assigneeUsername = responseSplit[0];
                 String assigneeEmail = responseSplit[1];
 
                 taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                        .assignmentId(taskAssignment.getId())
                         .assignmentMemberId(taskAssignment.getMemberId())
                         .assigneeUsername(assigneeUsername)
                         .assigneeEmail(assigneeEmail)
@@ -305,9 +334,8 @@ public class TaskService {
         // miniTaskResponses
         if (miniTasks != null) {
             for (MiniTask miniTask : miniTasks) {
-                getMemberInfoProducer.sendMessage(miniTask.getMemberId());
-                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
-                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                String memberInfo = getMemberInfoFromCache(miniTask.getMemberId());
+                String[] responseSplit = memberInfo.split(",");
                 String memberUsername = responseSplit[0];
                 String memberEmail = responseSplit[1];
 
@@ -358,8 +386,14 @@ public class TaskService {
             previousTaskName = previousTask.getName();
         }
 
+        // get team info
+        getTeamInfoProducer.sendMessage(task.getTeamId());
+        String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+
         return GetTaskResponse.builder()
                 .taskId(task.getId())
+                .teamId(task.getTeamId())
+                .teamName(getTeamInfoConsumerResponse)
                 .taskName(task.getName())
                 .taskDescription(task.getDescription())
                 .priority(task.getPriority())
@@ -383,6 +417,27 @@ public class TaskService {
                 .taskLogs(taskLogResponses)
                 .miniTasks(miniTaskResponses)
                 .build();
+    }
+
+    private String getMemberInfoFromCache(UUID memberId) {
+        String memberKey = "member:" + memberId.toString();
+        String memberInfo = (String) redisTemplate.opsForValue().get(memberKey);
+
+        if (memberInfo == null) {
+            try {
+                getMemberInfoTimerProducer.sendMessage(memberId);
+                String response =
+                        getMemberInfoTimerConsumer.waitForResponse(memberId).get(2, TimeUnit.SECONDS);
+
+                // Cache the response with 1 hour expiration
+                redisTemplate.opsForValue().set(memberKey, response, 1, TimeUnit.HOURS);
+                return response;
+            } catch (Exception e) {
+                throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return memberInfo;
     }
 
     public UpdateTaskResponse updateTaskName(String name, UUID taskId) {
@@ -417,7 +472,26 @@ public class TaskService {
 
     public UpdateTaskResponse updateTaskStatus(String status, UUID taskId) {
         Task task = getTaskById(taskId);
-        task.setStatus(status);
+        if (task.getStatus().equals(status)) {
+            return UpdateTaskResponse.builder()
+                    .message("Task status is already " + status)
+                    .build();
+        }
+
+        String finalStatus = "";
+        if (status.equals("done")) {
+            if (task.getStatus().equals("overdue")) {
+                finalStatus = "overdone";
+            } else {
+                finalStatus = "done";
+            }
+        } else if (status.equals("cancelled")) {
+            finalStatus = "cancel";
+        } else {
+            finalStatus = status;
+        }
+
+        task.setStatus(finalStatus);
         taskRepository.save(task);
         taskLogService.createTaskLog(taskId, "Task status updated", "Task status updated successfully");
         return UpdateTaskResponse.builder()
@@ -481,5 +555,145 @@ public class TaskService {
         return UpdateTaskResponse.builder()
                 .message("Task group updated successfully")
                 .build();
+    }
+
+    public List<GetMemberTaskResponse> getAllTaskMember(UUID memberId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
+        List<GetMemberTaskResponse> response = new ArrayList<>();
+        for (UUID taskId : taskIds) {
+            Task task = getTaskById(taskId);
+            getProjectInfoProducer.sendMessage(task.getProjectId());
+            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            String projectName = projectResponseSplit[0];
+            getTeamInfoProducer.sendMessage(task.getTeamId());
+            String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+            response.add(GetMemberTaskResponse.builder()
+                    .id(task.getId())
+                    .name(task.getName())
+                    .description(task.getDescription())
+                    .status(task.getStatus())
+                    .priority(task.getPriority())
+                    .projectId(task.getProjectId())
+                    .projectName(projectName)
+                    .startDate(task.getStartDate())
+                    .endDate(task.getEndDate())
+                    .teamId(task.getTeamId())
+                    .teamName(getTeamInfoConsumerResponse)
+                    .build());
+        }
+        return response;
+    }
+
+    @Scheduled(fixedRate = 10000) // 1 minute
+    public void changeStatusTaskSchedule() {
+        LocalDateTime now = LocalDateTime.now();
+        // Get all tasks with status "todo" or "in_progress"
+        List<Task> tasks = taskRepository.findAll().stream()
+                .filter(task ->
+                        task.getStatus().equals("todo") || task.getStatus().equals("in_progress"))
+                .collect(Collectors.toList());
+
+        for (Task task : tasks) {
+            String currentStatus = task.getStatus();
+            LocalDateTime startDate = task.getStartDate();
+            LocalDateTime endDate = task.getEndDate();
+
+            if (startDate == null || endDate == null) {
+                continue; // Skip tasks without dates
+            }
+
+            if (currentStatus.equals("todo")) {
+                // Check if current time is between start and end date
+                if (now.isAfter(startDate) && now.isBefore(endDate)) {
+                    task.setStatus("in_progress");
+                    taskRepository.save(task);
+                    taskLogService.createTaskLog(
+                            task.getId(),
+                            "Task status updated automatically",
+                            "Task status changed from 'todo' to 'in_progress'");
+                }
+            } else if (currentStatus.equals("in_progress")) {
+                // Check if current time is after end date
+                if (now.isAfter(endDate)) {
+                    task.setStatus("overdue");
+                    taskRepository.save(task);
+                    taskLogService.createTaskLog(
+                            task.getId(),
+                            "Task status updated automatically",
+                            "Task status changed from 'in_progress' to 'overdue'");
+                }
+            }
+        }
+    }
+
+    public List<GetMemberStatusTaskResponse> getAllTaskMemberWithStatus(UUID memberId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
+        List<GetMemberStatusTaskResponse> response = new ArrayList<>();
+        for (UUID taskId : taskIds) {
+            Task task = getTaskById(taskId);
+            if (task.getStatus().equals("todo")
+                    || task.getStatus().equals("in_progress")
+                    || task.getStatus().equals("overdue")) {
+
+                getProjectInfoProducer.sendMessage(task.getProjectId());
+                String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
+                String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+                String projectName = projectResponseSplit[0];
+                getTeamInfoProducer.sendMessage(task.getTeamId());
+                String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+                // get task assignments
+                List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getId());
+                List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();
+                for (TaskAssignment taskAssignment : taskAssignments) {
+                    getMemberInfoProducer.sendMessage(taskAssignment.getMemberId());
+                    String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                    String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                    String assigneeUsername = responseSplit[0];
+                    taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                            .assignmentId(taskAssignment.getId())
+                            .assignmentMemberId(taskAssignment.getMemberId())
+                            .assigneeUsername(assigneeUsername)
+                            .assigneeEmail(responseSplit[1])
+                            .build());
+                }
+                // get mini tasks
+                List<MiniTask> miniTasks = miniTaskService.getAllMiniTasksByTaskId(task.getId());
+                List<GetMiniTaskResponse> miniTaskResponses = new ArrayList<>();
+                for (MiniTask miniTask : miniTasks) {
+                    getMemberInfoProducer.sendMessage(miniTask.getMemberId());
+                    String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
+                    String[] responseSplit = getMemberInfoConsumerResponse.split(",");
+                    String assigneeUsername = responseSplit[0];
+                    miniTaskResponses.add(GetMiniTaskResponse.builder()
+                            .miniTaskId(miniTask.getId())
+                            .miniTaskName(miniTask.getName())
+                            .miniTaskDescription(miniTask.getDescription())
+                            .miniTaskStatus(miniTask.getStatus())
+                            .miniTaskMemberId(miniTask.getMemberId())
+                            .miniTaskMemberUsername(assigneeUsername)
+                            .miniTaskMemberEmail(responseSplit[1])
+                            .taskId(miniTask.getTaskId())
+                            .build());
+                }
+
+                response.add(GetMemberStatusTaskResponse.builder()
+                        .id(task.getId())
+                        .name(task.getName())
+                        .description(task.getDescription())
+                        .status(task.getStatus())
+                        .priority(task.getPriority())
+                        .projectId(task.getProjectId())
+                        .projectName(projectName)
+                        .startDate(task.getStartDate())
+                        .endDate(task.getEndDate())
+                        .teamId(task.getTeamId())
+                        .teamName(getTeamInfoConsumerResponse)
+                        .taskAssignments(taskAssignmentResponses)
+                        .miniTasks(miniTaskResponses)
+                        .build());
+            }
+        }
+        return response;
     }
 }

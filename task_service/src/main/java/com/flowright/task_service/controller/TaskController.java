@@ -21,6 +21,8 @@ import com.flowright.task_service.dto.TaskDTO.CreateTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskProjectResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskTeamListResponse;
 import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberStatusTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateDescriptionTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateEndDateTaskRequest;
@@ -100,7 +102,7 @@ public class TaskController {
                 taskService.updateTaskPriority(request.getPriority(), UUID.fromString(request.getTaskId())));
     }
 
-    // update task: /task/service/tasks/status?taskId=?status=
+    // update task: /task/service/tasks/status
     @PutMapping("/status")
     public ResponseEntity<UpdateTaskResponse> updateTaskStatus(
             @Valid @RequestBody UpdateStatusTaskRequest request, @RequestHeader("access_token") String token) {
@@ -125,5 +127,21 @@ public class TaskController {
         jwtService.validateToken(token);
         return ResponseEntity.ok(taskService.changeTaskGroup(
                 UUID.fromString(request.getTaskId()), UUID.fromString(request.getTaskGroupId())));
+    }
+
+    // get all task member: /task/service/tasks/member
+    // use for calendar_page
+    @GetMapping("/member")
+    public ResponseEntity<List<GetMemberTaskResponse>> getAllTaskMember(@RequestHeader("access_token") String token) {
+        UUID memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(taskService.getAllTaskMember(memberId));
+    }
+
+    // get all task with status (todo, in_progress, overdue) member: /task/service/tasks/member/status?memberId=
+    @GetMapping("/member/status")
+    public ResponseEntity<List<GetMemberStatusTaskResponse>> getAllTaskMemberWithStatus(
+            @RequestParam String memberId, @RequestHeader("access_token") String token) {
+        jwtService.validateToken(token);
+        return ResponseEntity.ok(taskService.getAllTaskMemberWithStatus(UUID.fromString(memberId)));
     }
 }

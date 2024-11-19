@@ -34,6 +34,9 @@ public class Task {
     @Column(name = "creator_id")
     private UUID creatorId;
 
+    @Column(name = "team_id")
+    private UUID teamId;
+
     @Column(name = "owner_id")
     private UUID ownerId;
 

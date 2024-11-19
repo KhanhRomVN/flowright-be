@@ -17,6 +17,8 @@ import lombok.Data;
 @Builder
 public class GetTaskResponse {
     private UUID taskId;
+    private UUID teamId;
+    private String teamName;
     private String taskName;
     private String taskDescription;
     private String priority;

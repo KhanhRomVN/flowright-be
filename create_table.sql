@@ -93,14 +93,6 @@ CREATE TABLE `flowright`.`team_members` (
     `member_id` BINARY(16) NOT NULL
 );
 
-CREATE TABLE `flowright`.`team_logs` (
-    `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `team_id` BINARY(16) NOT NULL,
-    `log_title` VARCHAR(50) NOT NULL,
-    `log_description` VARCHAR(255) NOT NULL,
-    `log_date` DATETIME NOT NULL
-);
-
 -- project_service
 CREATE TABLE `flowright`.`projects` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
@@ -120,14 +112,6 @@ CREATE TABLE `flowright`.`project_assignment` (
     `team_id` BINARY(16) NOT NULL
 );
 
-CREATE TABLE `flowright`.`project_logs` (
-    `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `project_id` BINARY(16) NOT NULL,
-    `log_title` VARCHAR(50) NOT NULL,
-    `log_description` VARCHAR(255) NOT NULL,
-    `log_date` DATETIME NOT NULL
-);
-
 -- task_service
 CREATE TABLE `flowright`.`task_groups` (
     `id` BINARY(16) PRIMARY KEY NOT NULL,
@@ -143,11 +127,10 @@ CREATE TABLE `flowright`.`tasks` (
     `creator_id` INT NOT NULL,
     `project_id` BINARY(16) NULL,
     `priority` VARCHAR(50) NOT NULL, -- low, medium, high
+    `team_id` BINARY(16) NOT NULL,
     `start_date` DATETIME NOT NULL,
     `end_date` DATETIME NULL,
-    `status` VARCHAR(50) NOT NULL, -- todo, in_progress, done
-    `previous_task_id` BINARY(16) NULL,
-    `next_task_id` BINARY(16) NULL,
+    `status` VARCHAR(50) NOT NULL, -- todo, in_progress, done, cancel, overdue, overdue_done, hidden
     `task_group_id` BINARY(16) NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP
@@ -192,6 +175,17 @@ CREATE TABLE `flowright`.`task_logs` (
     `log_title` VARCHAR(50) NOT NULL,
     `log_description` VARCHAR(255) NOT NULL,
     `log_date` DATETIME NOT NULL
+);
+
+-- Other Service
+CREATE TABLE `flowright`.`notifications` (
+    `id` BINARY(16) PRIMARY KEY NOT NULL,
+    `workspace_id` BINARY(16) NOT NULL,
+    `member_id` BINARY(16) NOT NULL,
+    `uri` VARCHAR(255) NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `detail` VARCHAR(255) NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 

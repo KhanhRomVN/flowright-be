@@ -24,6 +24,8 @@ public class CreateTaskRequest {
 
     private String priority;
 
+    private String teamId;
+
     private String startDate;
 
     private String endDate;

@@ -133,7 +133,7 @@ public class InviteService {
         getUserInfoProducer.sendMessage(userId);
         String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
         String[] responseSplit = getUserInfoConsumerResponse.split(",");
-        String username = responseSplit[1];
+        String username = responseSplit[0];
 
         createMemberWorkspaceProducer.sendMessage(
                 userId.toString(),

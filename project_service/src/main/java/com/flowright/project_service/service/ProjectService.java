@@ -24,9 +24,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     @Autowired
-    private final ProjectAssignmentService projectAssignmentService;
-
-    @Autowired
     private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Autowired
@@ -45,8 +42,6 @@ public class ProjectService {
                 .build();
 
         projectRepository.save(project);
-
-        projectAssignmentService.createProjectAssignment(project.getId(), UUID.fromString(request.getOwnerId()));
 
         return CreateProjectResponse.builder()
                 .message("Project created successfully")
@@ -88,9 +83,7 @@ public class ProjectService {
     }
 
     public List<GetAllProjectsResponse> getOwnProjects(UUID memberId) {
-        System.out.println(memberId);
         List<Project> projects = projectRepository.findByOwnerId(memberId);
-        System.out.println(projects);
         List<GetAllProjectsResponse> response = new ArrayList<>();
 
         for (Project project : projects) {
