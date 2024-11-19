@@ -273,7 +273,7 @@ public class TaskService {
                     getMemberInfoTimerProducer.sendMessage(taskAssignment.getMemberId());
                     String getMemberInfoTimerConsumerResponse = getMemberInfoTimerConsumer
                             .waitForResponse(taskAssignment.getMemberId())
-                            .get(5, TimeUnit.SECONDS);
+                            .get(2, TimeUnit.SECONDS);
                     String[] responseSplit = getMemberInfoTimerConsumerResponse.split(",");
                     String assigneeUsername = responseSplit[0];
                     String assigneeEmail = responseSplit[1];
@@ -337,22 +337,28 @@ public class TaskService {
         // miniTaskResponses
         if (miniTasks != null) {
             for (MiniTask miniTask : miniTasks) {
-                getMemberInfoProducer.sendMessage(miniTask.getMemberId());
-                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
-                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
-                String memberUsername = responseSplit[0];
-                String memberEmail = responseSplit[1];
+                try {
+                    getMemberInfoTimerProducer.sendMessage(miniTask.getMemberId());
+                    String getMemberInfoTimerConsumerResponse = getMemberInfoTimerConsumer
+                            .waitForResponse(miniTask.getMemberId())
+                            .get(2, TimeUnit.SECONDS);
+                    String[] responseSplit = getMemberInfoTimerConsumerResponse.split(",");
+                    String memberUsername = responseSplit[0];
+                    String memberEmail = responseSplit[1];
 
-                miniTaskResponses.add(GetMiniTaskResponse.builder()
-                        .miniTaskId(miniTask.getId())
-                        .taskId(miniTask.getTaskId())
-                        .miniTaskName(miniTask.getName())
-                        .miniTaskDescription(miniTask.getDescription())
-                        .miniTaskStatus(miniTask.getStatus())
-                        .miniTaskMemberId(miniTask.getMemberId())
-                        .miniTaskMemberUsername(memberUsername)
-                        .miniTaskMemberEmail(memberEmail)
-                        .build());
+                    miniTaskResponses.add(GetMiniTaskResponse.builder()
+                            .miniTaskId(miniTask.getId())
+                            .taskId(miniTask.getTaskId())
+                            .miniTaskName(miniTask.getName())
+                            .miniTaskDescription(miniTask.getDescription())
+                            .miniTaskStatus(miniTask.getStatus())
+                            .miniTaskMemberId(miniTask.getMemberId())
+                            .miniTaskMemberUsername(memberUsername)
+                            .miniTaskMemberEmail(memberEmail)
+                            .build());
+                } catch (Exception e) {
+                    throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
         }
 
