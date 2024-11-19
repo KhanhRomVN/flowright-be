@@ -80,4 +80,9 @@ public class TeamService {
         List<UUID> teamIds = teamMembers.stream().map(TeamMember::getTeamId).collect(Collectors.toList());
         return teamRepository.findAllById(teamIds);
     }
+
+    public Team getTeamById(UUID teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        return team;
+    }
 }

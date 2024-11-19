@@ -37,9 +37,11 @@ import com.flowright.task_service.entity.TaskLink;
 import com.flowright.task_service.entity.TaskLog;
 import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
+import com.flowright.task_service.kafka.consumer.GetTeamInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
 import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
+import com.flowright.task_service.kafka.producer.GetTeamInfoProducer;
 import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
@@ -86,6 +88,12 @@ public class TaskService {
 
     @Autowired
     private TaskLogService taskLogService;
+
+    @Autowired
+    private GetTeamInfoProducer getTeamInfoProducer;
+
+    @Autowired
+    private GetTeamInfoConsumer getTeamInfoConsumer;
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         String startDate = null;
@@ -363,8 +371,14 @@ public class TaskService {
             previousTaskName = previousTask.getName();
         }
 
+        // get team info
+        getTeamInfoProducer.sendMessage(task.getTeamId());
+        String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+
         return GetTaskResponse.builder()
                 .taskId(task.getId())
+                .teamId(task.getTeamId())
+                .teamName(getTeamInfoConsumerResponse)
                 .taskName(task.getName())
                 .taskDescription(task.getDescription())
                 .priority(task.getPriority())
@@ -422,7 +436,26 @@ public class TaskService {
 
     public UpdateTaskResponse updateTaskStatus(String status, UUID taskId) {
         Task task = getTaskById(taskId);
-        task.setStatus(status);
+        if (task.getStatus().equals(status)) {
+            return UpdateTaskResponse.builder()
+                    .message("Task status is already " + status)
+                    .build();
+        }
+
+        String finalStatus = "";
+        if (status.equals("done")) {
+            if (task.getStatus().equals("overdue")) {
+                finalStatus = "overdone";
+            } else {
+                finalStatus = "done";
+            }
+        } else if (status.equals("cancelled")) {
+            finalStatus = "cancel";
+        } else {
+            finalStatus = status;
+        }
+
+        task.setStatus(finalStatus);
         taskRepository.save(task);
         taskLogService.createTaskLog(taskId, "Task status updated", "Task status updated successfully");
         return UpdateTaskResponse.builder()
