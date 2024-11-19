@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.flowright.team_service.dto.TeamMemberDTO.DeleteMemberTeamRequest;
 import com.flowright.team_service.dto.TeamMemberDTO.GetListMemberTeamResponse;
 import com.flowright.team_service.entity.TeamMember;
 import com.flowright.team_service.exception.TeamException;
@@ -71,5 +72,9 @@ public class TeamMemberService {
 
     public int getTotalMemberInTeam(UUID teamId) {
         return teamMemberRepository.findByTeamId(teamId).size();
+    }
+
+    public String deleteMemberFromTeam(DeleteMemberTeamRequest request) {
+        return null;
     }
 }

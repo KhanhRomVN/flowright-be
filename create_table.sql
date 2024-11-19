@@ -127,11 +127,10 @@ CREATE TABLE `flowright`.`tasks` (
     `creator_id` INT NOT NULL,
     `project_id` BINARY(16) NULL,
     `priority` VARCHAR(50) NOT NULL, -- low, medium, high
+    `team_id` BINARY(16) NOT NULL,
     `start_date` DATETIME NOT NULL,
     `end_date` DATETIME NULL,
     `status` VARCHAR(50) NOT NULL, -- todo, in_progress, done, cancel, overdue, overdue_done, hidden
-    `previous_task_id` BINARY(16) NULL,
-    `next_task_id` BINARY(16) NULL,
     `task_group_id` BINARY(16) NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP

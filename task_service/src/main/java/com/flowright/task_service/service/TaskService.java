@@ -101,6 +101,7 @@ public class TaskService {
                 .description(request.getDescription())
                 .creatorId(creatorId)
                 .projectId(UUID.fromString(request.getProjectId()))
+                .teamId(UUID.fromString(request.getTeamId()))
                 .priority(request.getPriority())
                 .startDate(startDate != null ? LocalDateTime.parse(startDate) : null)
                 .endDate(endDate != null ? LocalDateTime.parse(endDate) : null)
@@ -109,6 +110,8 @@ public class TaskService {
                 .status("todo")
                 .previousTaskId(
                         request.getPreviousTaskId() != null ? UUID.fromString(request.getPreviousTaskId()) : null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         Task savedTask = taskRepository.save(task);
