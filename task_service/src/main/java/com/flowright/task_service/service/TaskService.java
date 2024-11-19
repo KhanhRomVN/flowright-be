@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -106,6 +107,20 @@ public class TaskService {
 
     @Autowired
     private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
+
+    private static final String TASK_CACHE_PREFIX = "task:";
+    private static final String TASK_LIST_CACHE_PREFIX = "task-list:";
+
+    @Autowired
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private String getTaskKey(UUID taskId) {
+        return TASK_CACHE_PREFIX + taskId.toString();
+    }
+
+    private String getTaskListKey(UUID projectId) {
+        return TASK_LIST_CACHE_PREFIX + projectId.toString();
+    }
 
     public CreateTaskResponse createTask(CreateTaskRequest request, UUID creatorId) {
         String startDate = null;
@@ -269,24 +284,17 @@ public class TaskService {
         // taskAssignmentResponses
         if (taskAssignments != null) {
             for (TaskAssignment taskAssignment : taskAssignments) {
-                try {
-                    getMemberInfoTimerProducer.sendMessage(taskAssignment.getMemberId());
-                    String getMemberInfoTimerConsumerResponse = getMemberInfoTimerConsumer
-                            .waitForResponse(taskAssignment.getMemberId())
-                            .get(2, TimeUnit.SECONDS);
-                    String[] responseSplit = getMemberInfoTimerConsumerResponse.split(",");
-                    String assigneeUsername = responseSplit[0];
-                    String assigneeEmail = responseSplit[1];
+                String memberInfo = getMemberInfoFromCache(taskAssignment.getMemberId());
+                String[] responseSplit = memberInfo.split(",");
+                String assigneeUsername = responseSplit[0];
+                String assigneeEmail = responseSplit[1];
 
-                    taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
-                            .assignmentId(taskAssignment.getId())
-                            .assignmentMemberId(taskAssignment.getMemberId())
-                            .assigneeUsername(assigneeUsername)
-                            .assigneeEmail(assigneeEmail)
-                            .build());
-                } catch (Exception e) {
-                    throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                taskAssignmentResponses.add(GetTaskAssignmentResponse.builder()
+                        .assignmentId(taskAssignment.getId())
+                        .assignmentMemberId(taskAssignment.getMemberId())
+                        .assigneeUsername(assigneeUsername)
+                        .assigneeEmail(assigneeEmail)
+                        .build());
             }
         }
 
@@ -337,28 +345,21 @@ public class TaskService {
         // miniTaskResponses
         if (miniTasks != null) {
             for (MiniTask miniTask : miniTasks) {
-                try {
-                    getMemberInfoTimerProducer.sendMessage(miniTask.getMemberId());
-                    String getMemberInfoTimerConsumerResponse = getMemberInfoTimerConsumer
-                            .waitForResponse(miniTask.getMemberId())
-                            .get(2, TimeUnit.SECONDS);
-                    String[] responseSplit = getMemberInfoTimerConsumerResponse.split(",");
-                    String memberUsername = responseSplit[0];
-                    String memberEmail = responseSplit[1];
+                String memberInfo = getMemberInfoFromCache(miniTask.getMemberId());
+                String[] responseSplit = memberInfo.split(",");
+                String memberUsername = responseSplit[0];
+                String memberEmail = responseSplit[1];
 
-                    miniTaskResponses.add(GetMiniTaskResponse.builder()
-                            .miniTaskId(miniTask.getId())
-                            .taskId(miniTask.getTaskId())
-                            .miniTaskName(miniTask.getName())
-                            .miniTaskDescription(miniTask.getDescription())
-                            .miniTaskStatus(miniTask.getStatus())
-                            .miniTaskMemberId(miniTask.getMemberId())
-                            .miniTaskMemberUsername(memberUsername)
-                            .miniTaskMemberEmail(memberEmail)
-                            .build());
-                } catch (Exception e) {
-                    throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                miniTaskResponses.add(GetMiniTaskResponse.builder()
+                        .miniTaskId(miniTask.getId())
+                        .taskId(miniTask.getTaskId())
+                        .miniTaskName(miniTask.getName())
+                        .miniTaskDescription(miniTask.getDescription())
+                        .miniTaskStatus(miniTask.getStatus())
+                        .miniTaskMemberId(miniTask.getMemberId())
+                        .miniTaskMemberUsername(memberUsername)
+                        .miniTaskMemberEmail(memberEmail)
+                        .build());
             }
         }
 
@@ -427,6 +428,27 @@ public class TaskService {
                 .taskLogs(taskLogResponses)
                 .miniTasks(miniTaskResponses)
                 .build();
+    }
+
+    private String getMemberInfoFromCache(UUID memberId) {
+        String memberKey = "member:" + memberId.toString();
+        String memberInfo = (String) redisTemplate.opsForValue().get(memberKey);
+
+        if (memberInfo == null) {
+            try {
+                getMemberInfoTimerProducer.sendMessage(memberId);
+                String response =
+                        getMemberInfoTimerConsumer.waitForResponse(memberId).get(2, TimeUnit.SECONDS);
+
+                // Cache the response with 1 hour expiration
+                redisTemplate.opsForValue().set(memberKey, response, 1, TimeUnit.HOURS);
+                return response;
+            } catch (Exception e) {
+                throw new TaskException("Failed to get member information", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return memberInfo;
     }
 
     public UpdateTaskResponse updateTaskName(String name, UUID taskId) {
