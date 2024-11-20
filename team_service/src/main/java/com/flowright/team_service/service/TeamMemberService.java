@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,6 +74,12 @@ public class TeamMemberService {
 
     public int getTotalMemberInTeam(UUID teamId) {
         return teamMemberRepository.findByTeamId(teamId).size();
+    }
+
+    public List<UUID> getAllTeamIdByMemberId(UUID memberId) {
+        return teamMemberRepository.findByMemberId(memberId).stream()
+                .map(TeamMember::getTeamId)
+                .collect(Collectors.toList());
     }
 
     public String deleteMemberFromTeam(DeleteMemberTeamRequest request) {

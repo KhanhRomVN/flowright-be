@@ -30,22 +30,24 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
             @RequestBody CreateProjectRequest request, @RequestHeader("access_token") String token) {
-        UUID creatorId = jwtService.extractUserId(token);
+        UUID creatorId = jwtService.extractMemberId(token);
         UUID workspaceId = jwtService.extractWorkspaceId(token);
         return ResponseEntity.ok(projectService.createProject(request, workspaceId, creatorId));
     }
 
     // get all projects: /project/service/projects
     @GetMapping
-    public ResponseEntity<List<GetAllProjectsResponse>> getAllProjects(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<GetAllProjectsResponse>> getProjectsOfWorkspace(
+            @RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
-        return ResponseEntity.ok(projectService.getAllProjects(workspaceId));
+        return ResponseEntity.ok(projectService.getProjectsOfWorkspace(workspaceId));
     }
 
     // get own projects: /project/service/projects/own
     @GetMapping("/own")
-    public ResponseEntity<List<GetAllProjectsResponse>> getOwnProjects(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<GetAllProjectsResponse>> getProjectsOfMember(
+            @RequestHeader("access_token") String token) {
         UUID memberId = jwtService.extractMemberId(token);
-        return ResponseEntity.ok(projectService.getOwnProjects(memberId));
+        return ResponseEntity.ok(projectService.getProjectsOfMember(memberId));
     }
 }

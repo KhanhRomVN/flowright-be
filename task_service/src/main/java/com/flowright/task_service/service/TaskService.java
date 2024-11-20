@@ -686,4 +686,13 @@ public class TaskService {
         }
         return response;
     }
+
+    public String getAllProjectIdByTeamIdInTask(UUID teamId) {
+        List<Task> tasks = taskRepository.findByTeamId(teamId);
+        return tasks.stream()
+                .map(Task::getProjectId)
+                .distinct()
+                .map(UUID::toString)
+                .collect(Collectors.joining(","));
+    }
 }
