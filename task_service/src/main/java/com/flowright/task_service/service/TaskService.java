@@ -28,6 +28,7 @@ import com.flowright.task_service.dto.TaskDTO.GetMemberStatusTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskWorkspaceResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTotalStatusTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskResponse;
 import com.flowright.task_service.dto.TaskLinkDTO.CreateTaskLinkRequest;
 import com.flowright.task_service.dto.TaskLinkDTO.GetTaskLinkResponse;
@@ -694,5 +695,27 @@ public class TaskService {
                 .distinct()
                 .map(UUID::toString)
                 .collect(Collectors.joining(","));
+    }
+
+    public GetTotalStatusTaskResponse getTotalStatusTask(UUID memberId) {
+        List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
+        int totalTodo = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("todo"))
+                .count();
+        int totalInProgress = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("in_progress"))
+                .count();
+        int totalOverdue = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("overdue"))
+                .count();
+        int totalDone = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("done"))
+                .count();
+        return GetTotalStatusTaskResponse.builder()
+                .totalTodo(totalTodo)
+                .totalInProgress(totalInProgress)
+                .totalOverdue(totalOverdue)
+                .totalDone(totalDone)
+                .build();
     }
 }

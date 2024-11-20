@@ -24,6 +24,7 @@ import com.flowright.task_service.dto.TaskDTO.GetAllTaskWorkspaceResponse;
 import com.flowright.task_service.dto.TaskDTO.GetMemberStatusTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetMemberTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.GetTaskResponse;
+import com.flowright.task_service.dto.TaskDTO.GetTotalStatusTaskResponse;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateDescriptionTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdateEndDateTaskRequest;
 import com.flowright.task_service.dto.TaskDTO.UpdateTaskDTO.UpdatePriorityTaskRequest;
@@ -143,5 +144,12 @@ public class TaskController {
             @RequestParam String memberId, @RequestHeader("access_token") String token) {
         jwtService.validateToken(token);
         return ResponseEntity.ok(taskService.getAllTaskMemberWithStatus(UUID.fromString(memberId)));
+    }
+
+    // get total status task: /task/service/tasks/total-status
+    @GetMapping("/total-status")
+    public ResponseEntity<GetTotalStatusTaskResponse> getTotalStatusTask(@RequestHeader("access_token") String token) {
+        UUID memberId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(taskService.getTotalStatusTask(memberId));
     }
 }
