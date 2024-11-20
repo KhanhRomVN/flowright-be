@@ -3,19 +3,24 @@ package com.flowright.team_service.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.flowright.team_service.dto.TeamDTO.CreateTeamRequest;
+import com.flowright.team_service.dto.TeamDTO.GetTeamOfMemberWithStatusTaskResponse;
 import com.flowright.team_service.dto.TeamDTO.GetTeamOfWorkspaceResponse;
 import com.flowright.team_service.entity.Team;
 import com.flowright.team_service.entity.TeamMember;
 import com.flowright.team_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.team_service.kafka.consumer.GetTotalStatusTaskOfTeamOrProjectConsumer;
 import com.flowright.team_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.team_service.kafka.producer.GetMemberInfoProducer;
+import com.flowright.team_service.kafka.producer.GetTotalStatusTaskOfTeamOrProjectProducer;
 import com.flowright.team_service.repository.TeamRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +41,16 @@ public class TeamService {
     private final GetMemberInfoConsumer getMemberInfoConsumer;
 
     @Autowired
+    private final GetTotalStatusTaskOfTeamOrProjectProducer getTotalStatusTaskOfTeamOrProjectProducer;
+
+    @Autowired
+    private final GetTotalStatusTaskOfTeamOrProjectConsumer getTotalStatusTaskOfTeamOrProjectConsumer;
+
+    @Autowired
     private final CreateNotificationProducer createNotificationProducer;
+
+    @Autowired
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public String createTeam(CreateTeamRequest request, UUID workspaceId, UUID creatorId) {
@@ -86,10 +100,52 @@ public class TeamService {
         return responses;
     }
 
-    public List<Team> getMemberTeamWorkspace(UUID memberId) {
+    public List<GetTeamOfMemberWithStatusTaskResponse> getMemberTeamWorkspace(UUID memberId) {
         List<TeamMember> teamMembers = teamMemberService.getMemberTeamWorkspace(memberId);
         List<UUID> teamIds = teamMembers.stream().map(TeamMember::getTeamId).collect(Collectors.toList());
-        return teamRepository.findAllById(teamIds);
+        List<GetTeamOfMemberWithStatusTaskResponse> responses = new ArrayList<>();
+        for (UUID teamId : teamIds) {
+            String redisKey = "team_task_status:" + teamId;
+
+            String cachedResponse = (String) redisTemplate.opsForValue().get(redisKey);
+            String[] responseSplit;
+
+            if (cachedResponse == null) {
+                getTotalStatusTaskOfTeamOrProjectProducer.sendMessage(teamId, "team");
+                String response = getTotalStatusTaskOfTeamOrProjectConsumer.getResponse();
+
+                redisTemplate.opsForValue().set(redisKey, response, 5, TimeUnit.MINUTES);
+                responseSplit = response.split(",");
+            } else {
+                responseSplit = cachedResponse.split(",");
+            }
+
+            // getTotalStatusTaskOfTeamOrProjectProducer.sendMessage(teamId, "team");
+            // String response = getTotalStatusTaskOfTeamOrProjectConsumer.getResponse();
+            // System.out.println(response);
+            // String[] responseSplit = response.split(",");
+
+            int totalTodo = Integer.parseInt(responseSplit[0]);
+            int totalInprogress = Integer.parseInt(responseSplit[1]);
+            int totalOverdue = Integer.parseInt(responseSplit[2]);
+            int totalDone = Integer.parseInt(responseSplit[3]);
+            int totalOverdone = Integer.parseInt(responseSplit[4]);
+            int totalCancel = Integer.parseInt(responseSplit[5]);
+            responses.add(GetTeamOfMemberWithStatusTaskResponse.builder()
+                    .id(teamId)
+                    .name(teamRepository.findById(teamId).get().getName())
+                    .description(teamRepository.findById(teamId).get().getDescription())
+                    .type(teamRepository.findById(teamId).get().getType())
+                    .status(teamRepository.findById(teamId).get().getStatus())
+                    .totalTodo(totalTodo)
+                    .totalInprogress(totalInprogress)
+                    .totalOverdue(totalOverdue)
+                    .totalDone(totalDone)
+                    .totalOverdone(totalOverdone)
+                    .totalCancel(totalCancel)
+                    .build());
+        }
+        return responses;
     }
 
     public Team getTeamById(UUID teamId) {

@@ -381,9 +381,8 @@ public class TaskService {
 
         if (memberInfo == null) {
             try {
-                getMemberInfoTimerProducer.sendMessage(memberId);
-                String response =
-                        getMemberInfoTimerConsumer.waitForResponse(memberId).get(2, TimeUnit.SECONDS);
+                getMemberInfoProducer.sendMessage(memberId);
+                String response = getMemberInfoConsumer.getResponse();
 
                 // Cache the response with 1 hour expiration
                 redisTemplate.opsForValue().set(memberKey, response, 1, TimeUnit.HOURS);
@@ -587,7 +586,6 @@ public class TaskService {
                 .filter(task ->
                         task.getStatus().equals("todo") || task.getStatus().equals("in_progress"))
                 .collect(Collectors.toList());
-
         for (Task task : tasks) {
             String currentStatus = task.getStatus();
             LocalDateTime startDate = task.getStartDate();
@@ -697,7 +695,7 @@ public class TaskService {
                 .collect(Collectors.joining(","));
     }
 
-    public GetTotalStatusTaskResponse getTotalStatusTask(UUID memberId) {
+    public GetTotalStatusTaskResponse getTotalStatusTaskOfMember(UUID memberId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
         int totalTodo = (int) taskIds.stream()
                 .filter(taskId -> getTaskById(taskId).getStatus().equals("todo"))
@@ -717,5 +715,56 @@ public class TaskService {
                 .totalOverdue(totalOverdue)
                 .totalDone(totalDone)
                 .build();
+    }
+
+    public String getTotalStatusTaskOfTeam(UUID teamId) {
+        List<UUID> taskIds =
+                taskRepository.findByTeamId(teamId).stream().map(Task::getId).collect(Collectors.toList());
+        int totalTodo = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("todo"))
+                .count();
+        int totalInProgress = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("in_progress"))
+                .count();
+        int totalOverdue = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("overdue"))
+                .count();
+        int totalDone = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("done"))
+                .count();
+        int totalOverdone = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("overdone"))
+                .count();
+        int totalCancel = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("cancel"))
+                .count();
+        return totalTodo + "," + totalInProgress + "," + totalOverdue + "," + totalDone + "," + totalOverdone + ","
+                + totalCancel;
+    }
+
+    public String getTotalStatusTaskOfProject(UUID projectId) {
+        List<UUID> taskIds = taskRepository.findByProjectId(projectId).stream()
+                .map(Task::getId)
+                .collect(Collectors.toList());
+        int totalTodo = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("todo"))
+                .count();
+        int totalInProgress = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("in_progress"))
+                .count();
+        int totalOverdue = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("overdue"))
+                .count();
+        int totalDone = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("done"))
+                .count();
+        int totalOverdone = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("overdone"))
+                .count();
+        int totalCancel = (int) taskIds.stream()
+                .filter(taskId -> getTaskById(taskId).getStatus().equals("cancel"))
+                .count();
+        return totalTodo + "," + totalInProgress + "," + totalOverdue + "," + totalDone + "," + totalOverdone + ","
+                + totalCancel;
     }
 }

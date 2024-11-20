@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flowright.team_service.dto.TeamDTO.CreateTeamRequest;
+import com.flowright.team_service.dto.TeamDTO.GetTeamOfMemberWithStatusTaskResponse;
 import com.flowright.team_service.dto.TeamDTO.GetTeamOfWorkspaceResponse;
-import com.flowright.team_service.entity.Team;
 import com.flowright.team_service.service.JwtService;
 import com.flowright.team_service.service.TeamService;
 
@@ -47,7 +47,8 @@ public class TeamController {
 
     // get all team in workspace that user is member of: /team/service/teams/member
     @GetMapping("/member")
-    public ResponseEntity<List<Team>> getMemberTeamWorkspace(@RequestHeader("access_token") String token) {
+    public ResponseEntity<List<GetTeamOfMemberWithStatusTaskResponse>> getMemberTeamWorkspace(
+            @RequestHeader("access_token") String token) {
         UUID memberId = jwtService.extractMemberId(token);
         return ResponseEntity.ok(teamService.getMemberTeamWorkspace(memberId));
     }

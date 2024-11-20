@@ -146,10 +146,11 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTaskMemberWithStatus(UUID.fromString(memberId)));
     }
 
-    // get total status task: /task/service/tasks/total-status
-    @GetMapping("/total-status")
-    public ResponseEntity<GetTotalStatusTaskResponse> getTotalStatusTask(@RequestHeader("access_token") String token) {
+    // get total status task: /task/service/tasks/total-status/member
+    @GetMapping("/total-status/member")
+    public ResponseEntity<GetTotalStatusTaskResponse> getTotalStatusTaskOfMember(
+            @RequestHeader("access_token") String token) {
         UUID memberId = jwtService.extractMemberId(token);
-        return ResponseEntity.ok(taskService.getTotalStatusTask(memberId));
+        return ResponseEntity.ok(taskService.getTotalStatusTaskOfMember(memberId));
     }
 }

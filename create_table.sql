@@ -103,13 +103,7 @@ CREATE TABLE `flowright`.`projects` (
     `creator_id` INT NOT NULL,
     `start_date` DATETIME NOT NULL,
     `end_date` DATETIME NULL,
-    `status` VARCHAR(50) NOT NULL -- todo, in_progress, done
-);
-
-CREATE TABLE `flowright`.`project_assignment` (
-    `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `project_id` BINARY(16) NOT NULL,
-    `team_id` BINARY(16) NOT NULL
+    `status` VARCHAR(50) NOT NULL -- todo, in_progress, done, overdue, overdone
 );
 
 -- task_service
