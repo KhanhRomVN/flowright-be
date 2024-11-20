@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,5 +30,11 @@ public class NotificationController {
             @RequestHeader("access_token") String token, @RequestParam(defaultValue = "0") int page) {
         UUID memberId = jwtService.extractMemberId(token);
         return notificationService.getNotificationsByMemberId(memberId, PageRequest.of(page, 10));
+    }
+
+    @PutMapping
+    public void readNotification(@RequestHeader("access_token") String token, @RequestParam UUID notificationId) {
+        UUID memberId = jwtService.extractMemberId(token);
+        notificationService.readNotification(memberId, notificationId);
     }
 }

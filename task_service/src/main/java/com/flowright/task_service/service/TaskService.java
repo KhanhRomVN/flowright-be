@@ -42,11 +42,9 @@ import com.flowright.task_service.entity.TaskLink;
 import com.flowright.task_service.entity.TaskLog;
 import com.flowright.task_service.exception.TaskException;
 import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
-import com.flowright.task_service.kafka.consumer.GetMemberInfoTimerConsumer;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetTeamInfoConsumer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
-import com.flowright.task_service.kafka.producer.GetMemberInfoTimerProducer;
 import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
 import com.flowright.task_service.kafka.producer.GetTeamInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
@@ -94,12 +92,6 @@ public class TaskService {
 
     @Autowired
     private final GetTeamInfoConsumer getTeamInfoConsumer;
-
-    @Autowired
-    private final GetMemberInfoTimerProducer getMemberInfoTimerProducer;
-
-    @Autowired
-    private final GetMemberInfoTimerConsumer getMemberInfoTimerConsumer;
 
     @Autowired
     private final RedisTemplate<String, Object> redisTemplate;
@@ -400,6 +392,7 @@ public class TaskService {
         task.setName(name);
         taskRepository.save(task);
         taskLogService.createTaskLog(taskId, "Task name updated", "Task name updated successfully");
+
         return UpdateTaskResponse.builder()
                 .message("Task name updated successfully")
                 .build();

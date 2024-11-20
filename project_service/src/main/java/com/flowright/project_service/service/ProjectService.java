@@ -20,6 +20,7 @@ import com.flowright.project_service.exception.ProjectException;
 import com.flowright.project_service.kafka.consumer.GetAllProjectIdByTeamIdInTaskConsumer;
 import com.flowright.project_service.kafka.consumer.GetAllTeamIdByMemberIdConsumer;
 import com.flowright.project_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.project_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.project_service.kafka.producer.GetAllProjectIdByTeamIdInTaskProducer;
 import com.flowright.project_service.kafka.producer.GetAllTeamIdByMemberIdProducer;
 import com.flowright.project_service.kafka.producer.GetMemberInfoProducer;
@@ -54,6 +55,9 @@ public class ProjectService {
     @Autowired
     private final GetAllProjectIdByTeamIdInTaskProducer getAllProjectIdByTeamIdInTaskProducer;
 
+    @Autowired
+    private final CreateNotificationProducer createNotificationProducer;
+
     public CreateProjectResponse createProject(CreateProjectRequest request, UUID workspaceId, UUID creatorId) {
         Project project = Project.builder()
                 .name(request.getName())
@@ -67,6 +71,14 @@ public class ProjectService {
                 .build();
 
         projectRepository.save(project);
+
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                creatorId,
+                "Project Created",
+                "Project has been created",
+                "/project/" + project.getId(),
+                "project");
 
         return CreateProjectResponse.builder()
                 .message("Project created successfully")

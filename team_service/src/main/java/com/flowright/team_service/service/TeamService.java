@@ -70,7 +70,8 @@ public class TeamService {
                 UUID.fromString(request.getLeaderId()),
                 "Team Created",
                 "Team " + team.getName() + " has been created",
-                "/team/management/" + team.getId());
+                "/team/management/" + team.getId(),
+                "notification");
         teamMemberService.addMemberToTeam(savedTeam.getId(), UUID.fromString(request.getLeaderId()));
         return "Team created successfully";
     }

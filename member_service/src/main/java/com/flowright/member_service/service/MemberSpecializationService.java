@@ -14,6 +14,7 @@ import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.MemberSpecialization;
 import com.flowright.member_service.entity.Specialization;
 import com.flowright.member_service.exception.MemberException;
+import com.flowright.member_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.member_service.repository.MemberSpecializationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,10 @@ public class MemberSpecializationService {
     @Autowired
     private final SpecializationService specializationService;
 
-    public String addSpecializationToMember(AddSpecializationToMemberRequest request, UUID memberId) {
+    @Autowired
+    private final CreateNotificationProducer createNotificationProducer;
+
+    public String addSpecializationToMember(AddSpecializationToMemberRequest request, UUID memberId, UUID workspaceId) {
         // checks to see if the user already has this additional specialization
         if (memberSpecializationRepository
                 .findByMemberIdAndSpecializationId(memberId, request.getSpecializationId())
@@ -53,6 +57,14 @@ public class MemberSpecializationService {
                 .yearsOfExperience(request.getYearsOfExperience())
                 .isDefault(request.getIsDefault())
                 .build());
+
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                memberId,
+                "Specialization Added",
+                "Specialization has been added",
+                "/member/" + memberId,
+                "member");
 
         return "Specialization added successfully";
     }

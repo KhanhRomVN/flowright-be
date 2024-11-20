@@ -1,4 +1,4 @@
-package com.flowright.team_service.kafka.producer;
+package com.flowright.task_service.kafka.producer;
 
 import java.util.UUID;
 

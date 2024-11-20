@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.flowright.member_service.dto.RoleDTO.CreateRoleRequest;
 import com.flowright.member_service.dto.RoleDTO.RoleResponse;
 import com.flowright.member_service.dto.RoleDTO.UpdateRoleRequest;
 import com.flowright.member_service.entity.Role;
+import com.flowright.member_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.member_service.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoleService {
+    @Autowired
     private final RoleRepository roleRepository;
+
+    @Autowired
+    private final CreateNotificationProducer createNotificationProducer;
 
     @Transactional
     public RoleResponse createRole(CreateRoleRequest request, UUID workspaceId) {
@@ -35,6 +41,13 @@ public class RoleService {
                 .build();
 
         Role savedRole = roleRepository.save(role);
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                savedRole.getId(),
+                "Role Created",
+                "Role has been created",
+                "/role/" + savedRole.getId(),
+                "role");
         return toRoleResponse(savedRole);
     }
 

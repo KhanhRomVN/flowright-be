@@ -22,7 +22,8 @@ public class CreateNotificationConsumer {
         String title = parts[2];
         String detail = parts[3];
         String uri = parts[4];
+        String type = parts[5];
 
-        notificationService.createNotification(workspaceId, memberId, title, detail, uri);
+        notificationService.createNotification(workspaceId, memberId, title, detail, uri, type);
     }
 }
