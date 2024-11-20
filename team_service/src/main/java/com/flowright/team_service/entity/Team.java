@@ -35,6 +35,9 @@ public class Team {
     @Column(name = "leader_id", nullable = false)
     private UUID leaderId;
 
+    @Column(name = "creator_id", nullable = false)
+    private UUID creatorId;
+
     @Column(name = "workspace_id", nullable = false)
     private UUID workspaceId;
 }

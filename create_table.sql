@@ -103,13 +103,7 @@ CREATE TABLE `flowright`.`projects` (
     `creator_id` INT NOT NULL,
     `start_date` DATETIME NOT NULL,
     `end_date` DATETIME NULL,
-    `status` VARCHAR(50) NOT NULL -- todo, in_progress, done
-);
-
-CREATE TABLE `flowright`.`project_assignment` (
-    `id` BINARY(16) PRIMARY KEY NOT NULL,
-    `project_id` BINARY(16) NOT NULL,
-    `team_id` BINARY(16) NOT NULL
+    `status` VARCHAR(50) NOT NULL -- todo, in_progress, done, overdue, overdone
 );
 
 -- task_service
@@ -183,8 +177,10 @@ CREATE TABLE `flowright`.`notifications` (
     `workspace_id` BINARY(16) NOT NULL,
     `member_id` BINARY(16) NOT NULL,
     `uri` VARCHAR(255) NULL,
+    `type` VARCHAR(50) NOT NULL, -- notification, message, task_comment, task_log, task_assignment, task_link, task_group
     `title` VARCHAR(255) NOT NULL,
     `detail` VARCHAR(255) NOT NULL,
+    `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

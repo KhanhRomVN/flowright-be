@@ -31,7 +31,8 @@ public class MembersSpecializationController {
     public ResponseEntity<String> addSpecializationToMember(
             @RequestHeader("access_token") String accessToken, @RequestBody AddSpecializationToMemberRequest request) {
         UUID memberId = jwtService.extractMemberId(accessToken);
-        return ResponseEntity.ok(memberSpecializationService.addSpecializationToMember(request, memberId));
+        UUID workspaceId = jwtService.extractWorkspaceId(accessToken);
+        return ResponseEntity.ok(memberSpecializationService.addSpecializationToMember(request, memberId, workspaceId));
     }
 
     // Get list member by specialization_id:

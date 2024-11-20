@@ -9,4 +9,6 @@ import com.flowright.task_service.entity.Task;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> findByProjectId(UUID projectId);
+
+    List<Task> findByTeamId(UUID teamId);
 }

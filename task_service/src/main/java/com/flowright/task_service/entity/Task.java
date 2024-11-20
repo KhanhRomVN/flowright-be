@@ -55,12 +55,6 @@ public class Task {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "previous_task_id")
-    private UUID previousTaskId;
-
-    @Column(name = "next_task_id")
-    private UUID nextTaskId;
-
     @Column(name = "task_group_id")
     private UUID taskGroupId;
 

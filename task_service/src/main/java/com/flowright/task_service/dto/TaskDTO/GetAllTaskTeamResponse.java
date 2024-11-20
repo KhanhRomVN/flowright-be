@@ -26,10 +26,6 @@ public class GetAllTaskTeamResponse {
     private String projectName;
     private UUID taskGroupId;
     private String taskGroupName;
-    private UUID nextTaskId;
-    private String nextTaskName;
-    private UUID previousTaskId;
-    private String previousTaskName;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String status;

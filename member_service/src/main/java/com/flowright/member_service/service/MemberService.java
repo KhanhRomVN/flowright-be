@@ -15,6 +15,7 @@ import com.flowright.member_service.dto.MemberDTO.SimpleMemberResponse;
 import com.flowright.member_service.dto.TokenResponse;
 import com.flowright.member_service.entity.Member;
 import com.flowright.member_service.entity.Role;
+import com.flowright.member_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.member_service.repository.MemberRepository;
 import com.flowright.member_service.repository.RoleRepository;
 
@@ -32,6 +33,9 @@ public class MemberService {
     @Autowired
     private final JwtService jwtService;
 
+    @Autowired
+    private final CreateNotificationProducer createNotificationProducer;
+
     public String createMember(UUID userId, UUID workspaceId, String email, String username, UUID roleId) {
         if (memberRepository.existsByEmailAndWorkspaceId(email, workspaceId)) {
             throw new RuntimeException("Member already exists");
@@ -45,6 +49,13 @@ public class MemberService {
                 .workspaceId(workspaceId)
                 .build();
         memberRepository.save(member);
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                member.getId(),
+                "New Member",
+                "New member has been added",
+                "/member/" + member.getId(),
+                "member");
         return member.getId().toString();
     }
 
@@ -158,6 +169,13 @@ public class MemberService {
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
         member.setRoleId(role.getId());
         Member updatedMember = memberRepository.save(member);
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                member.getId(),
+                "Member Role Updated",
+                "Member role has been updated",
+                "/member/" + member.getId(),
+                "member");
         return toMemberResponse(updatedMember);
     }
 
@@ -167,6 +185,8 @@ public class MemberService {
 
     public DeleteMemberResponse deleteMember(UUID memberId, UUID workspaceId) {
         memberRepository.deleteById(memberId);
+        createNotificationProducer.sendMessage(
+                workspaceId, memberId, "Member Deleted", "Member has been deleted", "/member/" + memberId, "member");
         return DeleteMemberResponse.builder().message("Member deleted").build();
     }
 }

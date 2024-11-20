@@ -30,10 +30,6 @@ public class CreateTaskRequest {
 
     private String endDate;
 
-    private String previousTaskId;
-
-    private String nextTaskId;
-
     private String taskGroupId;
 
     private List<CreateMiniTaskRequest> miniTasks;
