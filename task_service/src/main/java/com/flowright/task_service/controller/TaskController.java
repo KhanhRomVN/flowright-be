@@ -47,7 +47,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<CreateTaskResponse> createTask(
             @Valid @RequestBody CreateTaskRequest request, @RequestHeader("access_token") String token) {
-        UUID creatorId = jwtService.extractUserId(token);
+        UUID creatorId = jwtService.extractMemberId(token);
         return ResponseEntity.ok(taskService.createTask(request, creatorId));
     }
 

@@ -44,12 +44,10 @@ import com.flowright.task_service.kafka.consumer.GetMemberInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetMemberInfoTimerConsumer;
 import com.flowright.task_service.kafka.consumer.GetProjectInfoConsumer;
 import com.flowright.task_service.kafka.consumer.GetTeamInfoConsumer;
-import com.flowright.task_service.kafka.consumer.GetUserInfoConsumer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoProducer;
 import com.flowright.task_service.kafka.producer.GetMemberInfoTimerProducer;
 import com.flowright.task_service.kafka.producer.GetProjectInfoProducer;
 import com.flowright.task_service.kafka.producer.GetTeamInfoProducer;
-import com.flowright.task_service.kafka.producer.GetUserInfoProducer;
 import com.flowright.task_service.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -68,12 +66,6 @@ public class TaskService {
 
     @Autowired
     private final MiniTaskService miniTaskService;
-
-    @Autowired
-    private final GetUserInfoProducer getUserInfoProducer;
-
-    @Autowired
-    private final GetUserInfoConsumer getUserInfoConsumer;
 
     @Autowired
     private final GetProjectInfoProducer getProjectInfoProducer;
@@ -129,11 +121,8 @@ public class TaskService {
                 .priority(request.getPriority())
                 .startDate(startDate != null ? LocalDateTime.parse(startDate) : null)
                 .endDate(endDate != null ? LocalDateTime.parse(endDate) : null)
-                .nextTaskId(request.getNextTaskId() != null ? UUID.fromString(request.getNextTaskId()) : null)
                 .taskGroupId(request.getTaskGroupId() != null ? UUID.fromString(request.getTaskGroupId()) : null)
                 .status("todo")
-                .previousTaskId(
-                        request.getPreviousTaskId() != null ? UUID.fromString(request.getPreviousTaskId()) : null)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -184,17 +173,20 @@ public class TaskService {
     }
 
     public Task getTaskById(UUID taskId) {
-        return taskRepository.findById(taskId).get();
+        return taskRepository
+                .findById(taskId)
+                .orElseThrow(() -> new TaskException("Task not found", HttpStatus.NOT_FOUND));
     }
 
     public GetAllTaskTeamListResponse getAllTaskTeam(UUID teamId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentTeamId(teamId);
         List<GetAllTaskTeamResponse> tasks = new ArrayList<>();
         // taskId, taskName, taskDescription, priority, creatorId, projectId,
-        // taskGroupId , nextTaskId, previousTaskId,
+        // taskGroupId
         // startDate, endDate, status
         for (UUID taskId : taskIds) {
-            Task task = taskRepository.findById(taskId).get();
+            Task task = getTaskById(taskId);
+            System.out.println(task);
             tasks.add(GetAllTaskTeamResponse.builder()
                     .taskId(task.getId())
                     .taskName(task.getName())
@@ -203,8 +195,6 @@ public class TaskService {
                     .creatorId(task.getCreatorId())
                     .projectId(task.getProjectId())
                     .taskGroupId(task.getTaskGroupId())
-                    .nextTaskId(task.getNextTaskId())
-                    .previousTaskId(task.getPreviousTaskId())
                     .startDate(task.getStartDate())
                     .endDate(task.getEndDate())
                     .status(task.getStatus())
@@ -212,40 +202,27 @@ public class TaskService {
                     .build());
         }
 
-        // creatorUsername, projectName, taskGroupName, nextTaskName, previousTaskName
+        // creatorUsername, projectName, taskGroupName
         for (GetAllTaskTeamResponse task : tasks) {
             // get creator username
-            getUserInfoProducer.sendMessage(task.getCreatorId());
-            String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
-            String[] responseSplit = getUserInfoConsumerResponse.split(",");
+            String memberInfo = getMemberInfoFromCache(task.getCreatorId());
+            String[] responseSplit = memberInfo.split(",");
             task.setCreatorUsername(responseSplit[0]);
             // get project name
-            getProjectInfoProducer.sendMessage(task.getProjectId());
-            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
-            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            String projectInfo = getProjectInfoFromCache(task.getProjectId());
+            String[] projectResponseSplit = projectInfo.split(",");
             task.setProjectName(projectResponseSplit[0]);
             // get task group name
             if (task.getTaskGroupId() != null) {
                 TaskGroup taskGroup = taskGroupService.getTaskGroupById(task.getTaskGroupId());
                 task.setTaskGroupName(taskGroup.getName());
             }
-            // get next task name
-            if (task.getNextTaskId() != null) {
-                Task nextTask = getTaskById(task.getNextTaskId());
-                task.setNextTaskName(nextTask.getName());
-            }
-            // get previous task name
-            if (task.getPreviousTaskId() != null) {
-                Task previousTask = getTaskById(task.getPreviousTaskId());
-                task.setPreviousTaskName(previousTask.getName());
-            }
 
             // get task assignment
             List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getTaskId());
             for (TaskAssignment taskAssignment : taskAssignments) {
-                getUserInfoProducer.sendMessage(taskAssignment.getMemberId());
-                String _getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
-                String[] _responseSplit = _getUserInfoConsumerResponse.split(",");
+                String _memberInfo = getMemberInfoFromCache(taskAssignment.getMemberId());
+                String[] _responseSplit = _memberInfo.split(",");
                 String assigneeUsername = _responseSplit[0];
                 task.getTaskAssignments()
                         .add(GetTaskAssignmentResponse.builder()
@@ -302,11 +279,10 @@ public class TaskService {
         // taskCommentResponses
         if (taskComments != null) {
             for (TaskComment taskComment : taskComments) {
-                getMemberInfoProducer.sendMessage(taskComment.getMemberId());
-                String getMemberInfoConsumerResponse = getMemberInfoConsumer.getResponse();
-                String[] responseSplit = getMemberInfoConsumerResponse.split(",");
-                String memberUsername = responseSplit[0];
-                String memberEmail = responseSplit[1];
+                String _memberInfo = getMemberInfoFromCache(taskComment.getMemberId());
+                String[] _responseSplit = _memberInfo.split(",");
+                String memberUsername = _responseSplit[0];
+                String memberEmail = _responseSplit[1];
                 taskCommentResponses.add(GetTaskCommentResponse.builder()
                         .commentId(taskComment.getId())
                         .taskId(taskComment.getTaskId())
@@ -353,16 +329,14 @@ public class TaskService {
         }
 
         // get creator info
-        getUserInfoProducer.sendMessage(task.getCreatorId());
-        String getUserInfoConsumerResponse = getUserInfoConsumer.getResponse();
-        String[] responseSplit = getUserInfoConsumerResponse.split(",");
+        String memberInfo = getMemberInfoFromCache(task.getCreatorId());
+        String[] responseSplit = memberInfo.split(",");
         String creatorUsername = responseSplit[0];
         String creatorEmail = responseSplit[1];
 
         // get project info
-        getProjectInfoProducer.sendMessage(task.getProjectId());
-        String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
-        String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+        String projectInfo = getProjectInfoFromCache(task.getProjectId());
+        String[] projectResponseSplit = projectInfo.split(",");
         String projectName = projectResponseSplit[0];
 
         // get task group info
@@ -372,28 +346,13 @@ public class TaskService {
             taskGroupName = taskGroup.getName();
         }
 
-        // get next task info
-        String nextTaskName = null;
-        if (task.getNextTaskId() != null) {
-            Task nextTask = getTaskById(task.getNextTaskId());
-            nextTaskName = nextTask.getName();
-        }
-
-        // get previous task info
-        String previousTaskName = null;
-        if (task.getPreviousTaskId() != null) {
-            Task previousTask = getTaskById(task.getPreviousTaskId());
-            previousTaskName = previousTask.getName();
-        }
-
         // get team info
-        getTeamInfoProducer.sendMessage(task.getTeamId());
-        String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+        String teamInfo = getTeamInfoFromCache(task.getTeamId());
 
         return GetTaskResponse.builder()
                 .taskId(task.getId())
                 .teamId(task.getTeamId())
-                .teamName(getTeamInfoConsumerResponse)
+                .teamName(teamInfo)
                 .taskName(task.getName())
                 .taskDescription(task.getDescription())
                 .priority(task.getPriority())
@@ -404,10 +363,6 @@ public class TaskService {
                 .projectName(projectName)
                 .taskGroupId(task.getTaskGroupId())
                 .taskGroupName(taskGroupName)
-                .nextTaskId(task.getNextTaskId())
-                .nextTaskName(nextTaskName)
-                .previousTaskId(task.getPreviousTaskId())
-                .previousTaskName(previousTaskName)
                 .startDate(task.getStartDate())
                 .endDate(task.getEndDate())
                 .status(task.getStatus())
@@ -557,17 +512,55 @@ public class TaskService {
                 .build();
     }
 
+    private String getProjectInfoFromCache(UUID projectId) {
+        String projectKey = "project:" + projectId.toString();
+        String projectInfo = (String) redisTemplate.opsForValue().get(projectKey);
+
+        if (projectInfo == null) {
+            try {
+                getProjectInfoProducer.sendMessage(projectId);
+                String response = getProjectInfoConsumer.getResponse();
+
+                // Cache the response with 1 hour expiration
+                redisTemplate.opsForValue().set(projectKey, response, 1, TimeUnit.HOURS);
+                return response;
+            } catch (Exception e) {
+                throw new TaskException("Failed to get project information", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return projectInfo;
+    }
+
+    private String getTeamInfoFromCache(UUID teamId) {
+        String teamKey = "team:" + teamId.toString();
+        String teamInfo = (String) redisTemplate.opsForValue().get(teamKey);
+
+        if (teamInfo == null) {
+            try {
+                getTeamInfoProducer.sendMessage(teamId);
+                String response = getTeamInfoConsumer.getResponse();
+
+                // Cache the response with 1 hour expiration
+                redisTemplate.opsForValue().set(teamKey, response, 1, TimeUnit.HOURS);
+                return response;
+            } catch (Exception e) {
+                throw new TaskException("Failed to get team information", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return teamInfo;
+    }
+
     public List<GetMemberTaskResponse> getAllTaskMember(UUID memberId) {
         List<UUID> taskIds = taskAssignmentService.getAllTaskAssignmentMemberId(memberId);
         List<GetMemberTaskResponse> response = new ArrayList<>();
         for (UUID taskId : taskIds) {
             Task task = getTaskById(taskId);
-            getProjectInfoProducer.sendMessage(task.getProjectId());
-            String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
-            String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+            String projectInfo = getProjectInfoFromCache(task.getProjectId());
+            String[] projectResponseSplit = projectInfo.split(",");
             String projectName = projectResponseSplit[0];
-            getTeamInfoProducer.sendMessage(task.getTeamId());
-            String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+            String getTeamInfoConsumerResponse = getTeamInfoFromCache(task.getTeamId());
             response.add(GetMemberTaskResponse.builder()
                     .id(task.getId())
                     .name(task.getName())
@@ -635,13 +628,10 @@ public class TaskService {
             if (task.getStatus().equals("todo")
                     || task.getStatus().equals("in_progress")
                     || task.getStatus().equals("overdue")) {
-
-                getProjectInfoProducer.sendMessage(task.getProjectId());
-                String getProjectInfoConsumerResponse = getProjectInfoConsumer.getResponse();
-                String[] projectResponseSplit = getProjectInfoConsumerResponse.split(",");
+                String projectInfo = getProjectInfoFromCache(task.getProjectId());
+                String[] projectResponseSplit = projectInfo.split(",");
                 String projectName = projectResponseSplit[0];
-                getTeamInfoProducer.sendMessage(task.getTeamId());
-                String getTeamInfoConsumerResponse = getTeamInfoConsumer.getResponse();
+                String getTeamInfoConsumerResponse = getTeamInfoFromCache(task.getTeamId());
                 // get task assignments
                 List<TaskAssignment> taskAssignments = taskAssignmentService.getAllTaskAssignmentByTaskId(task.getId());
                 List<GetTaskAssignmentResponse> taskAssignmentResponses = new ArrayList<>();

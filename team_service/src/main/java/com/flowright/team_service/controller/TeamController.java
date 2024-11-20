@@ -33,7 +33,8 @@ public class TeamController {
     public ResponseEntity<String> createTeam(
             @Valid @RequestBody CreateTeamRequest request, @RequestHeader("access_token") String token) {
         UUID workspaceId = jwtService.extractWorkspaceId(token);
-        return ResponseEntity.ok(teamService.createTeam(request, workspaceId));
+        UUID creatorId = jwtService.extractMemberId(token);
+        return ResponseEntity.ok(teamService.createTeam(request, workspaceId, creatorId));
     }
 
     // get all team in workspace: /team/service/teams

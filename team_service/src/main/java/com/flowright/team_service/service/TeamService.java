@@ -14,6 +14,7 @@ import com.flowright.team_service.dto.TeamDTO.GetTeamOfWorkspaceResponse;
 import com.flowright.team_service.entity.Team;
 import com.flowright.team_service.entity.TeamMember;
 import com.flowright.team_service.kafka.consumer.GetMemberInfoConsumer;
+import com.flowright.team_service.kafka.producer.CreateNotificationProducer;
 import com.flowright.team_service.kafka.producer.GetMemberInfoProducer;
 import com.flowright.team_service.repository.TeamRepository;
 
@@ -34,10 +35,14 @@ public class TeamService {
     @Autowired
     private final GetMemberInfoConsumer getMemberInfoConsumer;
 
+    @Autowired
+    private final CreateNotificationProducer createNotificationProducer;
+
     @Transactional
-    public String createTeam(CreateTeamRequest request, UUID workspaceId) {
+    public String createTeam(CreateTeamRequest request, UUID workspaceId, UUID creatorId) {
         Team team = Team.builder()
                 .leaderId(UUID.fromString(request.getLeaderId()))
+                .creatorId(creatorId)
                 .name(request.getName())
                 .description(request.getDescription())
                 .type(request.getType())
@@ -46,6 +51,12 @@ public class TeamService {
                 .build();
 
         Team savedTeam = teamRepository.save(team);
+        createNotificationProducer.sendMessage(
+                workspaceId,
+                UUID.fromString(request.getLeaderId()),
+                "Team Created",
+                "Team " + team.getName() + " has been created",
+                "/team/management/" + team.getId());
         teamMemberService.addMemberToTeam(savedTeam.getId(), UUID.fromString(request.getLeaderId()));
         return "Team created successfully";
     }
